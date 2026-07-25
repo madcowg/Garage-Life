@@ -121,7 +121,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           </button>
 
           <button onClick={onJunkyard} style={actionBtnStyle("#8a8a4a")}>
-            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, d20 for parts (nat 1 = $5 fee, nat 18 = free upgrade, nat 20 = a car to claim)</span>
+            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, d20 for parts (nat 1 = $5 fee, nat 19 = mod for $10, nat 20 = a car to claim)</span>
           </button>
 
           <button onClick={onStreetRace} style={actionBtnStyle(C.red)}>

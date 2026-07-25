@@ -158,18 +158,20 @@ function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 // Junkyard — 1 AP, a d20 table with a real downside on a nat-1 (the yard
 // still charges you to look around even if you walk out empty-handed).
-// 2-17 and 19: parts, sold for roll×5 — a bad roll barely covers gas, a
-// good one is real money. Nat 18: a free upgrade (App.jsx picks which mod,
-// since that needs meta/career state this pure function doesn't have).
-// Nat 20: a whole locked car sitting in the yard — App.jsx turns this into
-// a time-limited claim offer (JUNKYARD_CAR_CLAIM_PRICE within a month).
+// 2-18: parts, sold for roll×5 — a bad roll barely covers gas, a good one
+// is real money. Nat 19: a Stage 1 mod for a steal (App.jsx picks which
+// one, since that needs meta/career state this pure function doesn't
+// have). Nat 20: a whole locked car sitting in the yard — App.jsx turns
+// this into a time-limited claim offer (JUNKYARD_CAR_CLAIM_PRICE within a
+// month).
 export const JUNKYARD_FEE = 5;
+export const JUNKYARD_UPGRADE_PRICE = 10;
 export const JUNKYARD_CAR_CLAIM_PRICE = 300;
 
 export function resolveJunkyard() {
   const rawRoll = rollD20();
   if (rawRoll === 1) return { rawRoll, cash: -JUNKYARD_FEE, event: "yard_fee", message: `Nothing worth grabbing — and the yard still charges a $${JUNKYARD_FEE} look-around fee.` };
-  if (rawRoll === 18) return { rawRoll, cash: 0, event: "free_upgrade", message: "" };
+  if (rawRoll === 19) return { rawRoll, cash: 0, event: "cheap_upgrade", message: "" };
   if (rawRoll === 20) return { rawRoll, cash: 0, event: "car_find", message: "" };
   return { rawRoll, cash: rawRoll * 5, event: "parts", message: `Found some parts and sold them for $${rawRoll * 5}.` };
 }

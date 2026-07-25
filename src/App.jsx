@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
-  resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE,
+  resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE, JUNKYARD_UPGRADE_PRICE,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
 } from "./game/career";
@@ -356,11 +356,13 @@ export default function App() {
   };
 
   // d20 table (career.js resolveJunkyard): nat-1 pays the yard's look-around
-  // fee and finds nothing; nat-18 is a free mod install (no Shop trip); nat-20
+  // fee and finds nothing; nat-19 is a Stage 1 mod for a steal (bypasses the
+  // usual lifetime-earned unlock threshold — a genuine lucky break, but
+  // this career's equipment only, same as installedMods generally); nat-20
   // finds a locked car sitting in the yard, offered as a time-limited claim
   // (JUNKYARD_CAR_CLAIM_PRICE within a month — see career.junkyardCarOffer).
   // The special rolls fall back to cash when there's nothing left to give
-  // (everything already installed/unlocked, or an offer's already pending).
+  // (everything already installed, or an offer's already pending).
   const handleJunkyard = () => {
     const roll = resolveJunkyard();
     let cashDelta = roll.cash;
@@ -373,13 +375,14 @@ export default function App() {
     if (roll.event === "yard_fee") {
       title = "EMPTY HANDED";
       color = "#888";
-    } else if (roll.event === "free_upgrade") {
-      const uninstalled = MODS.filter(m => meta.unlockedMods.includes(m.id) && !installedModsNext.includes(m.id));
+    } else if (roll.event === "cheap_upgrade") {
+      const uninstalled = MODS.filter(m => !installedModsNext.includes(m.id));
       if (uninstalled.length > 0) {
         const pick = uninstalled[Math.floor(Math.random() * uninstalled.length)];
         installedModsNext = [...installedModsNext, pick.id];
-        title = "FREE UPGRADE!";
-        message = `Found a ${pick.label} in great shape and bolted it straight in — no Shop trip needed.`;
+        cashDelta = -JUNKYARD_UPGRADE_PRICE;
+        title = "SCORE!";
+        message = `Score! You found a ${pick.label} for $${JUNKYARD_UPGRADE_PRICE}.`;
       } else {
         cashDelta = 75 + Math.floor(Math.random() * 26);
         title = "SOLID FIND";

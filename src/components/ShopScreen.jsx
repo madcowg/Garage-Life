@@ -47,8 +47,10 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
       <Section title="MODS">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
           {MODS.map(m => {
-            const unlocked = meta.unlockedMods.includes(m.id);
             const isInstalled = installed.includes(m.id);
+            // A Junkyard nat-19 can install a mod before its cash threshold
+            // is met — installed always wins over the locked display.
+            const unlocked = meta.unlockedMods.includes(m.id) || isInstalled;
             if (!unlocked) {
               return (
                 <div key={m.id} style={{ padding: 8, background: "#0a0a14", border: `1px dashed ${C.border}`, borderRadius: 4, opacity: 0.55 }}>
