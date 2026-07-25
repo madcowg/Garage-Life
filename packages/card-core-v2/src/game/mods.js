@@ -23,6 +23,23 @@ export const TIRES = Object.freeze({
       firstRunColdTireTimePenalty: 0.15,
     },
   },
+  slicks: {
+    id: 'slicks',
+    name: 'Slicks',
+    // Maximum grip, minimum adaptability: all three grip-windows come at the
+    // cost of BOTH Eyes Up cards (no more draw filtering) plus a technique.
+    // Slicks also chew themselves up per event and hate cold first runs —
+    // real R-comp behavior.
+    replacements: [
+      { remove: ['eyes-up'], add: 'grip-window' },
+      { remove: ['eyes-up'], add: 'grip-window' },
+      { remove: ['smooth-inputs', 'neutral-balance', 'rotate-and-exit'], add: 'grip-window' },
+    ],
+    passive: {
+      postEventTireWear: 12,
+      firstRunColdTireTimePenalty: 0.35,
+    },
+  },
 });
 
 export const MODS = Object.freeze({

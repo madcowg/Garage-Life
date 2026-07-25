@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CARS, MODS, TIRE_OPTIONS } from "../game/data";
+import { CARS, MODS, TIRE_CATALOG } from "../game/data";
 import { isModAvailable } from "../game/meta";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
@@ -9,9 +9,11 @@ import { Section, ToggleRow } from "./shared";
 // Shown when the player spends a Race action from CareerHome — mods/tire/
 // gauges/maintenance-checklist, same as the old one-shot Setup screen, minus
 // the car picker (fixed for the career) and filtered to unlocked mods only.
-export default function PreRaceSetup({ career, meta, onStart, onBack }) {
+export default function PreRaceSetup({ career, meta, onStart, onBack, onBuyTire }) {
+  const owned = career.ownedTires ?? ["stock"];
+  const bestOwned = owned.includes("slicks") ? "slicks" : owned.includes("extreme_summer") ? "extreme_summer" : "stock";
   const [mods, setMods] = useState({});
-  const [tire, setTire] = useState("street_perf");
+  const [tire, setTire] = useState(bestOwned);
   const [diagnostics, setDiagnostics] = useState(false);
   const [courseWalk, setCourseWalk] = useState(true);
   const [maintenance, setMaintenance] = useState({ fluids: true, tires: true, brakes: true });
@@ -55,14 +57,28 @@ export default function PreRaceSetup({ career, meta, onStart, onBack }) {
           )}
         </Section>
 
-        <Section title="TIRE COMPOUND">
+        <Section title={`TIRES (cash: $${career.cash})`}>
           <div style={{ display: "flex", gap: 8 }}>
-            {Object.entries(TIRE_OPTIONS).map(([id, t]) => (
-              <button key={id} onClick={() => setTire(id)} style={{ flex: 1, textAlign: "left", padding: 10, background: tire === id ? "#1c1c3a" : C.panel, border: `1px solid ${tire === id ? C.pink : C.border}`, borderRadius: 4, cursor: "pointer", color: C.white }}>
-                <div style={{ fontSize: 10, fontWeight: "bold" }}>{t.label}</div>
-                <div style={{ fontSize: 9, color: "#888" }}>Grip +{t.grip} · Wear ×{t.wearRate}</div>
-              </button>
-            ))}
+            {Object.entries(TIRE_CATALOG).map(([id, t]) => {
+              const isOwned = owned.includes(id);
+              const requiresMet = !t.requires || owned.includes(t.requires);
+              const canBuy = !isOwned && requiresMet && career.cash >= t.price;
+              return (
+                <div key={id} style={{ flex: 1, padding: 10, background: tire === id ? "#1c1c3a" : C.panel, border: `1px solid ${tire === id ? C.pink : isOwned ? C.border : "#1a1a2e"}`, borderRadius: 4, color: C.white, opacity: isOwned || requiresMet ? 1 : 0.55 }}>
+                  <div style={{ fontSize: 10, fontWeight: "bold" }}>{t.label}</div>
+                  <div style={{ fontSize: 8, color: "#888", minHeight: 26, marginTop: 2 }}>{t.desc}</div>
+                  {isOwned ? (
+                    <button onClick={() => setTire(id)} style={{ marginTop: 6, width: "100%", padding: 6, background: tire === id ? C.pink : C.panel2, color: tire === id ? C.purple : C.teal, border: `1px solid ${tire === id ? C.pink : C.teal}`, borderRadius: 3, cursor: "pointer", fontFamily: "monospace", fontSize: 9, fontWeight: "bold" }}>
+                      {tire === id ? "MOUNTED" : "MOUNT"}
+                    </button>
+                  ) : (
+                    <button onClick={() => canBuy && onBuyTire(id, t.price)} disabled={!canBuy} style={{ marginTop: 6, width: "100%", padding: 6, background: canBuy ? C.gold : "#1a1a2e", color: canBuy ? C.purple : "#555", border: "none", borderRadius: 3, cursor: canBuy ? "pointer" : "not-allowed", fontFamily: "monospace", fontSize: 9, fontWeight: "bold" }}>
+                      {!requiresMet ? `NEEDS ${TIRE_CATALOG[t.requires].label.toUpperCase()}` : `BUY $${t.price}`}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Section>
 

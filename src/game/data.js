@@ -68,10 +68,33 @@ export const SAFETY_MOD_ID = "stage1_safety";
 // salary (career.js: baseSalary = STAGE1_TIRE_PRICE / 2).
 export const STAGE1_TIRE_PRICE = 100;
 
+// Legacy tire table — still referenced by the retired dice-era logic.js and
+// its simulation scripts. The career UI uses TIRE_CATALOG below instead.
 export const TIRE_OPTIONS = {
   all_season:  { label: "All-Season",         grip: 0, wearRate: 0.7 },
   street_perf: { label: "Street Performance", grip: 1, wearRate: 1.0 },
   racing:      { label: "Racing Compound",    grip: 2, wearRate: 1.4 },
+};
+
+// Tire purchase progression — tires are bought with career cash, not freely
+// selected (a free picker defeats the point of buying tires). Stock is what
+// the car came on; each step up is a real cash sink and a real deck change
+// (see v2.js TIRE_MAP → engine tiers). Purchases are per-career (they're
+// consumable-ish equipment, not permanent meta unlocks). `requires` gates
+// the natural progression: you don't jump from stock to slicks.
+export const TIRE_CATALOG = {
+  stock: {
+    label: "Stock Tires", price: 0,
+    desc: "What the car came on. They're fine. That's the problem.",
+  },
+  extreme_summer: {
+    label: "Extreme Performance Summer", price: 200,
+    desc: "200-treadwear summer rubber — adds Grip Window cards to the deck.",
+  },
+  slicks: {
+    label: "Slicks", price: 500, requires: "extreme_summer",
+    desc: "Maximum grip, three Grip Windows — but no Eyes Up, brutal cold first runs, and they eat themselves every event.",
+  },
 };
 
 export const GAUGE_DEFS = [

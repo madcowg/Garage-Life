@@ -45,7 +45,7 @@ test('deck builder: planned vehicles are blocked from play', () => {
 
 test('deck builder: unknown ids throw', () => {
   assert.throws(() => buildCompetitiveDeck({ vehicleId: 'delorean' }), /Unknown vehicle/);
-  assert.throws(() => buildCompetitiveDeck({ vehicleId: 'miata_nb', tireId: 'slicks' }), /Unknown tire/);
+  assert.throws(() => buildCompetitiveDeck({ vehicleId: 'miata_nb', tireId: 'space_tires' }), /Unknown tire/);
   assert.throws(() => buildCompetitiveDeck({ vehicleId: 'miata_nb', modIds: ['nitrous'] }), /Unknown mod/);
 });
 

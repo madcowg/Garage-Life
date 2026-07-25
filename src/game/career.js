@@ -31,6 +31,9 @@ export function createNewCareer(car, variant) {
     wear: { engine: 100, tires: 100, brakes: 100, trans: 100 },
     employment: createInitialEmployment(),
     unlocksEarned: [],
+    // Tire purchases are per-career equipment (reset each run, per the
+    // roguelike baseline rule) — see TIRE_CATALOG in data.js.
+    ownedTires: ["stock"],
   };
 }
 

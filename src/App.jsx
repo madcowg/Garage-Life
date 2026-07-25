@@ -97,7 +97,8 @@ export default function App() {
   const continueCareer = () => {
     const snap = loadCareerSnapshot();
     if (!snap) return;
-    setCareer(snap.career);
+    // Normalize saves from before the tire-purchase system existed.
+    setCareer({ ownedTires: ["stock"], ...snap.career });
     setSeasonEnded(snap.seasonEnded ?? false);
     setSeasonGrade(snap.seasonGrade ?? null);
     setScreen(snap.seasonEnded ? "seasonSummary" : "careerHome");
@@ -248,7 +249,13 @@ export default function App() {
     />
   );
   if (screen === "preRaceSetup") return (
-    <PreRaceSetup career={career} meta={meta} onStart={handleStartRace} onBack={() => setScreen("careerHome")} />
+    <PreRaceSetup
+      career={career} meta={meta} onStart={handleStartRace} onBack={() => setScreen("careerHome")}
+      onBuyTire={(tireId, price) => {
+        if (career.cash < price || (career.ownedTires ?? []).includes(tireId)) return;
+        setCareer({ ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId] });
+      }}
+    />
   );
   if (screen === "race") return <CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />;
   if (screen === "raceResult") return (

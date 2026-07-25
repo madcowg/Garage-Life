@@ -30,7 +30,10 @@ const MOD_MAP = {
   stage1_safety: "driver_fit",
 };
 
-const TIRE_MAP = { all_season: "all_season", street_perf: "street_performance", racing: "racing_compound" };
+// Career tire purchase tiers -> engine tiers. Stock maps to the engine
+// baseline (all_season simulated at 0% stock win rate — unusable as a
+// starting tier); each purchase is a real deck upgrade.
+const TIRE_MAP = { stock: "street_performance", extreme_summer: "racing_compound", slicks: "slicks" };
 
 // Maintenance checklist -> engine skipped-maintenance systems.
 const CHECKLIST_SYSTEM = { fluids: "engine", tires: "tires", brakes: "brakes" };
