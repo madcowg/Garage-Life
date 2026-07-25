@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { CARS, MODS, TIRE_OPTIONS, GAUGE_DEFS } from "../game/data";
+import { useState, useMemo } from "react";
+import { CARS, MODS, TIRE_OPTIONS } from "../game/data";
 import { isModAvailable } from "../game/meta";
+import { buildPreRacePreview, getCard } from "../game/v2";
+import { GameCard } from "./CardHand";
 import { C } from "../theme";
 import { Section, ToggleRow } from "./shared";
 
@@ -10,12 +12,19 @@ import { Section, ToggleRow } from "./shared";
 export default function PreRaceSetup({ career, meta, onStart, onBack }) {
   const [mods, setMods] = useState({});
   const [tire, setTire] = useState("street_perf");
-  const [gauges, setGauges] = useState({});
+  const [diagnostics, setDiagnostics] = useState(false);
+  const [courseWalk, setCourseWalk] = useState(true);
   const [maintenance, setMaintenance] = useState({ fluids: true, tires: true, brakes: true });
 
   const car = CARS[career.car];
   const availableMods = MODS.filter(m => isModAvailable(meta, m.id, m));
   const lockedMods = MODS.filter(m => !isModAvailable(meta, m.id, m));
+
+  const loadout = { car: career.car, variant: career.variant, mods, tire, diagnostics, courseWalk, maintenance };
+  const preview = useMemo(() => {
+    try { return buildPreRacePreview(loadout, career.wear); } catch { return null; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [career.car, career.wear, mods, tire, diagnostics, courseWalk, maintenance]);
 
   return (
     <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
@@ -57,32 +66,48 @@ export default function PreRaceSetup({ career, meta, onStart, onBack }) {
           </div>
         </Section>
 
-        <Section title="GAUGES (visibility, not performance)">
+        <Section title="EVENT PREP (information, not performance)">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            {GAUGE_DEFS.map(g => (
-              <ToggleRow key={g.id} label={g.label} desc={`Reveals ${g.covers} stress`} active={!!gauges[g.id]} onClick={() => setGauges(s => ({ ...s, [g.id]: !s[g.id] }))} />
-            ))}
+            <ToggleRow label="Basic Diagnostics" desc="Reveals exactly which hazards are in your deck" active={diagnostics} onClick={() => setDiagnostics(v => !v)} />
+            <ToggleRow label="Walk the Course" desc="Skip = risk Course Confusion (DNF)" active={courseWalk} onClick={() => setCourseWalk(v => !v)} />
           </div>
         </Section>
 
         <Section title="PRE-RACE MAINTENANCE CHECKLIST">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
-            <ToggleRow label="Check Fluids" desc="Skip = engine risk" active={maintenance.fluids} onClick={() => setMaintenance(s => ({ ...s, fluids: !s.fluids }))} />
-            <ToggleRow label="Check Tires"  desc="Skip = tire risk"   active={maintenance.tires}  onClick={() => setMaintenance(s => ({ ...s, tires: !s.tires }))} />
-            <ToggleRow label="Check Brakes" desc="Skip = brake risk"  active={maintenance.brakes} onClick={() => setMaintenance(s => ({ ...s, brakes: !s.brakes }))} />
+            <ToggleRow label="Check Fluids" desc="Skip = 2 engine hazards" active={maintenance.fluids} onClick={() => setMaintenance(s => ({ ...s, fluids: !s.fluids }))} />
+            <ToggleRow label="Check Tires"  desc="Skip = 2 tire hazards"   active={maintenance.tires}  onClick={() => setMaintenance(s => ({ ...s, tires: !s.tires }))} />
+            <ToggleRow label="Check Brakes" desc="Skip = 2 brake hazards"  active={maintenance.brakes} onClick={() => setMaintenance(s => ({ ...s, brakes: !s.brakes }))} />
           </div>
         </Section>
 
+        {preview && (
+          <Section title={`YOUR DECK (${preview.deck.cardIds.length} cards${preview.hazardIds.length ? ` + ${preview.hazardIds.length} hazards` : ""})`}>
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
+              {[...preview.deck.cardIds].sort().map((id, i) => (
+                <GameCard key={`${id}-${i}`} card={getCard(id)} small />
+              ))}
+            </div>
+            {preview.hazardIds.length > 0 && (
+              <div style={{ fontSize: 10, color: C.red, marginTop: 6 }}>
+                ⚠ {preview.preview.exact
+                  ? Object.entries(preview.preview.exact).map(([id, n]) => `${n}× ${getCard(id).name}`).join(", ")
+                  : `${preview.hazardIds.length} hazard cards in the deck${preview.preview.unknown ? ` (${preview.preview.unknown} unknown — no diagnostics)` : ""}`}
+              </div>
+            )}
+          </Section>
+        )}
+
         <div style={{ textAlign: "center", fontSize: 9, color: "#666", margin: "12px 0", lineHeight: 1.5 }}>
-          Your course is randomly generated on rollout. Retrying after a run stays on the same course — like a real
-          autocross event, you get multiple runs at the same layout — logged to your Course Log after each finish.
+          The event is 4 timed runs on one course — best run counts. Your deck is your car: play one Line card
+          per segment (plus an optional Utility). On-affinity cards get full effect.
         </div>
 
         <button
-          onClick={() => onStart({ car: career.car, variant: career.variant, mods, tire, gauges, maintenance })}
+          onClick={() => onStart(loadout)}
           style={{ width: "100%", padding: "14px 0", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: "pointer", letterSpacing: 2 }}
         >
-          ROLL OUT →
+          REGISTER & GRID UP →
         </button>
       </div>
     </div>

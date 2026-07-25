@@ -1,0 +1,13 @@
+{
+  "name": "garage-life-card-core-v2",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "simulate": "node scripts/simulate-cardgame.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { SEGMENTS as SEG_DATA } from "./game/data";
-import { generateCourse, computeTarget, resolveDecision } from "./game/logic";
-import { buildTrack } from "./game/track";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade, MAINTAIN_COST, SELF_MAINTAIN_COST,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, archiveCareer } from "./game/meta";
 import TrackCanvas from "./components/TrackCanvas";
-import RoadView from "./components/RoadView";
-import HUD from "./components/HUD";
-import DiceWidget from "./components/DiceWidget";
-import CourseLog, { saveCourseToLog } from "./components/CourseLog";
+import CourseLog from "./components/CourseLog";
+import CardRaceScreen from "./components/CardRaceScreen";
 import NewCareerScreen from "./components/NewCareerScreen";
 import CareerHome from "./components/CareerHome";
 import PreRaceSetup from "./components/PreRaceSetup";
@@ -19,119 +14,10 @@ import ActionResultScreen from "./components/ActionResultScreen";
 import SeasonSummaryScreen from "./components/SeasonSummaryScreen";
 import { C } from "./theme";
 
-const SEG_COLOR = Object.fromEntries(Object.entries(SEG_DATA).map(([k, v]) => [k, v.color]));
-const SEG_DESC = Object.fromEntries(Object.entries(SEG_DATA).map(([k, v]) => [k, v.desc]));
-const SEG_LABEL = Object.fromEntries(Object.entries(SEG_DATA).map(([k, v]) => [k, `${v.icon} ${v.label}`]));
-
-// A couple of courses through the season get palm-tree/sunset scenery
-// (Outrun vaporwave vibe) instead of the default plain sunset — pure
-// scenery variety, tied to the calendar month, no gameplay effect.
-function courseThemeForMonth(month) {
-  return month % 3 === 0 ? "palm" : "default";
-}
-
-function RaceScreen({ loadout, session, initialWear, month, onFinish }) {
-  const { course, target, track } = session;
-
-  const [idx, setIdx] = useState(0);
-  const [phase, setPhase] = useState("decide");
-  const [wear, setWear] = useState(initialWear);
-  const [log, setLog] = useState([]);
-  const [totalTime, setTotalTime] = useState(0);
-  const [cones, setCones] = useState(0);
-  const [blindPenalty, setBlindPenalty] = useState(0);
-  const [blindHazardCount, setBlindHazardCount] = useState(0);
-  const [lastResult, setLastResult] = useState(null);
-  const [rollToken, setRollToken] = useState(0);
-  const [rollValue, setRollValue] = useState(1);
-
-  const segKey = course[idx];
-  const decisionsFor = SEG_DATA[segKey].decisions;
-
-  const handleDecision = (decisionIdx) => {
-    const { segTime, newWear, outcome, logEntry } = resolveDecision(segKey, decisionIdx, loadout, wear);
-    setWear(newWear);
-    setTotalTime(t => t + segTime);
-    if (outcome.isCone) setCones(c => c + 1);
-    if (outcome.blind) {
-      setBlindPenalty(b => b + outcome.penalty);
-      setBlindHazardCount(n => n + 1);
-    }
-    setLog(l => [...l, logEntry]);
-    setLastResult(logEntry);
-    setRollValue(outcome.roll);
-    setRollToken(tok => tok + 1);
-    setPhase("reveal");
-  };
-
-  const nextSegment = () => {
-    if (idx + 1 >= course.length) {
-      const finalWon = totalTime <= target;
-      saveCourseToLog({ track, car: loadout.car, time: totalTime, target, won: finalWon, at: Date.now() });
-      onFinish({ course, log, totalTime, cones, blindPenalty, blindHazardCount, wear, loadout, target, track });
-    } else {
-      setIdx(i => i + 1);
-      setPhase("decide");
-      setLastResult(null);
-    }
-  };
-
-  const carT = phase === "decide" ? 0.1 : 0.9;
-
-  return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
-        <div style={{ fontSize: 10, color: "#888", marginBottom: 6 }}>SEGMENT {idx + 1} / {course.length}</div>
-
-        <RoadView track={track} activeSegIndex={idx} carT={carT} carId={loadout.car} variant={loadout.variant} theme={courseThemeForMonth(month)} />
-        <div style={{ height: 10 }} />
-        <HUD loadout={loadout} wear={wear} totalTime={totalTime} target={target} track={track} activeSegIndex={idx} carT={carT} />
-
-        <div style={{ background: C.panel, border: `2px solid ${SEG_COLOR[segKey]}`, borderRadius: 6, padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 18, marginBottom: 4, color: SEG_COLOR[segKey], fontWeight: "bold" }}>{SEG_LABEL[segKey]}</div>
-          <div style={{ fontSize: 11, color: "#aaa" }}>{SEG_DESC[segKey]}</div>
-        </div>
-
-        {phase === "decide" && (
-          <div>
-            <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>YOUR DRIVING DECISION</div>
-            {decisionsFor.map((d, i) => (
-              <button key={d.id} onClick={() => handleDecision(i)} style={{ width: "100%", textAlign: "left", padding: 12, marginBottom: 8, background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", color: C.white }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontWeight: "bold", fontSize: 11 }}>{d.label}</span>
-                  <span style={{ fontSize: 10, color: C.gold }}>~{d.time.toFixed(1)}s base</span>
-                </div>
-                <div style={{ fontSize: 9, color: "#888" }}>{d.desc}</div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {phase === "reveal" && lastResult && (
-          <div>
-            <div style={{ background: C.panel2, border: `1px solid ${lastResult.color}`, borderRadius: 6, padding: 14, marginBottom: 12, textAlign: "center" }}>
-              <div style={{ fontSize: 24 }}>{lastResult.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: "bold", color: lastResult.color }}>{lastResult.card}</div>
-              <div style={{ fontSize: 9, color: "#666" }}>rolled {lastResult.roll}</div>
-              <div style={{ fontSize: 16, fontWeight: "bold", marginTop: 6, color: C.white }}>{lastResult.time.toFixed(3)}s</div>
-              {lastResult.blind && <div style={{ fontSize: 9, color: C.red, marginTop: 4 }}>⚠ BLIND HAZARD — no gauge coverage</div>}
-            </div>
-            <button onClick={nextSegment} style={{ width: "100%", padding: 12, background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", cursor: "pointer", letterSpacing: 1 }}>
-              {idx + 1 >= course.length ? "SEE RESULTS →" : "NEXT SEGMENT →"}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <DiceWidget rollToken={rollToken} value={rollValue} label="CONSEQUENCE DIE" rawRoll={lastResult?.rawRoll} secondRoll={lastResult?.secondRoll} modifier={lastResult?.modifier} />
-    </div>
-  );
-}
-
 function RaceResultScreen({ result, onContinue, onViewLog }) {
-  const { log, totalTime, cones, blindPenalty, wear, target, track, reward } = result;
-  const diff = totalTime - target;
-  const won = diff <= 0;
+  const { bestTime, targetTime, bestCones, runs, wearAfter, track, reward } = result;
+  const won = bestTime != null && bestTime <= targetTime;
+  const diff = bestTime != null ? bestTime - targetTime : null;
 
   return (
     <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
@@ -140,11 +26,10 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
         <div style={{ height: 12 }} />
 
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: won ? C.gold : C.orange, letterSpacing: 2 }}>{won ? "🏆 TARGET BEATEN" : "RUN COMPLETE"}</div>
-          <div style={{ fontSize: 26, fontWeight: "bold", marginTop: 6 }}>{totalTime.toFixed(3)}s</div>
-          <div style={{ fontSize: 11, color: won ? C.green : C.red }}>{diff > 0 ? "+" : ""}{diff.toFixed(3)}s vs target ({target.toFixed(1)}s)</div>
-          {cones > 0 && <div style={{ fontSize: 10, color: C.red, marginTop: 4 }}>🔺 {cones} cone{cones > 1 ? "s" : ""} hit</div>}
-          {blindPenalty > 0 && <div style={{ fontSize: 10, color: C.red, marginTop: 2 }}>⚠ {blindPenalty.toFixed(2)}s lost to unseen hazards — install gauges to see them coming</div>}
+          <div style={{ fontSize: 18, fontWeight: "bold", color: won ? C.gold : C.orange, letterSpacing: 2 }}>{won ? "🏆 TARGET BEATEN" : bestTime == null ? "EVENT DNF" : "EVENT COMPLETE"}</div>
+          <div style={{ fontSize: 26, fontWeight: "bold", marginTop: 6 }}>{bestTime != null ? `${bestTime.toFixed(2)}s` : "—"}</div>
+          {diff != null && <div style={{ fontSize: 11, color: won ? C.green : C.red }}>{diff > 0 ? "+" : ""}{diff.toFixed(2)}s vs target ({targetTime.toFixed(2)}s)</div>}
+          {bestCones > 0 && <div style={{ fontSize: 10, color: C.red, marginTop: 4 }}>🔺 {bestCones} cone{bestCones > 1 ? "s" : ""} on your best run</div>}
           {reward && (
             <div style={{ fontSize: 13, fontWeight: "bold", marginTop: 10, color: C.gold }}>
               +${reward.cash} cash{reward.reputation > 0 ? ` · +${reward.reputation} reputation` : ""}
@@ -153,28 +38,31 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
         </div>
 
         <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 10, marginBottom: 12 }}>
-          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>SECTOR BREAKDOWN</div>
-          {log.map((s, i) => (
+          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>RUN SHEET</div>
+          {runs.map((r, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${C.border}` }}>
-              <span style={{ fontSize: 9, color: "#999", width: 70 }}>{s.seg}</span>
-              <span style={{ fontSize: 8, color: "#666", flex: 1 }}>{s.decision}</span>
-              <span style={{ fontSize: 9, color: s.color }}>{s.icon} {s.card} (d6:{s.roll})</span>
-              <span style={{ fontSize: 10, fontWeight: "bold", width: 50, textAlign: "right" }}>{s.time.toFixed(3)}s</span>
+              <span style={{ fontSize: 9, color: "#999" }}>Run {i + 1}</span>
+              <span style={{ fontSize: 9, color: r.dnf ? C.red : "#ccc", flex: 1, textAlign: "center" }}>
+                {r.dnf ? "DNF" : `${r.time.toFixed(2)}s`}{r.cones ? ` · ${r.cones} 🔺` : ""}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: "bold", color: !r.dnf && r.time === bestTime ? C.gold : "#666" }}>
+                {!r.dnf && r.time === bestTime ? "BEST" : ""}
+              </span>
             </div>
           ))}
         </div>
 
         <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 10, marginBottom: 16 }}>
-          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>WEAR REPORT (post-run)</div>
+          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>WEAR REPORT (post-event)</div>
           <div style={{ display: "flex", gap: 16, justifyContent: "space-around" }}>
-            {[["Engine", wear.engine], ["Tires", wear.tires], ["Brakes", wear.brakes], ["Trans", wear.trans]].map(([l, v]) => (
+            {[["Engine", wearAfter.engine], ["Tires", wearAfter.tires], ["Brakes", wearAfter.brakes], ["Trans", wearAfter.trans]].map(([l, v]) => (
               <div key={l} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 8, color: "#777" }}>{l}</div>
                 <div style={{ fontSize: 13, fontWeight: "bold", color: v > 60 ? C.green : v > 30 ? C.orange : C.red }}>{Math.round(v)}%</div>
               </div>
             ))}
           </div>
-          {Object.values(wear).some(v => v < 40) && <div style={{ fontSize: 9, color: C.orange, marginTop: 8 }}>⚠ Systems below 40% — spend a Maintain action before your next race</div>}
+          {Object.values(wearAfter).some(v => v < 40) && <div style={{ fontSize: 9, color: C.orange, marginTop: 8 }}>⚠ Systems below 40% — spend a Maintain action before your next event</div>}
         </div>
 
         <div style={{ display: "flex", gap: 8 }}>
@@ -191,7 +79,6 @@ export default function App() {
   const [career, setCareer] = useState(null);
   const [screen, setScreen] = useState("newCareer");
   const [prevScreen, setPrevScreen] = useState("careerHome");
-  const [session, setSession] = useState(null);
   const [loadout, setLoadout] = useState(null);
   const [raceResult, setRaceResult] = useState(null);
   const [actionResult, setActionResult] = useState(null);
@@ -233,16 +120,19 @@ export default function App() {
   const goHomeOrSummary = () => setScreen(seasonEnded ? "seasonSummary" : "careerHome");
 
   const handleStartRace = (l) => {
-    const course = generateCourse();
-    const target = computeTarget(course, l.car);
-    const track = buildTrack(course, Math.random());
     setLoadout(l);
-    setSession({ course, target, track });
     setScreen("race");
   };
 
+  // Card-game event result (from CardRaceScreen/AutocrossEvent): bestTime of
+  // 4 runs vs engine target; DNF events pay the minimum finisher's purse.
   const handleRaceFinish = (result) => {
-    const reward = computeRaceReward({ totalTime: result.totalTime, target: result.target, conesHit: result.cones, blindHazardCount: result.blindHazardCount });
+    const reward = computeRaceReward({
+      totalTime: result.bestTime ?? result.targetTime + 99,
+      target: result.targetTime,
+      conesHit: result.bestCones,
+      blindHazardCount: result.hazardsFiredInBest,
+    });
     const updated = {
       ...career,
       cash: career.cash + reward.cash,
@@ -251,7 +141,7 @@ export default function App() {
       racesEntered: career.racesEntered + 1,
       wins: career.wins + (reward.won ? 1 : 0),
       cleanWins: career.cleanWins + (reward.cleanWin ? 1 : 0),
-      wear: result.wear,
+      wear: result.wearAfter,
     };
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
     setMeta(nextMeta);
@@ -335,7 +225,7 @@ export default function App() {
   if (screen === "preRaceSetup") return (
     <PreRaceSetup career={career} meta={meta} onStart={handleStartRace} onBack={() => setScreen("careerHome")} />
   );
-  if (screen === "race") return <RaceScreen loadout={loadout} session={session} initialWear={career.wear} month={career.month} onFinish={handleRaceFinish} />;
+  if (screen === "race") return <CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />;
   if (screen === "raceResult") return (
     <RaceResultScreen result={raceResult} onContinue={goHomeOrSummary} onViewLog={() => { setPrevScreen("raceResult"); setScreen("log"); }} />
   );
