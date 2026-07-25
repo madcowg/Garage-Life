@@ -1,4 +1,5 @@
 import { CARS, MODS } from "../game/data";
+import { SEASON_GRADE_LABEL } from "../game/career";
 import { C } from "../theme";
 import { Shell } from "./shared";
 
@@ -13,15 +14,16 @@ export default function SeasonSummaryScreen({ career, grade, unlocksEarned, onNe
   return (
     <Shell maxWidth={560}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 14, color: C.teal, letterSpacing: 2 }}>SEASON COMPLETE</div>
+          <div style={{ fontSize: 14, color: C.teal, letterSpacing: 2 }}>POINTS CHASE CONCLUDED</div>
           <div style={{ fontSize: 64, fontWeight: "bold", color: GRADE_COLOR[grade] || C.white, lineHeight: 1 }}>{grade}</div>
+          <div style={{ fontSize: 12, color: C.gold, fontWeight: "bold", letterSpacing: 1, marginTop: 4 }}>{SEASON_GRADE_LABEL[grade] || ""}</div>
           <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{car.name}{career.variant ? ` (${career.variant})` : ""}</div>
         </div>
 
         <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
           <Stat label="LIFETIME EARNED" value={`$${career.lifetimeCashEarned}`} color={C.gold} />
           <Stat label="FINAL CASH" value={`$${career.cash}`} color={C.gold} />
-          <Stat label="REPUTATION" value={career.reputation} color={C.teal} />
+          <Stat label="POINTS" value={career.reputation} color={C.teal} />
         </div>
 
         <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12, marginBottom: 16 }}>

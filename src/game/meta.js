@@ -9,7 +9,7 @@
 export const META_KEY = "garageLifeMeta";
 
 function defaultMeta() {
-  return { unlockedCars: [], unlockedMods: [], careerHistory: [] };
+  return { unlockedCars: [], unlockedMods: [], careerHistory: [], codexUnlocked: [], achievementsUnlocked: [] };
 }
 
 export function loadMeta() {
@@ -38,6 +38,29 @@ export function unlockMod(meta, modId) {
   if (meta.unlockedMods.includes(modId)) return meta;
   const next = { ...meta, unlockedMods: [...meta.unlockedMods, modId] };
   saveMeta(next);
+  return next;
+}
+
+export function unlockCodexEntry(meta, codexId) {
+  if (meta.codexUnlocked.includes(codexId)) return meta;
+  const next = { ...meta, codexUnlocked: [...meta.codexUnlocked, codexId] };
+  saveMeta(next);
+  return next;
+}
+
+export function unlockAchievement(meta, achievementId) {
+  if (meta.achievementsUnlocked.includes(achievementId)) return meta;
+  const next = { ...meta, achievementsUnlocked: [...meta.achievementsUnlocked, achievementId] };
+  saveMeta(next);
+  return next;
+}
+
+// Applies both halves of a story trigger's permanent payoff (achievements +
+// codex entries) in one call — see story.js resolveTriggerUnlocks.
+export function applyTriggerUnlocks(meta, { achievements = [], codex = [] }) {
+  let next = meta;
+  achievements.forEach(id => { next = unlockAchievement(next, id); });
+  codex.forEach(id => { next = unlockCodexEntry(next, id); });
   return next;
 }
 

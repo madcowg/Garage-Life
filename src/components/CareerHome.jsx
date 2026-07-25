@@ -1,5 +1,5 @@
 import { CARS } from "../game/data";
-import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS } from "../game/career";
+import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, ENTRY_FEE } from "../game/career";
 import { C } from "../theme";
 import { Shell } from "./shared";
 
@@ -27,7 +27,7 @@ function actionBtnStyle(color, disabled) {
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
 // (App.jsx) owns all career state and resolution logic.
-export default function CareerHome({ career, onRace, onWork, onMaintain, onViewLog }) {
+export default function CareerHome({ career, onRace, onWork, onMaintain, onViewLog, onViewCodex }) {
   const car = CARS[career.car];
   const emp = career.employment;
   const maintainCost = emp.status === "unemployed" ? SELF_MAINTAIN_COST : MAINTAIN_COST;
@@ -40,7 +40,10 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
             <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>GARAGE LIFE</div>
             <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2 }}>MONTH {career.month} / {SEASON_LENGTH_MONTHS} — {career.ap} AP LEFT</div>
           </div>
-          <button onClick={onViewLog} style={{ padding: "8px 12px", background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📋 COURSE LOG</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={onViewCodex} style={{ padding: "8px 12px", background: C.panel, color: C.pink, border: `1px solid ${C.pink}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📖 CODEX</button>
+            <button onClick={onViewLog} style={{ padding: "8px 12px", background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📋 COURSE LOG</button>
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
@@ -49,7 +52,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
             <div style={{ fontSize: 18, fontWeight: "bold", color: C.gold }}>${career.cash}</div>
           </div>
           <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
-            <div style={{ fontSize: 8, color: "#888" }}>REPUTATION</div>
+            <div style={{ fontSize: 8, color: "#888" }}>POINTS</div>
             <div style={{ fontSize: 18, fontWeight: "bold", color: C.teal }}>{career.reputation}</div>
           </div>
           <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
@@ -73,7 +76,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
         <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>THIS MONTH'S ACTIONS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <button onClick={onRace} style={actionBtnStyle(C.pink)}>
-            🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, enter an autocross event</span>
+            🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, ${ENTRY_FEE} entry fee, autocross event at the Airfield</span>
           </button>
 
           {emp.status === "employed" && (

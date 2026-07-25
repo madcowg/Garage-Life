@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
-  computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade, MAINTAIN_COST, SELF_MAINTAIN_COST,
+  computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
+  MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
 } from "./game/career";
-import { loadMeta, unlockMod, unlockCar, archiveCareer } from "./game/meta";
+import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
+import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS } from "./game/story";
+import { MODS } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
 import { Shell } from "./components/shared";
@@ -15,6 +18,8 @@ import CareerHome from "./components/CareerHome";
 import PreRaceSetup from "./components/PreRaceSetup";
 import ActionResultScreen from "./components/ActionResultScreen";
 import SeasonSummaryScreen from "./components/SeasonSummaryScreen";
+import StorySnippetScreen from "./components/StorySnippetScreen";
+import CodexScreen from "./components/CodexScreen";
 import { C } from "./theme";
 
 function RaceResultScreen({ result, onContinue, onViewLog }) {
@@ -85,6 +90,8 @@ export default function App() {
   const [actionResult, setActionResult] = useState(null);
   const [seasonEnded, setSeasonEnded] = useState(false);
   const [seasonGrade, setSeasonGrade] = useState(null);
+  const [storyQueue, setStoryQueue] = useState([]);
+  const [storyReturnScreen, setStoryReturnScreen] = useState("careerHome");
 
   // Persist the in-progress career after every state change so "Continue
   // Career" on the title screen survives a closed tab. Meta (unlocks) has
@@ -96,11 +103,44 @@ export default function App() {
   const continueCareer = () => {
     const snap = loadCareerSnapshot();
     if (!snap) return;
-    // Normalize saves from before the tire-purchase system existed.
-    setCareer({ ownedTires: ["stock"], ...snap.career });
+    // Normalize saves from before the tire-purchase / story systems existed.
+    setCareer({ ownedTires: ["stock"], eventsRegistered: 0, storySeen: [], ...snap.career });
     setSeasonEnded(snap.seasonEnded ?? false);
     setSeasonGrade(snap.seasonGrade ?? null);
     setScreen(snap.seasonEnded ? "seasonSummary" : "careerHome");
+  };
+
+  // Diffs career state before/after an action for newly-fired story beats
+  // (game/story.js), applies their permanent codex/achievement payoff to
+  // meta immediately, and marks per-career triggers as seen. Returns the
+  // updated career/meta plus which triggers fired (caller decides whether
+  // to route through the "story" screen before landing on afterScreen).
+  const runStoryCheck = (prevCareer, nextCareer, extra, currentMeta) => {
+    const triggers = getNewStoryTriggers({ prevCareer, nextCareer, ...extra });
+    if (triggers.length === 0) return { career: nextCareer, meta: currentMeta, triggers };
+    let nextMeta = currentMeta;
+    triggers.forEach(t => { nextMeta = applyTriggerUnlocks(nextMeta, resolveTriggerUnlocks(t, { carId: nextCareer.car })); });
+    const newlySeen = triggers.filter(t => PER_CAREER_TRIGGERS.has(t));
+    const careerWithSeen = { ...nextCareer, storySeen: [...(nextCareer.storySeen || []), ...newlySeen] };
+    return { career: careerWithSeen, meta: nextMeta, triggers };
+  };
+
+  // Lands on afterScreen directly, or detours through the story screen
+  // first if any triggers fired this action.
+  const proceedAfterStory = (triggers, afterScreen) => {
+    if (triggers.length > 0) {
+      setStoryQueue(triggers);
+      setStoryReturnScreen(afterScreen);
+      setScreen("story");
+    } else {
+      setScreen(afterScreen);
+    }
+  };
+
+  const handleStoryContinue = () => {
+    const rest = storyQueue.slice(1);
+    if (rest.length > 0) setStoryQueue(rest);
+    else { setStoryQueue([]); setScreen(storyReturnScreen); }
   };
 
   const applyUnlocks = (updatedCareer, currentMeta) => {
@@ -113,33 +153,51 @@ export default function App() {
     return { meta: nextMeta, career: { ...updatedCareer, unlocksEarned: [...updatedCareer.unlocksEarned, ...newlyUnlocked] } };
   };
 
-  const finishSeason = (finalCareer, finalMeta) => {
+  // The season doesn't end on a bare calendar cutoff — the last scored event
+  // concludes the local points chase, and the grade decides the Nationals
+  // bid (see career.js SEASON_GRADE_STORY_TRIGGER). extraTriggers carries
+  // any per-career story beats (e.g. final_month) that fired the same action.
+  const finishSeason = (finalCareer, finalMeta, extraTriggers = []) => {
     const grade = computeSeasonGrade({ wins: finalCareer.wins, races: finalCareer.racesEntered, reputation: finalCareer.reputation });
+    const seasonEndTrigger = SEASON_GRADE_STORY_TRIGGER[grade];
+    const metaWithSeasonEnd = applyTriggerUnlocks(finalMeta, resolveTriggerUnlocks(seasonEndTrigger));
     const summary = {
       seasonGrade: grade, finalCar: { id: finalCareer.car, variant: finalCareer.variant },
       totalCash: finalCareer.lifetimeCashEarned, totalReputation: finalCareer.reputation,
       races: { entered: finalCareer.racesEntered, won: finalCareer.wins, cleanWins: finalCareer.cleanWins },
       unlocksEarned: finalCareer.unlocksEarned, completedAt: Date.now(),
     };
-    const archivedMeta = archiveCareer(finalMeta, summary);
+    const archivedMeta = archiveCareer(metaWithSeasonEnd, summary);
     setMeta(archivedMeta);
     setCareer(finalCareer);
     setSeasonGrade(grade);
     setSeasonEnded(true);
+    proceedAfterStory([...extraTriggers, seasonEndTrigger], "seasonSummary");
   };
 
   const startCareer = ({ car, variant }) => {
-    setCareer(createNewCareer(car, variant));
+    const newCareer = createNewCareer(car, variant);
+    const nextMeta = applyTriggerUnlocks(meta, resolveTriggerUnlocks("career_start", { carId: car }));
+    setMeta(nextMeta);
+    setCareer({ ...newCareer, storySeen: ["career_start"] });
     setSeasonEnded(false);
     setSeasonGrade(null);
-    setScreen("careerHome");
+    proceedAfterStory(["career_start"], "careerHome");
   };
 
   const goHomeOrSummary = () => setScreen(seasonEnded ? "seasonSummary" : "careerHome");
 
+  // Real autocross events cost a flat entry fee regardless of outcome —
+  // paid at registration, not deducted from the eventual purse. PreRaceSetup
+  // disables the button when unaffordable; this guard covers stale state.
   const handleStartRace = (l) => {
+    if (career.cash < ENTRY_FEE) return;
+    const paid = { ...career, cash: career.cash - ENTRY_FEE, eventsRegistered: career.eventsRegistered + 1 };
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
+    setMeta(metaWithStory);
+    setCareer(careerWithStory);
     setLoadout(l);
-    setScreen("race");
+    proceedAfterStory(triggers, "race");
   };
 
   // Card-game event result (from CardRaceScreen/AutocrossEvent): bestTime of
@@ -161,13 +219,23 @@ export default function App() {
       cleanWins: career.cleanWins + (reward.cleanWin ? 1 : 0),
       wear: result.wearAfter,
     };
+    const newMods = checkModUnlocks(updated.lifetimeCashEarned, meta.unlockedMods);
+    const newCars = checkCarUnlocks({ reputation: updated.reputation, wins: updated.wins }, meta.unlockedCars);
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
-    setMeta(nextMeta);
+    let metaWithAch = nextMeta;
+    if (reward.cleanWin) metaWithAch = unlockAchievement(metaWithAch, "clean_win");
+    if (MODS.every(m => metaWithAch.unlockedMods.includes(m.id))) metaWithAch = unlockAchievement(metaWithAch, "stage1_complete");
+
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods, newCars }, metaWithAch);
     setRaceResult({ ...result, reward });
-    if (ended) finishSeason(advanced, nextMeta);
-    else setCareer(advanced);
-    setScreen("raceResult");
+    if (ended) {
+      finishSeason(careerWithStory, metaWithStory, triggers);
+    } else {
+      setMeta(metaWithStory);
+      setCareer(careerWithStory);
+      proceedAfterStory(triggers, "raceResult");
+    }
   };
 
   const handleWork = () => {
@@ -177,15 +245,20 @@ export default function App() {
         ? { ...career.employment, status: hunt.instant ? "employed" : "pending", tenureMonths: 0 }
         : career.employment;
       const { career: advanced, seasonEnded: ended } = advanceAfterAction({ ...career, employment: newEmployment });
+      const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
       const result = hunt.success
         ? { title: hunt.instant ? "HIRED — NATURAL 20!" : "HIRED", icon: "🎉", color: C.green,
             message: hunt.instant ? "Hired on the spot — you can Work again this month." : "Hired! Your new job starts next month.",
             detail: `Rolled ${hunt.rawRoll}` }
         : { title: "STILL LOOKING", icon: "😕", color: C.orange, message: "No luck this month (need 11+ on a d20). Try again next month.", detail: `Rolled ${hunt.rawRoll}` };
-      if (ended) finishSeason(advanced, meta);
-      else setCareer(advanced);
       setActionResult(result);
-      setScreen("actionResult");
+      if (ended) {
+        finishSeason(careerWithStory, metaWithStory, triggers);
+      } else {
+        setMeta(metaWithStory);
+        setCareer(careerWithStory);
+        proceedAfterStory(triggers, "actionResult");
+      }
       return;
     }
 
@@ -196,9 +269,10 @@ export default function App() {
       lifetimeCashEarned: career.lifetimeCashEarned + work.cash,
       employment: work.newEmployment,
     };
+    const newMods = checkModUnlocks(updated.lifetimeCashEarned, meta.unlockedMods);
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
-    setMeta(nextMeta);
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
 
     const EVENT_STYLE = {
       fired: ["FIRED", "💥", C.red], bad_economy: ["SLOW MONTH", "📉", C.orange],
@@ -207,10 +281,14 @@ export default function App() {
     const [title, icon, color] = EVENT_STYLE[work.event];
     const detail = `Rolled ${work.rawRoll}${work.modifier ? ` +${work.modifier} tenure → ${work.effectiveRoll}` : ""}${work.promoRoll ? ` — promotion roll (d10): ${work.promoRoll}` : ""}`;
 
-    if (ended) finishSeason(advanced, nextMeta);
-    else setCareer(advanced);
     setActionResult({ title, icon, color, message: work.message, detail, cashDelta: work.cash });
-    setScreen("actionResult");
+    if (ended) {
+      finishSeason(careerWithStory, metaWithStory, triggers);
+    } else {
+      setMeta(metaWithStory);
+      setCareer(careerWithStory);
+      proceedAfterStory(triggers, "actionResult");
+    }
   };
 
   const handleMaintain = () => {
@@ -218,8 +296,7 @@ export default function App() {
     const cost = selfService ? SELF_MAINTAIN_COST : MAINTAIN_COST;
     const updated = { ...career, cash: career.cash - cost, wear: { engine: 100, tires: 100, brakes: 100, trans: 100 } };
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
-    if (ended) finishSeason(advanced, meta);
-    else setCareer(advanced);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
     setActionResult({
       title: "SERVICED", icon: "🔧", color: C.green,
       message: selfService
@@ -227,14 +304,25 @@ export default function App() {
         : "Full service complete — engine, tires, brakes, and trans restored to 100%.",
       cashDelta: -cost,
     });
-    setScreen("actionResult");
+    if (ended) {
+      finishSeason(careerWithStory, metaWithStory, triggers);
+    } else {
+      setMeta(metaWithStory);
+      setCareer(careerWithStory);
+      proceedAfterStory(triggers, "actionResult");
+    }
   };
 
+  if (screen === "story") {
+    const seed = career ? `${career.car}-${career.month}-${career.wins}-${career.reputation}` : "";
+    return <StorySnippetScreen text={pickSnippetText(storyQueue[0], seed)} onContinue={handleStoryContinue} />;
+  }
   if (screen === "title") return (
     <TitleScreen
       hasSave={Boolean(loadCareerSnapshot())}
       onNewGame={() => setScreen("newCareer")}
       onContinue={continueCareer}
+      onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
     />
   );
   if (screen === "newCareer") return <NewCareerScreen meta={meta} onStart={startCareer} />;
@@ -245,6 +333,7 @@ export default function App() {
       onWork={handleWork}
       onMaintain={handleMaintain}
       onViewLog={() => { setPrevScreen("careerHome"); setScreen("log"); }}
+      onViewCodex={() => { setPrevScreen("careerHome"); setScreen("codex"); }}
     />
   );
   if (screen === "preRaceSetup") return (
@@ -267,5 +356,6 @@ export default function App() {
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
   if (screen === "log") return <CourseLog onBack={() => setScreen(prevScreen)} />;
+  if (screen === "codex") return <CodexScreen meta={meta} onBack={() => setScreen(prevScreen)} />;
   return null;
 }

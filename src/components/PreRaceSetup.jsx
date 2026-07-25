@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
+import { ENTRY_FEE } from "../game/career";
 import { isModAvailable } from "../game/meta";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
@@ -118,12 +119,25 @@ export default function PreRaceSetup({ career, meta, onStart, onBack, onBuyTire 
           per segment (plus an optional Utility). On-affinity cards get full effect.
         </div>
 
-        <button
-          onClick={() => onStart(loadout)}
-          style={{ width: "100%", padding: "14px 0", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: "pointer", letterSpacing: 2 }}
-        >
-          REGISTER & GRID UP →
-        </button>
+        {(() => {
+          const canAffordEntry = career.cash >= ENTRY_FEE;
+          return (
+            <>
+              <button
+                onClick={() => canAffordEntry && onStart(loadout)}
+                disabled={!canAffordEntry}
+                style={{ width: "100%", padding: "14px 0", background: canAffordEntry ? C.pink : "#1a1a2e", color: canAffordEntry ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: canAffordEntry ? "pointer" : "not-allowed", letterSpacing: 2 }}
+              >
+                PAY ${ENTRY_FEE} ENTRY & GRID UP →
+              </button>
+              {!canAffordEntry && (
+                <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
+                  Need ${ENTRY_FEE} cash for the entry fee — every car on the grid pays it, win or DNF.
+                </div>
+              )}
+            </>
+          );
+        })()}
     </Shell>
   );
 }

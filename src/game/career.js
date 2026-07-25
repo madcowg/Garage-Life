@@ -10,6 +10,9 @@ import { MODS, STAGE1_TIRE_PRICE } from "./data.js";
 export const SEASON_LENGTH_MONTHS = 10;
 export const AP_PER_MONTH = 3;
 export const STARTING_CASH = 300;
+// Real autocross events charge a flat entry fee regardless of how you
+// finish — same as every car on the grid, win or DNF.
+export const ENTRY_FEE = 25;
 export const MAINTAIN_COST = 20;
 // While unemployed you do the work yourself instead of paying shop labor —
 // steep discount, materials only.
@@ -34,6 +37,11 @@ export function createNewCareer(car, variant) {
     // Tire purchases are per-career equipment (reset each run, per the
     // roguelike baseline rule) — see TIRE_CATALOG in data.js.
     ownedTires: ["stock"],
+    // Story bookkeeping — see game/story.js. eventsRegistered counts paid
+    // entries (incremented at registration, not at finish); storySeen
+    // de-dupes the per-career narrative beats so each fires once per run.
+    eventsRegistered: 0,
+    storySeen: [],
   };
 }
 
@@ -147,6 +155,9 @@ export function checkCarUnlocks({ reputation, wins }, unlockedCarIds) {
 }
 
 // design doc §4 — simple weighted season grade (win rate + reputation).
+// Return signature (bare S/A/B/C/D letter) is a contract with
+// scripts/simulate-season.mjs — don't change it here; autocross-flavored
+// framing lives in SEASON_GRADE_LABEL/SEASON_GRADE_STORY_TRIGGER below.
 export function computeSeasonGrade({ wins, races, reputation }) {
   const winRate = races > 0 ? wins / races : 0;
   const score = winRate * 60 + Math.min(40, reputation / 2);
@@ -156,3 +167,16 @@ export function computeSeasonGrade({ wins, races, reputation }) {
   if (score >= 30) return "C";
   return "D";
 }
+
+// The season doesn't just stop at a calendar cutoff — it ends because the
+// local points chase concludes and standings decide who gets a Nationals
+// bid. These map the plain letter grade to that framing for the UI/story
+// layer (see SeasonSummaryScreen + story.js season_end_* snippets).
+export const SEASON_GRADE_LABEL = {
+  S: "NATIONALS BID EARNED", A: "REGIONAL CONTENDER", B: "SOLID POINTS FINISH",
+  C: "BUILDING SEASON", D: "REBUILDING YEAR",
+};
+export const SEASON_GRADE_STORY_TRIGGER = {
+  S: "season_end_nationals", A: "season_end_contender", B: "season_end_solid",
+  C: "season_end_building", D: "season_end_rebuilding",
+};

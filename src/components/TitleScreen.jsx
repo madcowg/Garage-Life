@@ -24,7 +24,7 @@ function TitleButton({ label, onClick, disabled, primary }) {
   );
 }
 
-export default function TitleScreen({ hasSave, onNewGame, onContinue }) {
+export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex }) {
   const [showSettings, setShowSettings] = useState(false);
   const [scan, setScan] = useState(scanlinesEnabled());
   const [confirmErase, setConfirmErase] = useState(false);
@@ -61,6 +61,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue }) {
           <>
             <TitleButton label="NEW GAME" onClick={onNewGame} primary />
             <TitleButton label="CONTINUE CAREER" onClick={onContinue} disabled={!hasSave} />
+            <TitleButton label="CODEX" onClick={onCodex} />
             <TitleButton label="SETTINGS" onClick={() => setShowSettings(true)} />
             <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(232,234,246,0.65)", marginTop: 16, letterSpacing: 1 }}>
               AUTOCROSS SEASON · THE DECK IS THE CAR
