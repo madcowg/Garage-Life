@@ -57,6 +57,10 @@ export function createNewCareer(car, variant) {
     // the other 1-2 AP have to go toward Work/Shop/Junkyard/Street Racing.
     racedThisMonth: false,
     maintainedThisMonth: false,
+    // A nat-20 Junkyard roll finds a locked car sitting in the yard — this
+    // holds { carId, expiresMonth } until claimed (pay JUNKYARD_CAR_CLAIM_PRICE)
+    // or it expires (advanceAfterAction clears it once the deadline passes).
+    junkyardCarOffer: null,
     // Story bookkeeping — see game/story.js. eventsRegistered counts paid
     // entries (incremented at registration, not at finish); storySeen
     // de-dupes the per-career narrative beats so each fires once per run.
@@ -76,6 +80,9 @@ export function advanceAfterAction(career) {
     next = { ...next, ap: AP_PER_MONTH, month: next.month + 1, racedThisMonth: false, maintainedThisMonth: false };
     if (next.employment.status === "pending") {
       next.employment = { ...next.employment, status: "employed" };
+    }
+    if (next.junkyardCarOffer && next.month > next.junkyardCarOffer.expiresMonth) {
+      next = { ...next, junkyardCarOffer: null };
     }
   }
   return { career: next, seasonEnded: next.month > SEASON_LENGTH_MONTHS };
@@ -149,15 +156,22 @@ export function resolveJobHunt() {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-// Junkyard — 1 AP, no cash cost, digging for parts instead of buying them
-// retail. Pure upside (worst case is a wasted trip), scaled well below a
-// Work paycheck so it's a supplement, not a replacement.
+// Junkyard — 1 AP, a d20 table with a real downside on a nat-1 (the yard
+// still charges you to look around even if you walk out empty-handed).
+// 2-17 and 19: parts, sold for roll×5 — a bad roll barely covers gas, a
+// good one is real money. Nat 18: a free upgrade (App.jsx picks which mod,
+// since that needs meta/career state this pure function doesn't have).
+// Nat 20: a whole locked car sitting in the yard — App.jsx turns this into
+// a time-limited claim offer (JUNKYARD_CAR_CLAIM_PRICE within a month).
+export const JUNKYARD_FEE = 5;
+export const JUNKYARD_CAR_CLAIM_PRICE = 300;
+
 export function resolveJunkyard() {
   const rawRoll = rollD20();
-  if (rawRoll <= 6) return { rawRoll, cash: 0, event: "nothing", message: "Picked through two rows of parts cars and came up empty." };
-  if (rawRoll <= 14) return { rawRoll, cash: 10 + Math.floor(Math.random() * 16), event: "scrap", message: "Found some usable scrap — resold it for a bit of gas money." };
-  if (rawRoll <= 19) return { rawRoll, cash: 30 + Math.floor(Math.random() * 21), event: "solid_find", message: "Solid find — a part in good shape, worth real money." };
-  return { rawRoll, cash: 75 + Math.floor(Math.random() * 26), event: "score", message: "Score of a lifetime. Whatever this was, someone's going to want it." };
+  if (rawRoll === 1) return { rawRoll, cash: -JUNKYARD_FEE, event: "yard_fee", message: `Nothing worth grabbing — and the yard still charges a $${JUNKYARD_FEE} look-around fee.` };
+  if (rawRoll === 18) return { rawRoll, cash: 0, event: "free_upgrade", message: "" };
+  if (rawRoll === 20) return { rawRoll, cash: 0, event: "car_find", message: "" };
+  return { rawRoll, cash: rawRoll * 5, event: "parts", message: `Found some parts and sold them for $${rawRoll * 5}.` };
 }
 
 // Street Racing — 1 AP, no entry fee, no reputation (it's off the books).

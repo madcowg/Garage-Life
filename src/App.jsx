@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
-  resolveJunkyard, resolveStreetRace,
+  resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
 import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS } from "./game/story";
-import { MODS } from "./game/data";
+import { MODS, CARS } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
 import { Shell, CashBadge } from "./components/shared";
@@ -111,7 +111,7 @@ export default function App() {
     // systems existed.
     setCareer({
       ownedTires: ["stock"], eventsRegistered: 0, storySeen: [],
-      installedMods: [], racedThisMonth: false, maintainedThisMonth: false,
+      installedMods: [], racedThisMonth: false, maintainedThisMonth: false, junkyardCarOffer: null,
       ...snap.career,
     });
     setSeasonEnded(snap.seasonEnded ?? false);
@@ -355,19 +355,79 @@ export default function App() {
     }
   };
 
+  // d20 table (career.js resolveJunkyard): nat-1 pays the yard's look-around
+  // fee and finds nothing; nat-18 is a free mod install (no Shop trip); nat-20
+  // finds a locked car sitting in the yard, offered as a time-limited claim
+  // (JUNKYARD_CAR_CLAIM_PRICE within a month — see career.junkyardCarOffer).
+  // The special rolls fall back to cash when there's nothing left to give
+  // (everything already installed/unlocked, or an offer's already pending).
   const handleJunkyard = () => {
     const roll = resolveJunkyard();
-    const updated = { ...career, cash: career.cash + roll.cash, lifetimeCashEarned: career.lifetimeCashEarned + roll.cash };
+    let cashDelta = roll.cash;
+    let title = "JUNKYARD RUN";
+    let color = C.gold;
+    let message = roll.message;
+    let installedModsNext = career.installedMods ?? [];
+    let junkyardCarOfferNext = career.junkyardCarOffer;
+
+    if (roll.event === "yard_fee") {
+      title = "EMPTY HANDED";
+      color = "#888";
+    } else if (roll.event === "free_upgrade") {
+      const uninstalled = MODS.filter(m => meta.unlockedMods.includes(m.id) && !installedModsNext.includes(m.id));
+      if (uninstalled.length > 0) {
+        const pick = uninstalled[Math.floor(Math.random() * uninstalled.length)];
+        installedModsNext = [...installedModsNext, pick.id];
+        title = "FREE UPGRADE!";
+        message = `Found a ${pick.label} in great shape and bolted it straight in — no Shop trip needed.`;
+      } else {
+        cashDelta = 75 + Math.floor(Math.random() * 26);
+        title = "SOLID FIND";
+        message = "Went looking for a part to install, but everything's already on the car — sold the find instead for a tidy sum.";
+      }
+    } else if (roll.event === "car_find") {
+      const lockedCars = Object.entries(CARS).filter(([id, c]) => c.tier === "unlockable" && !meta.unlockedCars.includes(id));
+      if (lockedCars.length > 0 && !career.junkyardCarOffer) {
+        const [carId, carDef] = lockedCars[Math.floor(Math.random() * lockedCars.length)];
+        const expiresMonth = career.month + 1;
+        junkyardCarOfferNext = { carId, expiresMonth };
+        title = "JACKPOT!";
+        message = `Under a tarp in the back row: a ${carDef.name}, running condition. The yard wants $${JUNKYARD_CAR_CLAIM_PRICE} to let it go, and you've got until month ${expiresMonth} to come up with it.`;
+      } else if (career.junkyardCarOffer) {
+        cashDelta = 75 + Math.floor(Math.random() * 26);
+        title = "SOLID FIND";
+        message = "Another great find, but the yard's only holding one car for you at a time — sold this one for parts instead.";
+      } else {
+        cashDelta = 90 + Math.floor(Math.random() * 36);
+        title = "SCORE OF A LIFETIME";
+        message = "Best haul the yard's had all year — every car worth unlocking is already yours, so this one just goes straight to cash.";
+      }
+    }
+
+    const updated = {
+      ...career, cash: career.cash + cashDelta, lifetimeCashEarned: career.lifetimeCashEarned + Math.max(0, cashDelta),
+      installedMods: installedModsNext, junkyardCarOffer: junkyardCarOfferNext,
+    };
     const newMods = checkModUnlocks(updated.lifetimeCashEarned, meta.unlockedMods);
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
-    setActionResult({
-      title: roll.event === "nothing" ? "EMPTY HANDED" : "JUNKYARD RUN", icon: "🗑️",
-      color: roll.event === "nothing" ? "#888" : C.gold, message: roll.message, cashDelta: roll.cash,
-    });
+    setActionResult({ title, icon: "🗑️", color, message, cashDelta });
     if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
     else { setMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
+  };
+
+  // Claiming the junkyard car offer is a straight cash transaction, no AP —
+  // stays on CareerHome, banner just disappears once paid (or once it expires).
+  const handleClaimJunkyardCar = () => {
+    const offer = career.junkyardCarOffer;
+    if (!offer || career.cash < JUNKYARD_CAR_CLAIM_PRICE) return;
+    const nextMeta = unlockCar(meta, offer.carId);
+    setMeta(nextMeta);
+    setCareer({
+      ...career, cash: career.cash - JUNKYARD_CAR_CLAIM_PRICE, junkyardCarOffer: null,
+      unlocksEarned: [...career.unlocksEarned, offer.carId],
+    });
   };
 
   const handleStreetRace = () => {
@@ -413,6 +473,7 @@ export default function App() {
       onShop={() => setScreen("shop")}
       onJunkyard={handleJunkyard}
       onStreetRace={handleStreetRace}
+      onClaimJunkyardCar={handleClaimJunkyardCar}
       onViewLog={() => { setPrevScreen("careerHome"); setScreen("log"); }}
       onViewCodex={() => { setPrevScreen("careerHome"); setScreen("codex"); }}
     />

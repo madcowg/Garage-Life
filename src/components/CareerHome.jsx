@@ -1,5 +1,5 @@
 import { CARS } from "../game/data";
-import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, ENTRY_FEE } from "../game/career";
+import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, ENTRY_FEE, JUNKYARD_CAR_CLAIM_PRICE } from "../game/career";
 import { C } from "../theme";
 import { Shell } from "./shared";
 
@@ -27,11 +27,14 @@ function actionBtnStyle(color, disabled) {
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
 // (App.jsx) owns all career state and resolution logic.
-export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onViewLog, onViewCodex }) {
+export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onClaimJunkyardCar, onViewLog, onViewCodex }) {
   const car = CARS[career.car];
   const emp = career.employment;
   const maintainCost = emp.status === "unemployed" ? SELF_MAINTAIN_COST : MAINTAIN_COST;
   const canMaintain = career.cash >= maintainCost && !career.maintainedThisMonth;
+  const offer = career.junkyardCarOffer;
+  const offerCar = offer ? CARS[offer.carId] : null;
+  const canClaim = offer && career.cash >= JUNKYARD_CAR_CLAIM_PRICE;
 
   return (
     <Shell maxWidth={640}>
@@ -45,6 +48,18 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
             <button onClick={onViewLog} style={{ padding: "8px 12px", background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📋 COURSE LOG</button>
           </div>
         </div>
+
+        {offerCar && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", background: "#2a1f0a", border: `1px solid ${C.gold}`, borderRadius: 4, padding: 12, marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: "bold", color: C.gold }}>🚗 JUNKYARD FIND: {offerCar.name}</div>
+              <div style={{ fontSize: 9, color: "#aaa" }}>Claim for ${JUNKYARD_CAR_CLAIM_PRICE} by month {offer.expiresMonth}, or the yard sells it off.</div>
+            </div>
+            <button onClick={onClaimJunkyardCar} disabled={!canClaim} style={{ padding: "8px 14px", background: canClaim ? C.gold : "#1a1a2e", color: canClaim ? C.purple : "#555", border: "none", borderRadius: 4, cursor: canClaim ? "pointer" : "not-allowed", fontFamily: "monospace", fontSize: 10, fontWeight: "bold", whiteSpace: "nowrap" }}>
+              CLAIM ${JUNKYARD_CAR_CLAIM_PRICE}
+            </button>
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
@@ -106,7 +121,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           </button>
 
           <button onClick={onJunkyard} style={actionBtnStyle("#8a8a4a")}>
-            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, no cost, dig for parts worth cash</span>
+            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, d20 for parts (nat 1 = $5 fee, nat 18 = free upgrade, nat 20 = a car to claim)</span>
           </button>
 
           <button onClick={onStreetRace} style={actionBtnStyle(C.red)}>
