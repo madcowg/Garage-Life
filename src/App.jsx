@@ -196,14 +196,16 @@ export default function App() {
 
   const goHomeOrSummary = () => setScreen(seasonEnded ? "seasonSummary" : "careerHome");
 
-  // Real autocross events cost a flat entry fee regardless of outcome —
-  // paid at registration, not deducted from the eventual purse. PreRaceSetup
+  // Real autocross events cost a flat entry fee regardless of outcome, plus
+  // whatever event prep / maintenance checks the player opted into (their
+  // cash cost — PreRaceSetup computes totalCost = entry + prep). Paid at
+  // registration, not deducted from the eventual purse. PreRaceSetup
   // disables the button when unaffordable; this guard covers stale state.
   // Only one sanctioned event runs a month, so this also locks Race out
   // until next month's rollover (CareerHome disables the button too).
-  const handleStartRace = (l) => {
-    if (career.cash < ENTRY_FEE || career.racedThisMonth) return;
-    const paid = { ...career, cash: career.cash - ENTRY_FEE, eventsRegistered: career.eventsRegistered + 1, racedThisMonth: true };
+  const handleStartRace = (l, totalCost = ENTRY_FEE) => {
+    if (career.cash < totalCost || career.racedThisMonth) return;
+    const paid = { ...career, cash: career.cash - totalCost, eventsRegistered: career.eventsRegistered + 1, racedThisMonth: true };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
     setMeta(metaWithStory);
     setCareer(careerWithStory);

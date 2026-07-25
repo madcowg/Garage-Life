@@ -14,6 +14,16 @@ export const STARTING_CASH = 300;
 // finish — same as every car on the grid, win or DNF.
 export const ENTRY_FEE = 25;
 export const MAINTAIN_COST = 20;
+// Event prep and pre-race checks (PreRaceSetup) used to be pure upside —
+// free toggles that only ever helped, so there was no reason not to flip
+// every one of them on. Each now costs real cash at registration, same
+// commitment point as the entry fee, so skipping one is an actual saving
+// against an actual risk (Course Confusion DNF / hazard cards), not a
+// no-brainer either way.
+export const PREP_COSTS = {
+  diagnostics: 10, courseWalk: 15,
+  fluids: 10, tires: 10, brakes: 10,
+};
 // While unemployed you do the work yourself instead of paying shop labor —
 // steep discount, materials only.
 export const SELF_MAINTAIN_COST = 5;

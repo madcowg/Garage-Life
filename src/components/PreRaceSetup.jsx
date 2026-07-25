@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
-import { ENTRY_FEE } from "../game/career";
+import { ENTRY_FEE, PREP_COSTS } from "../game/career";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
 import { C } from "../theme";
@@ -11,18 +11,26 @@ import { Section, ToggleRow, Shell } from "./shared";
 // screen, minus the car picker (fixed for the career). Mods and tire
 // *purchases* live at the Shop now (ShopScreen) — this screen only lets you
 // pick which owned tire to mount; installed mods are always active.
+//
+// Event prep and the maintenance checklist each cost real cash (PREP_COSTS)
+// — they default OFF, so skipping one is an actual saving against an
+// actual risk (Course Confusion DNF / hazard cards), not a free lunch.
 export default function PreRaceSetup({ career, onStart, onBack }) {
   const owned = career.ownedTires ?? ["stock"];
   const installedModIds = career.installedMods ?? [];
   const bestOwned = owned.includes("slicks") ? "slicks" : owned.includes("extreme_summer") ? "extreme_summer" : "stock";
   const [tire, setTire] = useState(bestOwned);
   const [diagnostics, setDiagnostics] = useState(false);
-  const [courseWalk, setCourseWalk] = useState(true);
-  const [maintenance, setMaintenance] = useState({ fluids: true, tires: true, brakes: true });
+  const [courseWalk, setCourseWalk] = useState(false);
+  const [maintenance, setMaintenance] = useState({ fluids: false, tires: false, brakes: false });
 
   const car = CARS[career.car];
   const installedMods = MODS.filter(m => installedModIds.includes(m.id));
   const mods = Object.fromEntries(installedModIds.map(id => [id, true]));
+
+  const prepCost = (diagnostics ? PREP_COSTS.diagnostics : 0) + (courseWalk ? PREP_COSTS.courseWalk : 0)
+    + (maintenance.fluids ? PREP_COSTS.fluids : 0) + (maintenance.tires ? PREP_COSTS.tires : 0) + (maintenance.brakes ? PREP_COSTS.brakes : 0);
+  const totalCost = ENTRY_FEE + prepCost;
 
   const loadout = { car: career.car, variant: career.variant, mods, tire, diagnostics, courseWalk, maintenance };
   const preview = useMemo(() => {
@@ -75,18 +83,18 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           )}
         </Section>
 
-        <Section title="EVENT PREP (information, not performance)">
+        <Section title="EVENT PREP (costs cash, not AP)">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            <ToggleRow label="Basic Diagnostics" desc="Reveals exactly which hazards are in your deck" active={diagnostics} onClick={() => setDiagnostics(v => !v)} />
-            <ToggleRow label="Walk the Course" desc="Skip = risk Course Confusion (DNF)" active={courseWalk} onClick={() => setCourseWalk(v => !v)} />
+            <ToggleRow label={`Basic Diagnostics — $${PREP_COSTS.diagnostics}`} desc="Reveals exactly which hazards are in your deck" active={diagnostics} onClick={() => setDiagnostics(v => !v)} />
+            <ToggleRow label={`Walk the Course — $${PREP_COSTS.courseWalk}`} desc="Skip = risk Course Confusion (DNF)" active={courseWalk} onClick={() => setCourseWalk(v => !v)} />
           </div>
         </Section>
 
-        <Section title="PRE-RACE MAINTENANCE CHECKLIST">
+        <Section title="PRE-RACE MAINTENANCE CHECKLIST (costs cash, not AP)">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
-            <ToggleRow label="Check Fluids" desc="Skip = 2 engine hazards" active={maintenance.fluids} onClick={() => setMaintenance(s => ({ ...s, fluids: !s.fluids }))} />
-            <ToggleRow label="Check Tires"  desc="Skip = 2 tire hazards"   active={maintenance.tires}  onClick={() => setMaintenance(s => ({ ...s, tires: !s.tires }))} />
-            <ToggleRow label="Check Brakes" desc="Skip = 2 brake hazards"  active={maintenance.brakes} onClick={() => setMaintenance(s => ({ ...s, brakes: !s.brakes }))} />
+            <ToggleRow label={`Check Fluids — $${PREP_COSTS.fluids}`} desc="Skip = 2 engine hazards" active={maintenance.fluids} onClick={() => setMaintenance(s => ({ ...s, fluids: !s.fluids }))} />
+            <ToggleRow label={`Check Tires — $${PREP_COSTS.tires}`}  desc="Skip = 2 tire hazards"   active={maintenance.tires}  onClick={() => setMaintenance(s => ({ ...s, tires: !s.tires }))} />
+            <ToggleRow label={`Check Brakes — $${PREP_COSTS.brakes}`} desc="Skip = 2 brake hazards"  active={maintenance.brakes} onClick={() => setMaintenance(s => ({ ...s, brakes: !s.brakes }))} />
           </div>
         </Section>
 
@@ -113,19 +121,24 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
         </div>
 
         {(() => {
-          const canAffordEntry = career.cash >= ENTRY_FEE;
+          const canAfford = career.cash >= totalCost;
           return (
             <>
+              {prepCost > 0 && (
+                <div style={{ textAlign: "center", fontSize: 9, color: "#888", marginBottom: 8 }}>
+                  ${ENTRY_FEE} entry + ${prepCost} prep = ${totalCost} total
+                </div>
+              )}
               <button
-                onClick={() => canAffordEntry && onStart(loadout)}
-                disabled={!canAffordEntry}
-                style={{ width: "100%", padding: "14px 0", background: canAffordEntry ? C.pink : "#1a1a2e", color: canAffordEntry ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: canAffordEntry ? "pointer" : "not-allowed", letterSpacing: 2 }}
+                onClick={() => canAfford && onStart(loadout, totalCost)}
+                disabled={!canAfford}
+                style={{ width: "100%", padding: "14px 0", background: canAfford ? C.pink : "#1a1a2e", color: canAfford ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: canAfford ? "pointer" : "not-allowed", letterSpacing: 2 }}
               >
-                PAY ${ENTRY_FEE} ENTRY & GRID UP →
+                PAY ${totalCost} & GRID UP →
               </button>
-              {!canAffordEntry && (
+              {!canAfford && (
                 <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
-                  Need ${ENTRY_FEE} cash for the entry fee — every car on the grid pays it, win or DNF.
+                  Need ${totalCost} cash (${ENTRY_FEE} entry + ${prepCost} prep) — uncheck some prep to lower the cost.
                 </div>
               )}
             </>
