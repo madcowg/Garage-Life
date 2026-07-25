@@ -6,6 +6,7 @@ import {
 import { loadMeta, unlockMod, unlockCar, archiveCareer } from "./game/meta";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
+import { Shell } from "./components/shared";
 import TrackCanvas from "./components/TrackCanvas";
 import CourseLog from "./components/CourseLog";
 import CardRaceScreen from "./components/CardRaceScreen";
@@ -22,8 +23,7 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
   const diff = bestTime != null ? bestTime - targetTime : null;
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 600, margin: "0 auto" }}>
+    <Shell maxWidth={600}>
         <TrackCanvas track={track} activeSegIndex={-1} carT={0} />
         <div style={{ height: 12 }} />
 
@@ -71,8 +71,7 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
           <button onClick={onViewLog} style={{ flex: 1, padding: 12, background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 11 }}>📋 COURSE LOG</button>
           <button onClick={onContinue} style={{ flex: 1, padding: 12, background: C.pink, color: C.purple, border: "none", borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 11, fontWeight: "bold" }}>CONTINUE →</button>
         </div>
-      </div>
-    </div>
+    </Shell>
   );
 }
 

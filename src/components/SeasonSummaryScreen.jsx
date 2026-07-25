@@ -1,5 +1,6 @@
 import { CARS, MODS } from "../game/data";
 import { C } from "../theme";
+import { Shell } from "./shared";
 
 const GRADE_COLOR = { S: C.gold, A: C.green, B: C.teal, C: C.orange, D: C.red };
 
@@ -10,15 +11,14 @@ export default function SeasonSummaryScreen({ career, grade, unlocksEarned, onNe
   const winRate = career.racesEntered > 0 ? Math.round((career.wins / career.racesEntered) * 100) : 0;
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 560, margin: "0 auto" }}>
+    <Shell maxWidth={560}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 14, color: C.teal, letterSpacing: 2 }}>SEASON COMPLETE</div>
           <div style={{ fontSize: 64, fontWeight: "bold", color: GRADE_COLOR[grade] || C.white, lineHeight: 1 }}>{grade}</div>
           <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{car.name}{career.variant ? ` (${career.variant})` : ""}</div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
           <Stat label="LIFETIME EARNED" value={`$${career.lifetimeCashEarned}`} color={C.gold} />
           <Stat label="FINAL CASH" value={`$${career.cash}`} color={C.gold} />
           <Stat label="REPUTATION" value={career.reputation} color={C.teal} />
@@ -58,8 +58,7 @@ export default function SeasonSummaryScreen({ career, grade, unlocksEarned, onNe
         >
           NEW CAREER →
         </button>
-      </div>
-    </div>
+    </Shell>
   );
 }
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CARS } from "../game/data";
 import { STARTING_CASH, SEASON_LENGTH_MONTHS } from "../game/career";
 import { C } from "../theme";
-import { Section, cardBtnStyle } from "./shared";
+import { Section, cardBtnStyle, Shell } from "./shared";
 
 // Shown once at the start of a career (and again after Season Complete) —
 // picks the starting car/variant. Mods/tire/gauges are chosen per-race in
@@ -16,15 +16,14 @@ export default function NewCareerScreen({ meta, onStart }) {
   );
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <Shell maxWidth={640}>
         <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>GARAGE LIFE</div>
         <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2, marginBottom: 20 }}>
           NEW CAREER — {SEASON_LENGTH_MONTHS}-MONTH SEASON
         </div>
 
         <Section title="CHOOSE YOUR STARTER">
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {Object.entries(CARS).filter(([, c]) => c.tier === "starter").map(([id, c]) => (
               <button key={id} onClick={() => setCar(id)} style={cardBtnStyle(car === id)}>
                 <div style={{ fontWeight: "bold", fontSize: 11 }}>{c.name}</div>
@@ -58,7 +57,7 @@ export default function NewCareerScreen({ meta, onStart }) {
         )}
 
         <Section title="STILL LOCKED (earn these during a career)">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 6 }}>
             {Object.entries(CARS).filter(([id, c]) => c.tier === "unlockable" && !meta.unlockedCars.includes(id)).map(([id, c]) => (
               <div key={id} style={{ padding: 8, background: "#0a0a14", border: `1px dashed ${C.border}`, borderRadius: 4, opacity: 0.6 }}>
                 <div style={{ fontSize: 10, fontWeight: "bold" }}>🔒 {c.name}</div>
@@ -79,7 +78,6 @@ export default function NewCareerScreen({ meta, onStart }) {
         >
           START CAREER →
         </button>
-      </div>
-    </div>
+    </Shell>
   );
 }

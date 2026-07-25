@@ -1,4 +1,5 @@
 import { C } from "../theme";
+import { Shell } from "./shared";
 
 // Generic result screen for Work/Job-Hunt/Maintain actions — each is a
 // single instant resolution rather than a whole sub-flow like Race, so they
@@ -6,8 +7,7 @@ import { C } from "../theme";
 // needing a bespoke one.
 export default function ActionResultScreen({ title, icon, color, message, detail, cashDelta, onContinue }) {
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20, display: "flex", alignItems: "center" }}>
-      <div style={{ maxWidth: 480, margin: "0 auto", width: "100%" }}>
+    <Shell maxWidth={480}>
         <div style={{ background: C.panel, border: `2px solid ${color || C.teal}`, borderRadius: 6, padding: 24, textAlign: "center" }}>
           <div style={{ fontSize: 32 }}>{icon}</div>
           <div style={{ fontSize: 16, fontWeight: "bold", color: color || C.teal, letterSpacing: 1, marginTop: 8 }}>{title}</div>
@@ -25,7 +25,6 @@ export default function ActionResultScreen({ title, icon, color, message, detail
         >
           CONTINUE →
         </button>
-      </div>
-    </div>
+    </Shell>
   );
 }

@@ -2,3 +2,9 @@
 html, body, #root { margin: 0; padding: 0; height: 100%; background: #0D0D1A; }
 body { font-family: monospace; }
 button { font-family: inherit; }
+
+/* Mobile: comfortable tap targets and no double-tap zoom on game buttons */
+button { touch-action: manipulation; min-height: 30px; }
+@media (pointer: coarse) {
+  button { min-height: 40px; }
+}

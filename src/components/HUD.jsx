@@ -28,7 +28,7 @@ export default function HUD({ loadout, wear, totalTime, target, track, activeSeg
 
   return (
     <div style={{
-      display: "flex", gap: 10, alignItems: "stretch", background: "#0a0a14",
+      display: "flex", gap: 10, alignItems: "stretch", flexWrap: "wrap", background: "#0a0a14",
       border: "1px solid #242440", borderRadius: 4, padding: 8, marginBottom: 10, fontFamily: "monospace",
     }}>
       <div style={{ width: 200 }}>

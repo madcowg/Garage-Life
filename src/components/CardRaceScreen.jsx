@@ -6,6 +6,7 @@ import { AutocrossEvent, getCard, toCareerWear } from "../game/v2";
 import { buildTrack } from "../game/track";
 import { saveCourseToLog } from "./CourseLog";
 import { C } from "../theme";
+import { Shell } from "./shared";
 
 // Display metadata for card-core-v2 course elements.
 const ELEMENT_DISPLAY = {
@@ -50,8 +51,7 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
   const activeSeg = Math.min(snap.segmentIndex ?? 0, snap.course.length - 1);
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <Shell maxWidth={720}>
 
         {snap.phase !== "betweenRuns" && snap.phase !== "eventDone" && (
           <>
@@ -156,7 +156,6 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
             </button>
           </div>
         )}
-      </div>
-    </div>
+    </Shell>
   );
 }

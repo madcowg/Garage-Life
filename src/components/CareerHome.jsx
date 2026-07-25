@@ -1,6 +1,7 @@
 import { CARS } from "../game/data";
 import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS } from "../game/career";
 import { C } from "../theme";
+import { Shell } from "./shared";
 
 function WearBar({ label, value }) {
   return (
@@ -33,8 +34,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
   const canMaintain = career.cash >= maintainCost;
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <Shell maxWidth={640}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>GARAGE LIFE</div>
@@ -43,7 +43,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
           <button onClick={onViewLog} style={{ padding: "8px 12px", background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📋 COURSE LOG</button>
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
             <div style={{ fontSize: 8, color: "#888" }}>CASH</div>
             <div style={{ fontSize: 18, fontWeight: "bold", color: C.gold }}>${career.cash}</div>
@@ -96,7 +96,6 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
             </span>
           </button>
         </div>
-      </div>
-    </div>
+    </Shell>
   );
 }

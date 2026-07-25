@@ -37,7 +37,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue }) {
   };
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", overflow: "hidden", background: C.bg }}>
+    <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden", background: C.bg }}>
       {/* Coastal highway backdrop — pixel art scaled to cover, CRT on top */}
       <img
         src={`${BASE}garage-life-assets/environments/coastal-highway.png`}
@@ -50,7 +50,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue }) {
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,13,26,0.15) 0%, rgba(13,13,26,0.55) 70%, rgba(13,13,26,0.85) 100%)" }} />
       {scan && <div style={{ ...SCANLINE_OVERLAY, position: "absolute" }} />}
 
-      <div style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+      <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
         <img
           src={`${BASE}garage-life-assets/menu/garage-life-logo.png`}
           alt="Garage Life" draggable={false}

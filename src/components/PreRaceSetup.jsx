@@ -4,7 +4,7 @@ import { isModAvailable } from "../game/meta";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
 import { C } from "../theme";
-import { Section, ToggleRow } from "./shared";
+import { Section, ToggleRow, Shell } from "./shared";
 
 // Shown when the player spends a Race action from CareerHome — mods/tire/
 // gauges/maintenance-checklist, same as the old one-shot Setup screen, minus
@@ -29,8 +29,7 @@ export default function PreRaceSetup({ career, meta, onStart, onBack, onBuyTire 
   }, [career.car, career.wear, mods, tire, diagnostics, courseWalk, maintenance]);
 
   return (
-    <div style={{ minHeight: "100%", background: C.bg, color: C.white, fontFamily: "monospace", padding: 20 }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <Shell maxWidth={640}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>RACE SETUP</div>
@@ -57,8 +56,8 @@ export default function PreRaceSetup({ career, meta, onStart, onBack, onBuyTire 
           )}
         </Section>
 
-        <Section title={`TIRES (cash: $${career.cash})`}>
-          <div style={{ display: "flex", gap: 8 }}>
+        <Section title={`TIRES (cash: ${career.cash})`}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {Object.entries(TIRE_CATALOG).map(([id, t]) => {
               const isOwned = owned.includes(id);
               const requiresMet = !t.requires || owned.includes(t.requires);
@@ -125,7 +124,6 @@ export default function PreRaceSetup({ career, meta, onStart, onBack, onBuyTire 
         >
           REGISTER & GRID UP →
         </button>
-      </div>
-    </div>
+    </Shell>
   );
 }
