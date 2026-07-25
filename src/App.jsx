@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade, MAINTAIN_COST, SELF_MAINTAIN_COST,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, archiveCareer } from "./game/meta";
+import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
+import TitleScreen from "./components/TitleScreen";
 import TrackCanvas from "./components/TrackCanvas";
 import CourseLog from "./components/CourseLog";
 import CardRaceScreen from "./components/CardRaceScreen";
@@ -77,13 +79,29 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
 export default function App() {
   const [meta, setMeta] = useState(() => loadMeta());
   const [career, setCareer] = useState(null);
-  const [screen, setScreen] = useState("newCareer");
+  const [screen, setScreen] = useState("title");
   const [prevScreen, setPrevScreen] = useState("careerHome");
   const [loadout, setLoadout] = useState(null);
   const [raceResult, setRaceResult] = useState(null);
   const [actionResult, setActionResult] = useState(null);
   const [seasonEnded, setSeasonEnded] = useState(false);
   const [seasonGrade, setSeasonGrade] = useState(null);
+
+  // Persist the in-progress career after every state change so "Continue
+  // Career" on the title screen survives a closed tab. Meta (unlocks) has
+  // its own persistence in meta.js; this is just the current run.
+  useEffect(() => {
+    if (career) saveCareerSnapshot({ career, seasonEnded, seasonGrade });
+  }, [career, seasonEnded, seasonGrade]);
+
+  const continueCareer = () => {
+    const snap = loadCareerSnapshot();
+    if (!snap) return;
+    setCareer(snap.career);
+    setSeasonEnded(snap.seasonEnded ?? false);
+    setSeasonGrade(snap.seasonGrade ?? null);
+    setScreen(snap.seasonEnded ? "seasonSummary" : "careerHome");
+  };
 
   const applyUnlocks = (updatedCareer, currentMeta) => {
     const newMods = checkModUnlocks(updatedCareer.lifetimeCashEarned, currentMeta.unlockedMods);
@@ -212,6 +230,13 @@ export default function App() {
     setScreen("actionResult");
   };
 
+  if (screen === "title") return (
+    <TitleScreen
+      hasSave={Boolean(loadCareerSnapshot())}
+      onNewGame={() => setScreen("newCareer")}
+      onContinue={continueCareer}
+    />
+  );
   if (screen === "newCareer") return <NewCareerScreen meta={meta} onStart={startCareer} />;
   if (screen === "careerHome") return (
     <CareerHome

@@ -9,9 +9,18 @@ export const C = {
 // pixel-art canvas via an absolutely-positioned sibling div. Doesn't touch
 // the canvas's own low-res buffer, so the underlying art stays chunky/16-bit;
 // this only adds the CRT sheen on display. Apply to a `position: relative`
-// wrapper around any pixelated canvas.
+// wrapper around any pixelated canvas. Toggleable from the title screen's
+// Settings panel — components check scanlinesEnabled() at render time.
 export const SCANLINE_OVERLAY = {
   position: "absolute", inset: 0, pointerEvents: "none",
   backgroundImage: "repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0.22) 2px, rgba(0,0,0,0.22) 3px)",
   mixBlendMode: "multiply",
 };
+
+const SCANLINE_KEY = "garageLifeScanlines";
+export function scanlinesEnabled() {
+  try { return localStorage.getItem(SCANLINE_KEY) !== "off"; } catch { return true; }
+}
+export function setScanlinesEnabled(on) {
+  try { localStorage.setItem(SCANLINE_KEY, on ? "on" : "off"); } catch { /* noop */ }
+}

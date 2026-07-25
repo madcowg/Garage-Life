@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { drawTrack } from "../game/track";
-import { SCANLINE_OVERLAY } from "../theme";
+import { SCANLINE_OVERLAY, scanlinesEnabled } from "../theme";
 
 // Renders at a small internal resolution then scales up via CSS with
 // image-rendering: pixelated — the classic SNES/Mode-7 chunky-pixel look
@@ -47,7 +47,7 @@ export default function TrackCanvas({ track, activeSegIndex, carT }) {
         height={INTERNAL_H}
         style={{ width: "100%", height: "auto", display: "block", imageRendering: "pixelated" }}
       />
-      <div style={SCANLINE_OVERLAY} />
+      {scanlinesEnabled() && <div style={SCANLINE_OVERLAY} />}
     </div>
   );
 }

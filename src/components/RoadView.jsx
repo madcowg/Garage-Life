@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { buildRoadStrip, projectRows } from "../game/road";
 import { CARS } from "../game/data";
 import { CAR_SPRITES } from "../game/carAssets";
-import { SCANLINE_OVERLAY } from "../theme";
+import { SCANLINE_OVERLAY, scanlinesEnabled } from "../theme";
 
 // Forward-perspective "driving" view — SNES Mode-7 style (Mario Kart /
 // F-Zero), replacing a flat top-down look for the live race screen. The
@@ -120,7 +120,7 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
         height={INTERNAL_H}
         style={{ width: "100%", height: "auto", display: "block", imageRendering: "pixelated" }}
       />
-      <div style={SCANLINE_OVERLAY} />
+      {scanlinesEnabled() && <div style={SCANLINE_OVERLAY} />}
     </div>
   );
 }
