@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
+  createNewCareer, advanceAfterAction, spendAp, checkMonthRollover, resolveWork, resolveJobHunt,
   resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE, JUNKYARD_UPGRADE_PRICE,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
@@ -203,12 +203,19 @@ export default function App() {
   // disables the button when unaffordable; this guard covers stale state.
   // Only one sanctioned event runs a month, so this also locks Race out
   // until next month's rollover (CareerHome disables the button too).
-  // extraAp (DIY prep) is spent immediately, before the race's own 1 AP at
-  // finish — a genuine time-instead-of-money trade, not a bonus AP sink.
+  //
+  // AP is committed here too, not at finish — extraAp (DIY prep, resolved
+  // immediately as its own mini-action) plus 1 for the race itself, spent
+  // with spendAp() so an out-of-AP registration is blocked up front instead
+  // of quietly rolling the month over mid-race. The month/season rollover
+  // that 1 AP might trigger still waits for handleRaceFinish's
+  // checkMonthRollover(), since the race isn't actually over yet.
   const handleStartRace = (l, totalCost = ENTRY_FEE, extraAp = 0) => {
-    if (career.cash < totalCost || career.racedThisMonth) return;
+    const apNeeded = extraAp + 1;
+    if (career.cash < totalCost || career.racedThisMonth || career.ap < apNeeded) return;
     let working = career;
     for (let i = 0; i < extraAp; i++) working = advanceAfterAction(working).career;
+    working = spendAp(working, 1);
     const paid = { ...working, cash: working.cash - totalCost, eventsRegistered: working.eventsRegistered + 1, racedThisMonth: true };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
     setMeta(metaWithStory);
@@ -243,7 +250,10 @@ export default function App() {
     if (reward.cleanWin) metaWithAch = unlockAchievement(metaWithAch, "clean_win");
     if (MODS.every(m => metaWithAch.unlockedMods.includes(m.id))) metaWithAch = unlockAchievement(metaWithAch, "stage1_complete");
 
-    const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
+    // AP for this race was already spent at registration (handleStartRace) —
+    // just check whether that made the month/season roll over, don't spend
+    // again.
+    const { career: advanced, seasonEnded: ended } = checkMonthRollover(unlockedCareer);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods, newCars }, metaWithAch);
     setRaceResult({ ...result, reward });
     if (ended) {

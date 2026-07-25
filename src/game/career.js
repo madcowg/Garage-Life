@@ -76,23 +76,39 @@ export function createNewCareer(car, variant) {
   };
 }
 
-// Spends 1 AP for whichever action just resolved; rolls the month over (and
-// employment out of "pending") once AP hits 0. Every action (Race, Work,
-// Maintain) spends AP only once its outcome is fully determined — Race
-// spends it at finish, not at "ROLL OUT", since the action isn't complete
-// until the result is known.
-export function advanceAfterAction(career) {
-  let next = { ...career, ap: career.ap - 1 };
-  if (next.ap <= 0) {
-    next = { ...next, ap: AP_PER_MONTH, month: next.month + 1, racedThisMonth: false, maintainedThisMonth: false };
-    if (next.employment.status === "pending") {
-      next.employment = { ...next.employment, status: "employed" };
-    }
-    if (next.junkyardCarOffer && next.month > next.junkyardCarOffer.expiresMonth) {
-      next = { ...next, junkyardCarOffer: null };
-    }
+// Deducts AP without checking for month rollover — used where the AP has
+// to be committed immediately (so an insufficient-AP action can be blocked
+// up front) but the actual month/season transition has to wait until the
+// action's outcome is known. See checkMonthRollover below.
+export function spendAp(career, amount = 1) {
+  return { ...career, ap: career.ap - amount };
+}
+
+// Rolls the month over (and employment out of "pending") once AP is at or
+// below 0, without spending any AP itself.
+export function checkMonthRollover(career) {
+  if (career.ap > 0) return { career, seasonEnded: career.month > SEASON_LENGTH_MONTHS };
+  let next = { ...career, ap: AP_PER_MONTH, month: career.month + 1, racedThisMonth: false, maintainedThisMonth: false };
+  if (next.employment.status === "pending") {
+    next.employment = { ...next.employment, status: "employed" };
+  }
+  if (next.junkyardCarOffer && next.month > next.junkyardCarOffer.expiresMonth) {
+    next = { ...next, junkyardCarOffer: null };
   }
   return { career: next, seasonEnded: next.month > SEASON_LENGTH_MONTHS };
+}
+
+// Spends 1 AP for whichever action just resolved, then rolls the month
+// over if that was the last of it. Work/Maintain/Shop/Junkyard/Street
+// Racing all resolve instantly, so spend-and-check happen together here.
+// Race is the one exception — its AP has to be committed at registration
+// (so "can I afford this?" is checked before the race even starts, not
+// after), but the month/season transition still can't happen until the
+// race actually finishes. See handleStartRace/handleRaceFinish in App.jsx:
+// they call spendAp() at registration and checkMonthRollover() at finish
+// instead of this combined helper.
+export function advanceAfterAction(career) {
+  return checkMonthRollover(spendAp(career, 1));
 }
 
 // design doc §8, corrected — the tenure modifier shifts the roll itself

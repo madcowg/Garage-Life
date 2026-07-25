@@ -143,7 +143,10 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
         </div>
 
         {(() => {
-          const canAfford = career.cash >= totalCost;
+          const apNeeded = extraAp + 1; // DIY prep (if any) + the race itself, both committed at registration
+          const canAffordCash = career.cash >= totalCost;
+          const canAffordAp = career.ap >= apNeeded;
+          const ok = canAffordCash && canAffordAp;
           return (
             <>
               {(prepCost > 0 || diyPrep) && (
@@ -154,15 +157,20 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
                 </div>
               )}
               <button
-                onClick={() => canAfford && onStart(loadout, totalCost, extraAp)}
-                disabled={!canAfford}
-                style={{ width: "100%", padding: "14px 0", background: canAfford ? C.pink : "#1a1a2e", color: canAfford ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: canAfford ? "pointer" : "not-allowed", letterSpacing: 2 }}
+                onClick={() => ok && onStart(loadout, totalCost, extraAp)}
+                disabled={!ok}
+                style={{ width: "100%", padding: "14px 0", background: ok ? C.pink : "#1a1a2e", color: ok ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: ok ? "pointer" : "not-allowed", letterSpacing: 2 }}
               >
                 {diyPrep ? `DIY PREP (${extraAp} AP) + ` : ""}PAY ${totalCost} & GRID UP →
               </button>
-              {!canAfford && (
+              {!canAffordCash && (
                 <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
                   Need ${totalCost} cash (${ENTRY_FEE} entry + ${prepCost} prep) — uncheck some prep or DIY it instead.
+                </div>
+              )}
+              {canAffordCash && !canAffordAp && (
+                <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
+                  Need {apNeeded} AP this month ({diyPrep ? "1 for DIY prep + 1 for the race itself" : "1 for the race"}) — only {career.ap} left.
                 </div>
               )}
             </>
