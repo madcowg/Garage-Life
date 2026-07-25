@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   createNewCareer, advanceAfterAction, resolveWork, resolveJobHunt,
+  resolveJunkyard, resolveStreetRace,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
 } from "./game/career";
@@ -9,7 +10,7 @@ import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER
 import { MODS } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
-import { Shell } from "./components/shared";
+import { Shell, CashBadge } from "./components/shared";
 import TrackCanvas from "./components/TrackCanvas";
 import CourseLog from "./components/CourseLog";
 import CardRaceScreen from "./components/CardRaceScreen";
@@ -20,7 +21,10 @@ import ActionResultScreen from "./components/ActionResultScreen";
 import SeasonSummaryScreen from "./components/SeasonSummaryScreen";
 import StorySnippetScreen from "./components/StorySnippetScreen";
 import CodexScreen from "./components/CodexScreen";
+import ShopScreen from "./components/ShopScreen";
 import { C } from "./theme";
+
+function clampWear(v) { return Math.max(0, Math.min(100, v)); }
 
 function RaceResultScreen({ result, onContinue, onViewLog }) {
   const { bestTime, targetTime, bestCones, runs, wearAfter, track, reward } = result;
@@ -103,8 +107,13 @@ export default function App() {
   const continueCareer = () => {
     const snap = loadCareerSnapshot();
     if (!snap) return;
-    // Normalize saves from before the tire-purchase / story systems existed.
-    setCareer({ ownedTires: ["stock"], eventsRegistered: 0, storySeen: [], ...snap.career });
+    // Normalize saves from before the tire-purchase / story / AP-economy
+    // systems existed.
+    setCareer({
+      ownedTires: ["stock"], eventsRegistered: 0, storySeen: [],
+      installedMods: [], racedThisMonth: false, maintainedThisMonth: false,
+      ...snap.career,
+    });
     setSeasonEnded(snap.seasonEnded ?? false);
     setSeasonGrade(snap.seasonGrade ?? null);
     setScreen(snap.seasonEnded ? "seasonSummary" : "careerHome");
@@ -190,9 +199,11 @@ export default function App() {
   // Real autocross events cost a flat entry fee regardless of outcome —
   // paid at registration, not deducted from the eventual purse. PreRaceSetup
   // disables the button when unaffordable; this guard covers stale state.
+  // Only one sanctioned event runs a month, so this also locks Race out
+  // until next month's rollover (CareerHome disables the button too).
   const handleStartRace = (l) => {
-    if (career.cash < ENTRY_FEE) return;
-    const paid = { ...career, cash: career.cash - ENTRY_FEE, eventsRegistered: career.eventsRegistered + 1 };
+    if (career.cash < ENTRY_FEE || career.racedThisMonth) return;
+    const paid = { ...career, cash: career.cash - ENTRY_FEE, eventsRegistered: career.eventsRegistered + 1, racedThisMonth: true };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
     setMeta(metaWithStory);
     setCareer(careerWithStory);
@@ -292,9 +303,10 @@ export default function App() {
   };
 
   const handleMaintain = () => {
+    if (career.maintainedThisMonth) return;
     const selfService = career.employment.status === "unemployed";
     const cost = selfService ? SELF_MAINTAIN_COST : MAINTAIN_COST;
-    const updated = { ...career, cash: career.cash - cost, wear: { engine: 100, tires: 100, brakes: 100, trans: 100 } };
+    const updated = { ...career, cash: career.cash - cost, wear: { engine: 100, tires: 100, brakes: 100, trans: 100 }, maintainedThisMonth: true };
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
     setActionResult({
@@ -313,11 +325,75 @@ export default function App() {
     }
   };
 
+  // Shop (Dead Reckoning Garage) — browsing/buying/installing is free;
+  // the AP is spent on "HEAD OUT" (handleLeaveShop), same commitment
+  // pattern as paying a race entry fee. Buying a tire is a plain cash
+  // purchase; installing a mod requires it be unlocked in meta first
+  // (Rex will sell it) and just adds it to this career's installedMods —
+  // no extra cash cost beyond what already unlocked it.
+  const handleBuyTire = (tireId, price) => {
+    if (career.cash < price || (career.ownedTires ?? []).includes(tireId)) return;
+    setCareer({ ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId] });
+  };
+
+  const handleInstallMod = (modId) => {
+    if (!meta.unlockedMods.includes(modId) || (career.installedMods ?? []).includes(modId)) return;
+    setCareer({ ...career, installedMods: [...(career.installedMods ?? []), modId] });
+  };
+
+  const handleLeaveShop = () => {
+    const { career: advanced, seasonEnded: ended } = advanceAfterAction(career);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
+    if (ended) {
+      finishSeason(careerWithStory, metaWithStory, triggers);
+    } else {
+      setMeta(metaWithStory);
+      setCareer(careerWithStory);
+      proceedAfterStory(triggers, "careerHome");
+    }
+  };
+
+  const handleJunkyard = () => {
+    const roll = resolveJunkyard();
+    const updated = { ...career, cash: career.cash + roll.cash, lifetimeCashEarned: career.lifetimeCashEarned + roll.cash };
+    const newMods = checkModUnlocks(updated.lifetimeCashEarned, meta.unlockedMods);
+    const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
+    const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
+    setActionResult({
+      title: roll.event === "nothing" ? "EMPTY HANDED" : "JUNKYARD RUN", icon: "🗑️",
+      color: roll.event === "nothing" ? "#888" : C.gold, message: roll.message, cashDelta: roll.cash,
+    });
+    if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
+    else { setMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
+  };
+
+  const handleStreetRace = () => {
+    const roll = resolveStreetRace(career.wear.tires);
+    const updated = {
+      ...career, cash: Math.max(0, career.cash + roll.cash),
+      lifetimeCashEarned: career.lifetimeCashEarned + Math.max(0, roll.cash),
+      wear: { ...career.wear, tires: clampWear(career.wear.tires + roll.tireWearDelta) },
+    };
+    const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
+    setActionResult({
+      title: roll.event === "busted" ? "BUSTED" : "STREET RACING", icon: "🌃",
+      color: roll.event === "busted" ? C.red : C.gold, message: roll.message, cashDelta: roll.cash,
+    });
+    if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
+    else { setMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
+  };
+
+  // Cash stays on screen everywhere a career's in progress — race, shop,
+  // codex, story beats, all of it — not just CareerHome.
+  const withCash = (el) => (career ? <>{el}<CashBadge cash={career.cash} /></> : el);
+
   if (screen === "story") {
     const seed = career ? `${career.car}-${career.month}-${career.wins}-${career.reputation}` : "";
-    return <StorySnippetScreen text={pickSnippetText(storyQueue[0], seed)} onContinue={handleStoryContinue} />;
+    return withCash(<StorySnippetScreen text={pickSnippetText(storyQueue[0], seed)} onContinue={handleStoryContinue} />);
   }
-  if (screen === "title") return (
+  if (screen === "title") return withCash(
     <TitleScreen
       hasSave={Boolean(loadCareerSnapshot())}
       onNewGame={() => setScreen("newCareer")}
@@ -325,37 +401,37 @@ export default function App() {
       onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
     />
   );
-  if (screen === "newCareer") return <NewCareerScreen meta={meta} onStart={startCareer} />;
-  if (screen === "careerHome") return (
+  if (screen === "newCareer") return withCash(<NewCareerScreen meta={meta} onStart={startCareer} />);
+  if (screen === "careerHome") return withCash(
     <CareerHome
       career={career}
       onRace={() => setScreen("preRaceSetup")}
       onWork={handleWork}
       onMaintain={handleMaintain}
+      onShop={() => setScreen("shop")}
+      onJunkyard={handleJunkyard}
+      onStreetRace={handleStreetRace}
       onViewLog={() => { setPrevScreen("careerHome"); setScreen("log"); }}
       onViewCodex={() => { setPrevScreen("careerHome"); setScreen("codex"); }}
     />
   );
-  if (screen === "preRaceSetup") return (
-    <PreRaceSetup
-      career={career} meta={meta} onStart={handleStartRace} onBack={() => setScreen("careerHome")}
-      onBuyTire={(tireId, price) => {
-        if (career.cash < price || (career.ownedTires ?? []).includes(tireId)) return;
-        setCareer({ ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId] });
-      }}
-    />
+  if (screen === "preRaceSetup") return withCash(
+    <PreRaceSetup career={career} onStart={handleStartRace} onBack={() => setScreen("careerHome")} />
   );
-  if (screen === "race") return <CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />;
-  if (screen === "raceResult") return (
+  if (screen === "shop") return withCash(
+    <ShopScreen career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop} />
+  );
+  if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);
+  if (screen === "raceResult") return withCash(
     <RaceResultScreen result={raceResult} onContinue={goHomeOrSummary} onViewLog={() => { setPrevScreen("raceResult"); setScreen("log"); }} />
   );
-  if (screen === "actionResult") return (
+  if (screen === "actionResult") return withCash(
     <ActionResultScreen {...actionResult} onContinue={goHomeOrSummary} />
   );
-  if (screen === "seasonSummary") return (
+  if (screen === "seasonSummary") return withCash(
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
-  if (screen === "log") return <CourseLog onBack={() => setScreen(prevScreen)} />;
-  if (screen === "codex") return <CodexScreen meta={meta} onBack={() => setScreen(prevScreen)} />;
+  if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
+  if (screen === "codex") return withCash(<CodexScreen meta={meta} onBack={() => setScreen(prevScreen)} />);
   return null;
 }

@@ -27,11 +27,11 @@ function actionBtnStyle(color, disabled) {
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
 // (App.jsx) owns all career state and resolution logic.
-export default function CareerHome({ career, onRace, onWork, onMaintain, onViewLog, onViewCodex }) {
+export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onViewLog, onViewCodex }) {
   const car = CARS[career.car];
   const emp = career.employment;
   const maintainCost = emp.status === "unemployed" ? SELF_MAINTAIN_COST : MAINTAIN_COST;
-  const canMaintain = career.cash >= maintainCost;
+  const canMaintain = career.cash >= maintainCost && !career.maintainedThisMonth;
 
   return (
     <Shell maxWidth={640}>
@@ -75,8 +75,10 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
 
         <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>THIS MONTH'S ACTIONS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <button onClick={onRace} style={actionBtnStyle(C.pink)}>
-            🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, ${ENTRY_FEE} entry fee, autocross event at the Airfield</span>
+          <button onClick={onRace} disabled={career.racedThisMonth} style={actionBtnStyle(C.pink, career.racedThisMonth)}>
+            🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>
+              — {career.racedThisMonth ? "already run this month — one sanctioned event per month" : `1 AP, $${ENTRY_FEE} entry fee, autocross event at the Airfield`}
+            </span>
           </button>
 
           {emp.status === "employed" && (
@@ -95,8 +97,20 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onViewL
 
           <button onClick={onMaintain} disabled={!canMaintain} style={actionBtnStyle(C.green, !canMaintain)}>
             🔧 MAINTAIN <span style={{ fontSize: 9, opacity: 0.7 }}>
-              — 1 AP, ${maintainCost}{emp.status === "unemployed" ? " (DIY, no job)" : ""}, full service
+              — {career.maintainedThisMonth ? "already serviced this month" : `1 AP, $${maintainCost}${emp.status === "unemployed" ? " (DIY, no job)" : ""}, full service`}
             </span>
+          </button>
+
+          <button onClick={onShop} style={actionBtnStyle(C.gold)}>
+            🏪 SHOP <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, buy tires / install mods at Dead Reckoning Garage</span>
+          </button>
+
+          <button onClick={onJunkyard} style={actionBtnStyle("#8a8a4a")}>
+            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, no cost, dig for parts worth cash</span>
+          </button>
+
+          <button onClick={onStreetRace} style={actionBtnStyle(C.red)}>
+            🌃 STREET RACING <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, no entry fee, off the books — risky, no points</span>
           </button>
         </div>
     </Shell>

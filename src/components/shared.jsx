@@ -31,6 +31,22 @@ export function Shell({ maxWidth = 760, children }) {
   );
 }
 
+// Always-visible cash readout — fixed to the viewport (not the zoomed Shell
+// column) so it survives scrolling and stays legible at any screen scale.
+// Bottom-left is the one corner no screen already anchors a nav button to.
+export function CashBadge({ cash }) {
+  return (
+    <div style={{
+      position: "fixed", left: 10, bottom: 10, zIndex: 50, pointerEvents: "none",
+      background: "rgba(10,10,20,0.88)", border: `1px solid ${C.gold}`, borderRadius: 20,
+      padding: "6px 14px", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", color: C.gold,
+      boxShadow: "0 2px 10px rgba(0,0,0,0.4)",
+    }}>
+      ${cash}
+    </div>
+  );
+}
+
 export function Section({ title, children }) {
   return (
     <div style={{ marginBottom: 14 }}>

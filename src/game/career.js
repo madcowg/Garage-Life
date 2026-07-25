@@ -37,6 +37,16 @@ export function createNewCareer(car, variant) {
     // Tire purchases are per-career equipment (reset each run, per the
     // roguelike baseline rule) — see TIRE_CATALOG in data.js.
     ownedTires: ["stock"],
+    // A mod being in meta.unlockedMods only means Rex will sell it to you —
+    // actually bolting it in costs a Shop visit (1 AP). installedMods is
+    // per-career (equipment, resets like ownedTires) and, once installed,
+    // stays active for the rest of the career — no per-race toggle.
+    installedMods: [],
+    // Only one sanctioned event runs each month, and a full service is only
+    // useful once wear's actually down — both actions cap at once/month so
+    // the other 1-2 AP have to go toward Work/Shop/Junkyard/Street Racing.
+    racedThisMonth: false,
+    maintainedThisMonth: false,
     // Story bookkeeping — see game/story.js. eventsRegistered counts paid
     // entries (incremented at registration, not at finish); storySeen
     // de-dupes the per-career narrative beats so each fires once per run.
@@ -53,7 +63,7 @@ export function createNewCareer(car, variant) {
 export function advanceAfterAction(career) {
   let next = { ...career, ap: career.ap - 1 };
   if (next.ap <= 0) {
-    next = { ...next, ap: AP_PER_MONTH, month: next.month + 1 };
+    next = { ...next, ap: AP_PER_MONTH, month: next.month + 1, racedThisMonth: false, maintainedThisMonth: false };
     if (next.employment.status === "pending") {
       next.employment = { ...next.employment, status: "employed" };
     }
@@ -128,6 +138,32 @@ export function resolveJobHunt() {
 }
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// Junkyard — 1 AP, no cash cost, digging for parts instead of buying them
+// retail. Pure upside (worst case is a wasted trip), scaled well below a
+// Work paycheck so it's a supplement, not a replacement.
+export function resolveJunkyard() {
+  const rawRoll = rollD20();
+  if (rawRoll <= 6) return { rawRoll, cash: 0, event: "nothing", message: "Picked through two rows of parts cars and came up empty." };
+  if (rawRoll <= 14) return { rawRoll, cash: 10 + Math.floor(Math.random() * 16), event: "scrap", message: "Found some usable scrap — resold it for a bit of gas money." };
+  if (rawRoll <= 19) return { rawRoll, cash: 30 + Math.floor(Math.random() * 21), event: "solid_find", message: "Solid find — a part in good shape, worth real money." };
+  return { rawRoll, cash: 75 + Math.floor(Math.random() * 26), event: "score", message: "Score of a lifetime. Whatever this was, someone's going to want it." };
+}
+
+// Street Racing — 1 AP, no entry fee, no reputation (it's off the books).
+// Real risk/reward: a bad roll costs cash (fine/tow) and chews tire wear;
+// a good roll pays better than a sanctioned event ever could, precisely
+// because there's no course, no cones, and no safety margin.
+export function resolveStreetRace(tireWear) {
+  const rawRoll = rollD20();
+  if (rawRoll <= 3) {
+    const fine = 20 + Math.floor(Math.random() * 21);
+    return { rawRoll, cash: -fine, tireWearDelta: -15, event: "busted", message: `Someone called it in. Paid a ${fine} fine and burned rubber getting out of there.` };
+  }
+  if (rawRoll <= 9) return { rawRoll, cash: 15 + Math.floor(Math.random() * 16), tireWearDelta: -10, event: "close_one", message: "Close one — made it, but that was closer than it needed to be." };
+  if (rawRoll <= 17) return { rawRoll, cash: 40 + Math.floor(Math.random() * 31), tireWearDelta: -5, event: "clean_pass", message: "Clean pass. Nobody around to see it, which is exactly the point." };
+  return { rawRoll, cash: 90 + Math.floor(Math.random() * 41), tireWearDelta: 0, event: "untouchable", message: "Untouchable tonight. Best money you've made all month, and nobody's the wiser." };
+}
 
 // design doc §2 — race cash/reputation formulas.
 export function computeRaceReward({ totalTime, target, conesHit, blindHazardCount }) {
