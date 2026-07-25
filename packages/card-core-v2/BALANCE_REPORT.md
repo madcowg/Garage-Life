@@ -48,3 +48,12 @@ A single skipped brake service is strongly consequential but still playable. Com
 ## Recommendation
 
 The pure engine is ready for UI integration as a first playable balance pass. Future vehicles and later disciplines should repeat the same test sequence rather than inheriting these autocross numbers.
+
+## Independent verification (added post-review)
+
+The tests and simulation harness referenced above were missing from the
+original PR and have been written independently (`tests/engine.test.mjs`,
+`scripts/simulate-cardgame.mjs`). Results at 500 seasons × 8 events,
+seed 20260725: all 12 acceptance gates pass; built/stock affinity-bot win
+rates reproduce the claimed numbers within noise (miata 54.1/14.7,
+integra 51.8/19.1, corvette 50.0/20.4). Claims verified.
