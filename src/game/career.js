@@ -19,11 +19,18 @@ export const MAINTAIN_COST = 20;
 // every one of them on. Each now costs real cash at registration, same
 // commitment point as the entry fee, so skipping one is an actual saving
 // against an actual risk (Course Confusion DNF / hazard cards), not a
-// no-brainer either way.
+// no-brainer either way. Tuned to roughly half their original prices —
+// full prep (was $55, entry fee alone is $25) undercut a typical race
+// payout too badly to ever be worth taking; $30 keeps it a real option,
+// not a guaranteed net loss.
 export const PREP_COSTS = {
-  diagnostics: 10, courseWalk: 15,
-  fluids: 10, tires: 10, brakes: 10,
+  diagnostics: 5, courseWalk: 10,
+  fluids: 5, tires: 5, brakes: 5,
 };
+// Alternative to paying cash for prep: do all of it yourself for 1 AP
+// instead — same trade the DIY Maintain discount already makes (time vs.
+// money), just spent as an action instead of a lower price.
+export const DIY_PREP_AP_COST = 1;
 // While unemployed you do the work yourself instead of paying shop labor —
 // steep discount, materials only.
 export const SELF_MAINTAIN_COST = 5;

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
-import { ENTRY_FEE, PREP_COSTS } from "../game/career";
+import { ENTRY_FEE, PREP_COSTS, DIY_PREP_AP_COST } from "../game/career";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
 import { C } from "../theme";
@@ -15,21 +15,34 @@ import { Section, ToggleRow, Shell } from "./shared";
 // Event prep and the maintenance checklist each cost real cash (PREP_COSTS)
 // — they default OFF, so skipping one is an actual saving against an
 // actual risk (Course Confusion DNF / hazard cards), not a free lunch.
+// "Do it yourself" is the time-instead-of-money alternative: covers every
+// item for a flat extra AP (spent immediately, on top of Race's own AP at
+// finish) instead of the individual cash costs.
 export default function PreRaceSetup({ career, onStart, onBack }) {
   const owned = career.ownedTires ?? ["stock"];
   const installedModIds = career.installedMods ?? [];
   const bestOwned = owned.includes("slicks") ? "slicks" : owned.includes("extreme_summer") ? "extreme_summer" : "stock";
   const [tire, setTire] = useState(bestOwned);
-  const [diagnostics, setDiagnostics] = useState(false);
-  const [courseWalk, setCourseWalk] = useState(false);
-  const [maintenance, setMaintenance] = useState({ fluids: false, tires: false, brakes: false });
+  const [diyPrep, setDiyPrep] = useState(false);
+  const [diagnosticsPaid, setDiagnosticsPaid] = useState(false);
+  const [courseWalkPaid, setCourseWalkPaid] = useState(false);
+  const [maintenancePaid, setMaintenancePaid] = useState({ fluids: false, tires: false, brakes: false });
+
+  const diagnostics = diyPrep || diagnosticsPaid;
+  const courseWalk = diyPrep || courseWalkPaid;
+  const maintenance = {
+    fluids: diyPrep || maintenancePaid.fluids,
+    tires: diyPrep || maintenancePaid.tires,
+    brakes: diyPrep || maintenancePaid.brakes,
+  };
 
   const car = CARS[career.car];
   const installedMods = MODS.filter(m => installedModIds.includes(m.id));
   const mods = Object.fromEntries(installedModIds.map(id => [id, true]));
 
-  const prepCost = (diagnostics ? PREP_COSTS.diagnostics : 0) + (courseWalk ? PREP_COSTS.courseWalk : 0)
+  const prepCost = diyPrep ? 0 : (diagnostics ? PREP_COSTS.diagnostics : 0) + (courseWalk ? PREP_COSTS.courseWalk : 0)
     + (maintenance.fluids ? PREP_COSTS.fluids : 0) + (maintenance.tires ? PREP_COSTS.tires : 0) + (maintenance.brakes ? PREP_COSTS.brakes : 0);
+  const extraAp = diyPrep ? DIY_PREP_AP_COST : 0;
   const totalCost = ENTRY_FEE + prepCost;
 
   const loadout = { car: career.car, variant: career.variant, mods, tire, diagnostics, courseWalk, maintenance };
@@ -83,18 +96,27 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           )}
         </Section>
 
-        <Section title="EVENT PREP (costs cash, not AP)">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            <ToggleRow label={`Basic Diagnostics — $${PREP_COSTS.diagnostics}`} desc="Reveals exactly which hazards are in your deck" active={diagnostics} onClick={() => setDiagnostics(v => !v)} />
-            <ToggleRow label={`Walk the Course — $${PREP_COSTS.courseWalk}`} desc="Skip = risk Course Confusion (DNF)" active={courseWalk} onClick={() => setCourseWalk(v => !v)} />
+        <Section title="PREP & MAINTENANCE — PAY CASH, OR DO IT YOURSELF">
+          <ToggleRow
+            label={`Do It Yourself — ${DIY_PREP_AP_COST} AP instead of cash`}
+            desc="Covers every item below for free, but costs an extra AP (on top of Race's own) — good when you're cash-poor but have AP to spare"
+            active={diyPrep}
+            onClick={() => setDiyPrep(v => !v)}
+          />
+        </Section>
+
+        <Section title={diyPrep ? "EVENT PREP (covered — DIY)" : "EVENT PREP (costs cash, not AP)"}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, opacity: diyPrep ? 0.6 : 1 }}>
+            <ToggleRow label={`Basic Diagnostics — $${PREP_COSTS.diagnostics}`} desc="Reveals exactly which hazards are in your deck" active={diagnostics} onClick={() => !diyPrep && setDiagnosticsPaid(v => !v)} />
+            <ToggleRow label={`Walk the Course — $${PREP_COSTS.courseWalk}`} desc="Skip = risk Course Confusion (DNF)" active={courseWalk} onClick={() => !diyPrep && setCourseWalkPaid(v => !v)} />
           </div>
         </Section>
 
-        <Section title="PRE-RACE MAINTENANCE CHECKLIST (costs cash, not AP)">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
-            <ToggleRow label={`Check Fluids — $${PREP_COSTS.fluids}`} desc="Skip = 2 engine hazards" active={maintenance.fluids} onClick={() => setMaintenance(s => ({ ...s, fluids: !s.fluids }))} />
-            <ToggleRow label={`Check Tires — $${PREP_COSTS.tires}`}  desc="Skip = 2 tire hazards"   active={maintenance.tires}  onClick={() => setMaintenance(s => ({ ...s, tires: !s.tires }))} />
-            <ToggleRow label={`Check Brakes — $${PREP_COSTS.brakes}`} desc="Skip = 2 brake hazards"  active={maintenance.brakes} onClick={() => setMaintenance(s => ({ ...s, brakes: !s.brakes }))} />
+        <Section title={diyPrep ? "PRE-RACE MAINTENANCE CHECKLIST (covered — DIY)" : "PRE-RACE MAINTENANCE CHECKLIST (costs cash, not AP)"}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, opacity: diyPrep ? 0.6 : 1 }}>
+            <ToggleRow label={`Check Fluids — $${PREP_COSTS.fluids}`} desc="Skip = 2 engine hazards" active={maintenance.fluids} onClick={() => !diyPrep && setMaintenancePaid(s => ({ ...s, fluids: !s.fluids }))} />
+            <ToggleRow label={`Check Tires — $${PREP_COSTS.tires}`}  desc="Skip = 2 tire hazards"   active={maintenance.tires}  onClick={() => !diyPrep && setMaintenancePaid(s => ({ ...s, tires: !s.tires }))} />
+            <ToggleRow label={`Check Brakes — $${PREP_COSTS.brakes}`} desc="Skip = 2 brake hazards"  active={maintenance.brakes} onClick={() => !diyPrep && setMaintenancePaid(s => ({ ...s, brakes: !s.brakes }))} />
           </div>
         </Section>
 
@@ -124,21 +146,23 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           const canAfford = career.cash >= totalCost;
           return (
             <>
-              {prepCost > 0 && (
+              {(prepCost > 0 || diyPrep) && (
                 <div style={{ textAlign: "center", fontSize: 9, color: "#888", marginBottom: 8 }}>
-                  ${ENTRY_FEE} entry + ${prepCost} prep = ${totalCost} total
+                  {diyPrep
+                    ? `$${ENTRY_FEE} entry (prep done yourself, +${extraAp} AP)`
+                    : `$${ENTRY_FEE} entry + $${prepCost} prep = $${totalCost} total`}
                 </div>
               )}
               <button
-                onClick={() => canAfford && onStart(loadout, totalCost)}
+                onClick={() => canAfford && onStart(loadout, totalCost, extraAp)}
                 disabled={!canAfford}
                 style={{ width: "100%", padding: "14px 0", background: canAfford ? C.pink : "#1a1a2e", color: canAfford ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: canAfford ? "pointer" : "not-allowed", letterSpacing: 2 }}
               >
-                PAY ${totalCost} & GRID UP →
+                {diyPrep ? `DIY PREP (${extraAp} AP) + ` : ""}PAY ${totalCost} & GRID UP →
               </button>
               {!canAfford && (
                 <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
-                  Need ${totalCost} cash (${ENTRY_FEE} entry + ${prepCost} prep) — uncheck some prep to lower the cost.
+                  Need ${totalCost} cash (${ENTRY_FEE} entry + ${prepCost} prep) — uncheck some prep or DIY it instead.
                 </div>
               )}
             </>

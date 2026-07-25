@@ -203,9 +203,13 @@ export default function App() {
   // disables the button when unaffordable; this guard covers stale state.
   // Only one sanctioned event runs a month, so this also locks Race out
   // until next month's rollover (CareerHome disables the button too).
-  const handleStartRace = (l, totalCost = ENTRY_FEE) => {
+  // extraAp (DIY prep) is spent immediately, before the race's own 1 AP at
+  // finish — a genuine time-instead-of-money trade, not a bonus AP sink.
+  const handleStartRace = (l, totalCost = ENTRY_FEE, extraAp = 0) => {
     if (career.cash < totalCost || career.racedThisMonth) return;
-    const paid = { ...career, cash: career.cash - totalCost, eventsRegistered: career.eventsRegistered + 1, racedThisMonth: true };
+    let working = career;
+    for (let i = 0; i < extraAp; i++) working = advanceAfterAction(working).career;
+    const paid = { ...working, cash: working.cash - totalCost, eventsRegistered: working.eventsRegistered + 1, racedThisMonth: true };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
     setMeta(metaWithStory);
     setCareer(careerWithStory);
