@@ -11,12 +11,19 @@
 export const CONE_EDGE_WIDTH = 26;
 
 const SHAPE = {
+  // Legacy segment keys (kept so saved Course Log thumbnails still render)
   launch:  { steps: 7,  stepLen: 20, kind: "straight" },
   finish:  { steps: 7,  stepLen: 20, kind: "straight" },
   hairpin: { steps: 20, stepLen: 8,  kind: "arc", totalTurn: Math.PI * 0.95 },
   sweeper: { steps: 16, stepLen: 13, kind: "arc", totalTurn: Math.PI * 0.42 },
   slalom:  { steps: 18, stepLen: 9,  kind: "wave", cycles: 3 },
   chicane: { steps: 12, stepLen: 11, kind: "esse" },
+  // card-core-v2 course elements
+  start:                 { steps: 6,  stepLen: 18, kind: "straight" },
+  offsets:               { steps: 14, stepLen: 10, kind: "wave", cycles: 2 },
+  turnaround:            { steps: 20, stepLen: 8,  kind: "arc", totalTurn: Math.PI * 0.95 },
+  "chicago-box":         { steps: 14, stepLen: 10, kind: "esse" },
+  "decreasing-radius":   { steps: 18, stepLen: 9,  kind: "arc", totalTurn: Math.PI * 0.75 },
 };
 
 // Builds the full centerline + per-segment cone markers for one generated course.

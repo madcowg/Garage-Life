@@ -61,28 +61,94 @@ export function createRunState({ competitiveDeck, hazardCardIds = [], course, ra
   const state = { random, serial, drawPile: shuffle(instances, random), discardPile: [], hand: [], handSize: DEFAULT_HAND_SIZE + (competitiveDeck.passives.handSizeBonus ?? 0), flow: 0, wear: cloneWear(wear), course, passives: competitiveDeck.passives, vehicle: competitiveDeck.vehicle, discipline: getDiscipline('autocross'), courseNoteTokens: Math.max(0, courseWalks - 1), totalTime: 0, cones: 0, dnf: false, segments: [] };
   drawToHandSize(state); return state;
 }
+// --- Interactive step API -------------------------------------------------
+// The bot loop below is a thin driver over these three functions, so an
+// interactive UI (human choices) and headless simulation share one
+// implementation and can never drift apart.
+
+// Refills the hand, computes strain, fires any matching hazard. If the
+// hazard DNFs the run, state.dnf is set and the segment record is pushed.
+export function beginSegment(state, segmentIndex) {
+  const segment = state.course[segmentIndex];
+  drawToHandSize(state);
+  const strainCountAtStart = state.hand.filter((item) => item.cardId === 'unsettled').length;
+  const segmentStrainPenalty = strainPenalty(strainCountAtStart);
+  const hazard = resolveHazard(state, segment);
+  if (hazard.dnf) {
+    state.dnf = true;
+    state.segments.push({ segmentId: segment.id, segmentName: segment.name, dnf: true, hazardCardId: hazard.cardId });
+  }
+  return { segment, segmentIndex, strainCountAtStart, segmentStrainPenalty, hazard };
+}
+
+// Plays a Utility (or discards a Strain) by instance id; null = skip.
+// `bot` is optional — draw-then-discard effects fall back to the built-in
+// discard policy (Strain first) when no chooser is provided.
+export function playUtilityCard(state, instanceId, bot = {}, context = {}) {
+  const instance = instanceId ? state.hand.find((item) => item.instanceId === instanceId) ?? null : null;
+  return playUtility(state, instance, bot, context);
+}
+
+// Resolves the Line play and finishes the segment. lineInstanceId null =
+// fall back to Safe Line (always available, prevents bricked hands).
+export function finishSegment(state, begin, { lineInstanceId = null, utility = null, runIndex = 0 }) {
+  const { segment, strainCountAtStart, segmentStrainPenalty, hazard } = begin;
+  const resolvedUtility = utility ?? { played: false, nextLineTime: 0, tireWearMultiplier: 1 };
+  const lineInstance = lineInstanceId ? state.hand.find((item) => item.instanceId === lineInstanceId) ?? null : null;
+  const lineCard = lineInstance ? getCard(lineInstance.cardId) : getCard('safe-line');
+  if (lineInstance) discardInstance(state, lineInstance.instanceId);
+  const onAffinity = isOnAffinity(lineCard, segment);
+  const affinityMultiplier = onAffinity ? 1 : OFF_AFFINITY_EFFECT_MULTIPLIER;
+  const wearMultiplier = onAffinity ? 1 : OFF_AFFINITY_WEAR_MULTIPLIER;
+  const outcome = controlOutcome({ state, card: lineCard, segment, onAffinity, hazardControlPenalty: hazard.controlPenalty });
+  applyWear(state.wear, lineCard.wear, wearMultiplier, { tireWearMultiplier: resolvedUtility.tireWearMultiplier, tireWearFlatAdd: state.passives.tireWearFlatAdd ?? 0 });
+  const effect = lineCard.effect ?? {};
+  if (effect.addStrainToHand) addStrain(state, effect.addStrainToHand);
+  if (outcome.offCourse) {
+    state.dnf = true; state.flow = 0;
+    const record = { segmentId: segment.id, lineCardId: lineCard.id, dnf: true, dnfReason: 'off-course' };
+    state.segments.push(record);
+    return record;
+  }
+  const cold = runIndex === 0 && state.passives.firstRunColdTireTimePenalty ? state.passives.firstRunColdTireTimePenalty / state.course.length : 0;
+  const segmentTime = segment.par + lineCard.timeDelta * affinityMultiplier + (state.flow > 0 ? FLOW_TIME_BONUS : 0) + resolvedUtility.nextLineTime + hazard.timePenalty + segmentStrainPenalty + vehicleAdjustment(state.vehicle, segment) + cold + outcome.coneCount * CONE_PENALTY_SECONDS;
+  const cleanTechnique = lineCard.type === CARD_TYPES.TECHNIQUE && onAffinity && outcome.coneCount === 0 && !hazard.fired;
+  if (effect.breaksFlow || lineCard.type === CARD_TYPES.AGGRESSION || outcome.coneCount > 0) state.flow = 0;
+  else if (cleanTechnique) state.flow = MAX_FLOW;
+  else if (hazard.fired && !effect.protectFlowFromHazard) state.flow = 0;
+  state.totalTime += segmentTime; state.cones += outcome.coneCount;
+  const record = { segmentId: segment.id, segmentName: segment.name, lineCardId: lineCard.id, utilityCardId: resolvedUtility.cardId ?? null, onAffinity, hazardCardId: hazard.cardId, strainCountAtStart, strainPenalty: segmentStrainPenalty, coneCount: outcome.coneCount, controlMargin: outcome.margin, segmentTime, flowAfter: state.flow };
+  state.segments.push(record);
+  return record;
+}
+
+export function finalizeRun(state) {
+  return { time: state.dnf ? null : state.totalTime, dnf: state.dnf, cones: state.cones, wearAfter: state.wear, segments: state.segments, cardsRemaining: state.drawPile.length, finalHand: state.hand.map((item) => item.cardId) };
+}
+
 export function runAutocrossRun({ course, competitiveDeck, hazardCardIds = [], bot, random = Math.random, wear = DEFAULT_WEAR, courseWalks = 2, runIndex = 0 }) {
   const state = createRunState({ competitiveDeck, hazardCardIds, course, random, wear, courseWalks });
   for (let count = 0; count < (state.passives.startingMulligans ?? 0); count += 1) { const id = bot.chooseMulligan?.({ hand: [...state.hand], course, runIndex }); if (!id || !discardInstance(state, id)) break; drawOne(state); }
   for (let segmentIndex = 0; segmentIndex < course.length; segmentIndex += 1) {
-    const segment = course[segmentIndex]; drawToHandSize(state); const strainCountAtStart = state.hand.filter((item) => item.cardId === 'unsettled').length; const segmentStrainPenalty = strainPenalty(strainCountAtStart); const hazard = resolveHazard(state, segment);
-    if (hazard.dnf) { state.dnf = true; state.segments.push({ segmentId: segment.id, segmentName: segment.name, dnf: true, hazardCardId: hazard.cardId }); break; }
-    const context = { state, segment, segmentIndex, course, runIndex, hazard, strainCountAtStart };
-    const utilityId = bot.chooseUtility?.({ ...context, hand: [...state.hand] }); const utility = playUtility(state, state.hand.find((item) => item.instanceId === utilityId) ?? null, bot, context);
-    const lineInstance = selectLine(state, bot, context); const lineCard = lineInstance ? getCard(lineInstance.cardId) : getCard('safe-line'); if (lineInstance) discardInstance(state, lineInstance.instanceId);
-    const onAffinity = isOnAffinity(lineCard, segment); const affinityMultiplier = onAffinity ? 1 : OFF_AFFINITY_EFFECT_MULTIPLIER; const wearMultiplier = onAffinity ? 1 : OFF_AFFINITY_WEAR_MULTIPLIER;
-    const outcome = controlOutcome({ state, card: lineCard, segment, onAffinity, hazardControlPenalty: hazard.controlPenalty });
-    applyWear(state.wear, lineCard.wear, wearMultiplier, { tireWearMultiplier: utility.tireWearMultiplier, tireWearFlatAdd: state.passives.tireWearFlatAdd ?? 0 });
-    const effect = lineCard.effect ?? {}; if (effect.addStrainToHand) addStrain(state, effect.addStrainToHand);
-    if (outcome.offCourse) { state.dnf = true; state.flow = 0; state.segments.push({ segmentId: segment.id, lineCardId: lineCard.id, dnf: true, dnfReason: 'off-course' }); break; }
-    const cold = runIndex === 0 && competitiveDeck.passives.firstRunColdTireTimePenalty ? competitiveDeck.passives.firstRunColdTireTimePenalty / course.length : 0;
-    const segmentTime = segment.par + lineCard.timeDelta * affinityMultiplier + (state.flow > 0 ? FLOW_TIME_BONUS : 0) + utility.nextLineTime + hazard.timePenalty + segmentStrainPenalty + vehicleAdjustment(state.vehicle, segment) + cold + outcome.coneCount * CONE_PENALTY_SECONDS;
-    const cleanTechnique = lineCard.type === CARD_TYPES.TECHNIQUE && onAffinity && outcome.coneCount === 0 && !hazard.fired;
-    if (effect.breaksFlow || lineCard.type === CARD_TYPES.AGGRESSION || outcome.coneCount > 0) state.flow = 0; else if (cleanTechnique) state.flow = MAX_FLOW; else if (hazard.fired && !effect.protectFlowFromHazard) state.flow = 0;
-    state.totalTime += segmentTime; state.cones += outcome.coneCount; state.segments.push({ segmentId: segment.id, segmentName: segment.name, lineCardId: lineCard.id, utilityCardId: utility.cardId ?? null, onAffinity, hazardCardId: hazard.cardId, strainCountAtStart, strainPenalty: segmentStrainPenalty, coneCount: outcome.coneCount, controlMargin: outcome.margin, segmentTime, flowAfter: state.flow });
+    const begin = beginSegment(state, segmentIndex);
+    if (state.dnf) break;
+    const context = { state, segment: begin.segment, segmentIndex, course, runIndex, hazard: begin.hazard, strainCountAtStart: begin.strainCountAtStart };
+    const utilityId = bot.chooseUtility?.({ ...context, hand: [...state.hand] });
+    const utility = playUtilityCard(state, utilityId ?? null, bot, context);
+    const lineInstance = selectLine(state, bot, context);
+    finishSegment(state, begin, { lineInstanceId: lineInstance?.instanceId ?? null, utility, runIndex });
+    if (state.dnf) break;
   }
-  return { time: state.dnf ? null : state.totalTime, dnf: state.dnf, cones: state.cones, wearAfter: state.wear, segments: state.segments, cardsRemaining: state.drawPile.length, finalHand: state.hand.map((item) => item.cardId) };
+  return finalizeRun(state);
 }
+
+// Interactive helpers for the UI event loop — keep the run-correction and
+// post-event tire wear rules in ONE place so the interactive controller
+// can't drift from runAutocrossEvent.
+export function applyRunCorrection(time, runIndex) { return time == null ? null : Math.max(0, time - runIndex * 0.12); }
+export function applyPostEventTireWear(wear, passives) { if (passives.postEventTireWear) wear.tires = Math.max(0, wear.tires - passives.postEventTireWear); return wear; }
+export function previewHazards(ids, passives) { return hazardPreview(ids, passives); }
+export function performMulligan(state, instanceId) { if (!instanceId || !discardInstance(state, instanceId)) return false; drawOne(state); return true; }
 export function runAutocrossEvent({ vehicleId, tireId = 'street_performance', modIds = [], bot, random = Math.random, wear = DEFAULT_WEAR, skippedMaintenance = [], courseWalks = 2, runs, targetTime }) {
   const discipline = getDiscipline('autocross'); const competitiveDeck = buildCompetitiveDeck({ vehicleId, tireId, modIds }); const course = discipline.generateCourse(random); let currentWear = cloneWear(wear); const ids = buildHazardDeck({ skippedMaintenance, wear: currentWear, skippedCourseWalk: courseWalks === 0 }); const results = [];
   for (let runIndex = 0; runIndex < (runs ?? discipline.defaultRuns); runIndex += 1) { const result = runAutocrossRun({ course, competitiveDeck, hazardCardIds: ids, bot, random, wear: currentWear, courseWalks, runIndex }); currentWear = result.wearAfter; if (!result.dnf && result.time != null) result.time = Math.max(0, result.time - runIndex * 0.12); results.push(result); }

@@ -4,10 +4,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  CARDS, CARD_BY_ID, getCard, BASE_AUTOCROSS_DECK,
+  CARDS, getCard, BASE_AUTOCROSS_DECK,
   buildCompetitiveDeck, buildHazardDeck,
-  runAutocrossRun, runAutocrossEvent, getAutocrossTargetTime, createRunState,
-  getDiscipline, VEHICLES, getVehicle, TIRES, MODS,
+  runAutocrossRun, runAutocrossEvent, createRunState,
+  getDiscipline, VEHICLES, getVehicle, TIRES,
   mulberry32, shuffle,
   balancedBot, affinityBot, createRandomBot,
   DEFAULT_HAND_SIZE, CONE_PENALTY_SECONDS,

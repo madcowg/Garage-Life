@@ -4,7 +4,7 @@
 // maintain policy. Run: npm run simulate  (env: SEASONS, EVENTS, SEED)
 import { writeFileSync, mkdirSync } from 'node:fs';
 import {
-  runAutocrossEvent, buildCompetitiveDeck,
+  runAutocrossEvent,
   balancedBot, cleanBot, aggressionBot, affinityBot, createRandomBot,
   mulberry32, DEFAULT_WEAR,
 } from '../src/game/index.js';
