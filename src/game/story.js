@@ -30,7 +30,7 @@ export const LOCATIONS = {
 export const SEASON_SNIPPETS = {
   career_start: [
     "The coast road into Cape Marlow still smells like salt and hot pavement — same as every summer the autocross crowd's run the old airfield lot. $300, a stock car, and an entry fee waiting to be paid.",
-    "Cape Marlow doesn't announce itself. Just a coast highway, a beat-up shop two blocks off it, and a chalk-lined airfield where the local points chase starts from zero — same as everyone else's.",
+    "Cape Marlow doesn't announce itself. Just a coast highway, a beat-up shop two blocks off it, and an airfield lined with orange cones and chalk where the local points chase starts from zero — same as everyone else's.",
   ],
   first_entry: [
     "Rex takes the cash without counting it twice. \"Entry fee, work assignment, cone count — that's the whole sport. Rest is just driving.\" First event of the season, paid out of pocket, same as every car on that grid.",
@@ -123,7 +123,7 @@ export const CODEX = {
   npc_marisol: { id: "npc_marisol", category: "npc", title: "Marisol Vance", body: "Runs the tightest lines at the airfield and hands out setup advice like it costs her nothing — because to her, it doesn't. The club only gets faster if everyone does." },
   npc_walt: { id: "npc_walt", category: "npc", title: "Walt Corliss", body: "Bought the Corvette outright the week he retired. Took two seasons of DNFs before he stopped blaming the car. Now he's the first one over the fence to check on anyone who spins." },
   loc_garage: { id: "loc_garage", category: "location", title: "Dead Reckoning Garage", body: "Two blocks off the coast road, one bay always smells like brake cleaner. Every Stage 1 part that's ever gone into a Cape Marlow car passed over this counter first." },
-  loc_airfield: { id: "loc_airfield", category: "location", title: "The Airfield", body: "A decommissioned strip past the last stoplight in town. Cones, chalk lines, a card table for entry fees, and a standings sheet that's been taped to the same clipboard for years." },
+  loc_airfield: { id: "loc_airfield", category: "location", title: "The Airfield", body: "A decommissioned strip past the last stoplight in town. Orange cones and chalk lines mark the course, a card table handles entry fees, and a standings sheet's been taped to the same clipboard for years." },
   car_miata: { id: "car_miata", category: "car", carId: "miata" },
   car_integra: { id: "car_integra", category: "car", carId: "integra" },
   car_corvette: { id: "car_corvette", category: "car", carId: "corvette" },
