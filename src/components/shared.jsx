@@ -1,14 +1,30 @@
+import { useEffect, useState } from "react";
 import { C } from "../theme";
 
-// Shared responsive screen shell — every screen (including full-bleed ones
-// like the title) sizes from the actual viewport: 100dvh tall (mobile
-// browser-chrome safe), full-width column on phones, centered max-width
-// column on desktop. Keeps the app and title screen reading as one app
-// instead of two different layouts.
+// Game-style viewport scaling: the UI is designed at a fixed column width,
+// then zoomed up to fill the actual display — same behavior as the
+// full-bleed title screen, so the game no longer reads "reduced" next to
+// it on a big monitor. Width-based only (vertical scrolls normally);
+// phones get scale 1.
+function useViewportScale() {
+  const calc = () => Math.min(Math.max(window.innerWidth / 1000, 1), 1.7);
+  const [scale, setScale] = useState(calc);
+  useEffect(() => {
+    const onResize = () => setScale(calc());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return scale;
+}
+
+// Shared responsive screen shell — every screen sizes from the actual
+// viewport: 100dvh tall (mobile browser-chrome safe), full-width column on
+// phones, centered column zoomed to match the display on desktop.
 export function Shell({ maxWidth = 760, children }) {
+  const scale = useViewportScale();
   return (
     <div style={{ minHeight: "100dvh", background: C.bg, color: C.white, fontFamily: "monospace", display: "flex", justifyContent: "center" }}>
-      <div style={{ width: "100%", maxWidth, padding: "clamp(10px, 3vw, 24px)" }}>
+      <div style={{ width: "100%", maxWidth, padding: "clamp(10px, 3vw, 24px)", zoom: scale }}>
         {children}
       </div>
     </div>
