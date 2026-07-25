@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
-import { ENTRY_FEE, PREP_COSTS, DIY_PREP_AP_COST } from "../game/career";
+import { PREP_COSTS, DIY_PREP_AP_COST, effectiveEntryFee, NPC_STANDING_THRESHOLDS } from "../game/career";
 import { buildPreRacePreview, getCard } from "../game/v2";
 import { GameCard } from "./CardHand";
 import { C } from "../theme";
@@ -43,7 +43,12 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
   const prepCost = diyPrep ? 0 : (diagnostics ? PREP_COSTS.diagnostics : 0) + (courseWalk ? PREP_COSTS.courseWalk : 0)
     + (maintenance.fluids ? PREP_COSTS.fluids : 0) + (maintenance.tires ? PREP_COSTS.tires : 0) + (maintenance.brakes ? PREP_COSTS.brakes : 0);
   const extraAp = diyPrep ? DIY_PREP_AP_COST : 0;
-  const totalCost = ENTRY_FEE + prepCost;
+  // Dez's one-time favor at Trusted standing covers the entry fee outright;
+  // otherwise the fee reflects Racing Cred (respected regulars pay less,
+  // known troublemakers pay more — see career.js RACING_CRED_TIERS).
+  const dezCoversEntry = (career.npcStanding?.dez ?? 0) >= NPC_STANDING_THRESHOLDS.TRUSTED && !career.dezFreeEntryUsed;
+  const entryFee = dezCoversEntry ? 0 : effectiveEntryFee(career.racingCred);
+  const totalCost = entryFee + prepCost;
 
   const loadout = { car: career.car, variant: career.variant, mods, tire, diagnostics, courseWalk, maintenance };
   const preview = useMemo(() => {
@@ -149,15 +154,20 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           const ok = canAffordCash && canAffordAp;
           return (
             <>
-              {(prepCost > 0 || diyPrep) && (
+              {dezCoversEntry && (
+                <div style={{ textAlign: "center", fontSize: 9, color: C.gold, marginBottom: 8 }}>
+                  🤝 Dez is covering your entry this time — Trusted standing perk, one-time.
+                </div>
+              )}
+              {(prepCost > 0 || diyPrep || entryFee !== 25) && !dezCoversEntry && (
                 <div style={{ textAlign: "center", fontSize: 9, color: "#888", marginBottom: 8 }}>
                   {diyPrep
-                    ? `$${ENTRY_FEE} entry (prep done yourself, +${extraAp} AP)`
-                    : `$${ENTRY_FEE} entry + $${prepCost} prep = $${totalCost} total`}
+                    ? `$${entryFee} entry (prep done yourself, +${extraAp} AP)`
+                    : `$${entryFee} entry + $${prepCost} prep = $${totalCost} total`}
                 </div>
               )}
               <button
-                onClick={() => ok && onStart(loadout, totalCost, extraAp)}
+                onClick={() => ok && onStart(loadout, totalCost, extraAp, dezCoversEntry)}
                 disabled={!ok}
                 style={{ width: "100%", padding: "14px 0", background: ok ? C.pink : "#1a1a2e", color: ok ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: ok ? "pointer" : "not-allowed", letterSpacing: 2 }}
               >
@@ -165,7 +175,7 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
               </button>
               {!canAffordCash && (
                 <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
-                  Need ${totalCost} cash (${ENTRY_FEE} entry + ${prepCost} prep) — uncheck some prep or DIY it instead.
+                  Need ${totalCost} cash (${entryFee} entry + ${prepCost} prep) — uncheck some prep or DIY it instead.
                 </div>
               )}
               {canAffordCash && !canAffordAp && (

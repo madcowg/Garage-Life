@@ -73,6 +73,25 @@ export function createNewCareer(car, variant) {
     // de-dupes the per-career narrative beats so each fires once per run.
     eventsRegistered: 0,
     storySeen: [],
+    // Reputation, split in two on top of Points (career.reputation, the
+    // cold competitive number that drives the Nationals-bid grade — see
+    // SEASON_GRADE_LABEL below, unchanged by this split):
+    //   - racingCred: a single "good or bad" driver reputation with the
+    //     whole scene — clean wins raise it, DNFs/sloppy runs/getting
+    //     busted street racing lower it. Tiers affect the entry fee.
+    //   - npcStanding: dating-sim-esque per-character standing with Rex/
+    //     Dez/Marisol/Walt, each raised by actions associated with that
+    //     character. Tiers unlock character-specific perks (see
+    //     NPC_PERK_THRESHOLDS below).
+    // Both reset every new career, same roguelike-baseline rule as Points
+    // and work tenure — they're this run's social capital, not permanent
+    // meta progression.
+    racingCred: 0,
+    npcStanding: { rex: 0, dez: 0, marisol: 0, walt: 0 },
+    // One-time favors unlocked at an NPC's higher standing tier — consumed
+    // the next time they'd apply, not re-grantable within the same career.
+    dezFreeEntryUsed: false,
+    waltFreeMaintainUsed: false,
   };
 }
 
@@ -214,7 +233,9 @@ export function resolveStreetRace(tireWear) {
   return { rawRoll, cash: 90 + Math.floor(Math.random() * 41), tireWearDelta: 0, event: "untouchable", message: "Untouchable tonight. Best money you've made all month, and nobody's the wiser." };
 }
 
-// design doc §2 — race cash/reputation formulas.
+// design doc §2 — race cash/reputation (Points) formulas. Points is the
+// cold competitive number that drives the Nationals-bid grade — unchanged
+// by the Racing Cred / NPC Standing split below.
 export function computeRaceReward({ totalTime, target, conesHit, blindHazardCount }) {
   const secondsUnder = Math.max(0, target - totalTime);
   const bonus = Math.min(100, 20 * secondsUnder);
@@ -225,17 +246,85 @@ export function computeRaceReward({ totalTime, target, conesHit, blindHazardCoun
   return { cash, reputation, won, cleanWin };
 }
 
+// ----------------------------------------------------------------------
+// RACING CRED — a single "good or bad" driver reputation, separate from
+// Points. Clean wins raise it, DNFs/sloppy runs/getting busted street
+// racing lower it. Tiers shift the entry fee — the scene charges known
+// troublemakers more and cuts respected regulars a break.
+// ----------------------------------------------------------------------
+export function computeRacingCredDelta({ dnf, cleanWin, cones }) {
+  if (dnf) return -2;
+  if (cleanWin) return 2;
+  if (cones >= 3) return -1;
+  return 0;
+}
+
+export const RACING_CRED_TIERS = [
+  { max: -6, label: "SKETCHY", entryFeeDelta: 10 },
+  { max: 4, label: "UNPROVEN", entryFeeDelta: 0 },
+  { max: 14, label: "SOLID", entryFeeDelta: 0 },
+  { max: 29, label: "RESPECTED", entryFeeDelta: -5 },
+  { max: Infinity, label: "PADDOCK LEGEND", entryFeeDelta: -10 },
+];
+export function racingCredTier(cred) {
+  return RACING_CRED_TIERS.find(t => cred <= t.max);
+}
+export function effectiveEntryFee(racingCred) {
+  return Math.max(10, ENTRY_FEE + racingCredTier(racingCred).entryFeeDelta);
+}
+
+// ----------------------------------------------------------------------
+// NPC STANDING — dating-sim-esque per-character meters. Each NPC notices
+// different things: Rex cares about business (Shop visits), Dez about
+// friendliness (any win, more for clean), Marisol about skill (margin of
+// victory), Walt about a properly built car (mods installed). Standing
+// tiers unlock character-specific perks — see App.jsx for where each is
+// actually applied (Rex's tire discount, Marisol/Walt's reduced car-unlock
+// thresholds via checkCarUnlocks below, Dez/Walt's one-time favors).
+// ----------------------------------------------------------------------
+export const NPC_STANDING_THRESHOLDS = { FRIENDLY: 20, TRUSTED: 50 };
+export function npcStandingTier(value) {
+  if (value >= NPC_STANDING_THRESHOLDS.TRUSTED) return "TRUSTED";
+  if (value >= NPC_STANDING_THRESHOLDS.FRIENDLY) return "FRIENDLY";
+  return "STRANGER";
+}
+
+// Dez (+3 win / +5 clean) and Marisol (+1 win / +4 on a 3s+ margin — she
+// respects the gap, not just the result) both move off the same race.
+export function computeRaceNpcDeltas({ won, cleanWin, marginSeconds }) {
+  if (!won) return { dez: 0, marisol: 0 };
+  return { dez: cleanWin ? 5 : 3, marisol: marginSeconds >= 3 ? 4 : 1 };
+}
+
+// Rex's tire discount — the more business you give the shop, the better
+// the price gets.
+export function rexTireDiscount(rexStanding) {
+  if (rexStanding >= NPC_STANDING_THRESHOLDS.TRUSTED) return 0.2;
+  if (rexStanding >= NPC_STANDING_THRESHOLDS.FRIENDLY) return 0.1;
+  return 0;
+}
+export function discountedTirePrice(basePrice, rexStanding) {
+  return Math.max(0, Math.round(basePrice * (1 - rexTireDiscount(rexStanding))));
+}
+
 // design doc §7 — mods unlock permanently once *lifetime* cash earned this
 // career crosses each threshold (not current spendable balance).
 export function checkModUnlocks(lifetimeCashEarned, unlockedModIds) {
   return MODS.filter(m => lifetimeCashEarned >= m.unlockThreshold && !unlockedModIds.includes(m.id)).map(m => m.id);
 }
 
-// design doc §3 — the two concrete MVP car-unlock conditions.
-export function checkCarUnlocks({ reputation, wins }, unlockedCarIds) {
+// design doc §3 — the two concrete MVP car-unlock conditions. Marisol and
+// Walt's standing can lower the bar — the whole point of "inaccessible
+// vehicles" being an NPC-standing perk (a word put in on your behalf
+// counts for something).
+export function checkCarUnlocks({ reputation, wins }, npcStanding, unlockedCarIds) {
   const newlyUnlocked = [];
-  if (reputation >= 40 && !unlockedCarIds.includes("hondaCivicSir")) newlyUnlocked.push("hondaCivicSir");
-  if (wins >= 3 && !unlockedCarIds.includes("mazdaRx7Fd")) newlyUnlocked.push("mazdaRx7Fd");
+  const marisol = npcStanding?.marisol ?? 0;
+  const walt = npcStanding?.walt ?? 0;
+  const sirThreshold = marisol >= NPC_STANDING_THRESHOLDS.TRUSTED ? 20 : marisol >= NPC_STANDING_THRESHOLDS.FRIENDLY ? 30 : 40;
+  const rx7Threshold = walt >= NPC_STANDING_THRESHOLDS.TRUSTED ? 1 : walt >= NPC_STANDING_THRESHOLDS.FRIENDLY ? 2 : 3;
+  if (reputation >= sirThreshold && !unlockedCarIds.includes("hondaCivicSir")) newlyUnlocked.push("hondaCivicSir");
+  if (wins >= rx7Threshold && !unlockedCarIds.includes("mazdaRx7Fd")) newlyUnlocked.push("mazdaRx7Fd");
   return newlyUnlocked;
 }
 

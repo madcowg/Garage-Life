@@ -150,6 +150,8 @@ export const ACHIEVEMENTS = [
   { id: "nationals_bid", title: "Nationals Bid", desc: "End a season with a Nationals-bid points finish.", icon: "🥇" },
   { id: "car_hondaCivicSir", title: "SiR Respect", desc: "Unlock the Honda Civic SiR.", icon: "🚗" },
   { id: "car_mazdaRx7Fd", title: "Rotary Regard", desc: "Unlock the Mazda RX-7 FD.", icon: "🚗" },
+  { id: "cred_legend", title: "Paddock Legend", desc: "Reach Paddock Legend racing cred in a season.", icon: "🏅" },
+  { id: "trusted_by_all", title: "One of Us", desc: "Earn Trusted standing with everyone in Cape Marlow.", icon: "🤝" },
 ];
 
 // Per-career triggers get de-duped via career.storySeen (fire once per run);

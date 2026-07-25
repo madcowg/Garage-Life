@@ -1,4 +1,5 @@
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
+import { discountedTirePrice, npcStandingTier } from "../game/career";
 import { C } from "../theme";
 import { Shell, Section } from "./shared";
 
@@ -7,10 +8,13 @@ import { Shell, Section } from "./shared";
 // commitment pattern as paying an event entry fee in PreRaceSetup. Splits
 // "unlocked" (meta, Rex will sell it to you) from "installed" (this
 // career's equipment, permanent once done) — see career.js installedMods.
+// Rex's standing (more business = better prices) discounts tires directly.
 export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave }) {
   const car = CARS[career.car];
   const owned = career.ownedTires ?? ["stock"];
   const installed = career.installedMods ?? [];
+  const rexStanding = career.npcStanding?.rex ?? 0;
+  const rexTier = npcStandingTier(rexStanding);
 
   return (
     <Shell maxWidth={640}>
@@ -19,6 +23,9 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
           <div style={{ fontSize: 20, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>DEAD RECKONING GARAGE</div>
           <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2 }}>{car.name} — CASH ${career.cash}</div>
         </div>
+        <div style={{ textAlign: "right", fontSize: 9, color: "#888" }}>
+          Rex: <span style={{ color: C.gold, fontWeight: "bold" }}>{rexTier}</span>
+        </div>
       </div>
 
       <Section title="TIRES">
@@ -26,7 +33,8 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
           {Object.entries(TIRE_CATALOG).map(([id, t]) => {
             const isOwned = owned.includes(id);
             const requiresMet = !t.requires || owned.includes(t.requires);
-            const canBuy = !isOwned && requiresMet && career.cash >= t.price;
+            const price = discountedTirePrice(t.price, rexStanding);
+            const canBuy = !isOwned && requiresMet && career.cash >= price;
             return (
               <div key={id} style={{ flex: "1 1 180px", padding: 10, background: isOwned ? "#122b28" : C.panel, border: `1px solid ${isOwned ? C.teal : C.border}`, borderRadius: 4, color: C.white, opacity: isOwned || requiresMet ? 1 : 0.55 }}>
                 <div style={{ fontSize: 10, fontWeight: "bold" }}>{t.label}</div>
@@ -34,8 +42,8 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
                 {isOwned ? (
                   <div style={{ marginTop: 6, fontSize: 9, color: C.teal, fontWeight: "bold" }}>✓ OWNED</div>
                 ) : (
-                  <button onClick={() => canBuy && onBuyTire(id, t.price)} disabled={!canBuy} style={{ marginTop: 6, width: "100%", padding: 6, background: canBuy ? C.gold : "#1a1a2e", color: canBuy ? C.purple : "#555", border: "none", borderRadius: 3, cursor: canBuy ? "pointer" : "not-allowed", fontFamily: "monospace", fontSize: 9, fontWeight: "bold" }}>
-                    {!requiresMet ? `NEEDS ${TIRE_CATALOG[t.requires].label.toUpperCase()}` : `BUY $${t.price}`}
+                  <button onClick={() => canBuy && onBuyTire(id, price)} disabled={!canBuy} style={{ marginTop: 6, width: "100%", padding: 6, background: canBuy ? C.gold : "#1a1a2e", color: canBuy ? C.purple : "#555", border: "none", borderRadius: 3, cursor: canBuy ? "pointer" : "not-allowed", fontFamily: "monospace", fontSize: 9, fontWeight: "bold" }}>
+                    {!requiresMet ? `NEEDS ${TIRE_CATALOG[t.requires].label.toUpperCase()}` : price < t.price ? `BUY $${price} (was $${t.price})` : `BUY $${price}`}
                   </button>
                 )}
               </div>

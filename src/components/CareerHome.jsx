@@ -1,5 +1,5 @@
 import { CARS } from "../game/data";
-import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, ENTRY_FEE, JUNKYARD_CAR_CLAIM_PRICE } from "../game/career";
+import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, JUNKYARD_CAR_CLAIM_PRICE, effectiveEntryFee, racingCredTier } from "../game/career";
 import { C } from "../theme";
 import { Shell } from "./shared";
 
@@ -35,6 +35,8 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
   const offer = career.junkyardCarOffer;
   const offerCar = offer ? CARS[offer.carId] : null;
   const canClaim = offer && career.cash >= JUNKYARD_CAR_CLAIM_PRICE;
+  const entryFee = effectiveEntryFee(career.racingCred ?? 0);
+  const credTier = racingCredTier(career.racingCred ?? 0);
 
   return (
     <Shell maxWidth={640}>
@@ -71,6 +73,10 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
             <div style={{ fontSize: 18, fontWeight: "bold", color: C.teal }}>{career.reputation}</div>
           </div>
           <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
+            <div style={{ fontSize: 8, color: "#888" }}>CRED</div>
+            <div style={{ fontSize: 12, fontWeight: "bold", color: C.pink }}>{career.racingCred ?? 0} — {credTier.label}</div>
+          </div>
+          <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
             <div style={{ fontSize: 8, color: "#888" }}>JOB</div>
             <div style={{ fontSize: 10, fontWeight: "bold", color: emp.status === "employed" ? C.green : emp.status === "pending" ? C.orange : C.red }}>
               {emp.status === "employed" ? `Employed (${emp.tenureMonths}mo)` : emp.status === "pending" ? "Starts next month" : "Unemployed"}
@@ -92,7 +98,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <button onClick={onRace} disabled={career.racedThisMonth} style={actionBtnStyle(C.pink, career.racedThisMonth)}>
             🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>
-              — {career.racedThisMonth ? "already run this month — one sanctioned event per month" : `1 AP, $${ENTRY_FEE} entry fee, autocross event at the Airfield`}
+              — {career.racedThisMonth ? "already run this month — one sanctioned event per month" : `1 AP, $${entryFee} entry fee, autocross event at the Airfield`}
             </span>
           </button>
 

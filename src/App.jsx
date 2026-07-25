@@ -3,6 +3,8 @@ import {
   createNewCareer, advanceAfterAction, spendAp, checkMonthRollover, resolveWork, resolveJobHunt,
   resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE, JUNKYARD_UPGRADE_PRICE,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
+  computeRacingCredDelta, computeRaceNpcDeltas, effectiveEntryFee, discountedTirePrice,
+  NPC_STANDING_THRESHOLDS,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
@@ -112,6 +114,8 @@ export default function App() {
     setCareer({
       ownedTires: ["stock"], eventsRegistered: 0, storySeen: [],
       installedMods: [], racedThisMonth: false, maintainedThisMonth: false, junkyardCarOffer: null,
+      racingCred: 0, npcStanding: { rex: 0, dez: 0, marisol: 0, walt: 0 },
+      dezFreeEntryUsed: false, waltFreeMaintainUsed: false,
       ...snap.career,
     });
     setSeasonEnded(snap.seasonEnded ?? false);
@@ -134,6 +138,16 @@ export default function App() {
     return { career: careerWithSeen, meta: nextMeta, triggers };
   };
 
+  // Permanent (meta) achievements tied to crossing the top Racing Cred /
+  // NPC Standing tiers — checked after any action that can move either.
+  const checkStandingAchievements = (updatedCareer, currentMeta) => {
+    let nextMeta = currentMeta;
+    if (updatedCareer.racingCred >= 30) nextMeta = unlockAchievement(nextMeta, "cred_legend");
+    const allTrusted = Object.values(updatedCareer.npcStanding).every(v => v >= NPC_STANDING_THRESHOLDS.TRUSTED);
+    if (allTrusted) nextMeta = unlockAchievement(nextMeta, "trusted_by_all");
+    return nextMeta;
+  };
+
   // Lands on afterScreen directly, or detours through the story screen
   // first if any triggers fired this action.
   const proceedAfterStory = (triggers, afterScreen) => {
@@ -154,7 +168,7 @@ export default function App() {
 
   const applyUnlocks = (updatedCareer, currentMeta) => {
     const newMods = checkModUnlocks(updatedCareer.lifetimeCashEarned, currentMeta.unlockedMods);
-    const newCars = checkCarUnlocks({ reputation: updatedCareer.reputation, wins: updatedCareer.wins }, currentMeta.unlockedCars);
+    const newCars = checkCarUnlocks({ reputation: updatedCareer.reputation, wins: updatedCareer.wins }, updatedCareer.npcStanding, currentMeta.unlockedCars);
     let nextMeta = currentMeta;
     newMods.forEach(id => { nextMeta = unlockMod(nextMeta, id); });
     newCars.forEach(id => { nextMeta = unlockCar(nextMeta, id); });
@@ -210,13 +224,19 @@ export default function App() {
   // of quietly rolling the month over mid-race. The month/season rollover
   // that 1 AP might trigger still waits for handleRaceFinish's
   // checkMonthRollover(), since the race isn't actually over yet.
-  const handleStartRace = (l, totalCost = ENTRY_FEE, extraAp = 0) => {
+  // dezCoversEntry: true when PreRaceSetup detected Dez's one-time Trusted
+  // favor applies and already zeroed the entry-fee portion of totalCost —
+  // this just marks the favor spent so it doesn't apply again.
+  const handleStartRace = (l, totalCost = ENTRY_FEE, extraAp = 0, dezCoversEntry = false) => {
     const apNeeded = extraAp + 1;
     if (career.cash < totalCost || career.racedThisMonth || career.ap < apNeeded) return;
     let working = career;
     for (let i = 0; i < extraAp; i++) working = advanceAfterAction(working).career;
     working = spendAp(working, 1);
-    const paid = { ...working, cash: working.cash - totalCost, eventsRegistered: working.eventsRegistered + 1, racedThisMonth: true };
+    const paid = {
+      ...working, cash: working.cash - totalCost, eventsRegistered: working.eventsRegistered + 1, racedThisMonth: true,
+      dezFreeEntryUsed: dezCoversEntry ? true : working.dezFreeEntryUsed,
+    };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
     setMeta(metaWithStory);
     setCareer(careerWithStory);
@@ -226,6 +246,8 @@ export default function App() {
 
   // Card-game event result (from CardRaceScreen/AutocrossEvent): bestTime of
   // 4 runs vs engine target; DNF events pay the minimum finisher's purse.
+  // Also moves Racing Cred (clean win up, DNF/sloppy down) and Dez/Marisol's
+  // NPC Standing — see career.js computeRacingCredDelta/computeRaceNpcDeltas.
   const handleRaceFinish = (result) => {
     const reward = computeRaceReward({
       totalTime: result.bestTime ?? result.targetTime + 99,
@@ -233,6 +255,10 @@ export default function App() {
       conesHit: result.bestCones,
       blindHazardCount: result.hazardsFiredInBest,
     });
+    const dnf = result.bestTime == null;
+    const credDelta = computeRacingCredDelta({ dnf, cleanWin: reward.cleanWin, cones: result.bestCones ?? 0 });
+    const marginSeconds = reward.won ? result.targetTime - result.bestTime : 0;
+    const npcDeltas = computeRaceNpcDeltas({ won: reward.won, cleanWin: reward.cleanWin, marginSeconds });
     const updated = {
       ...career,
       cash: career.cash + reward.cash,
@@ -242,11 +268,17 @@ export default function App() {
       wins: career.wins + (reward.won ? 1 : 0),
       cleanWins: career.cleanWins + (reward.cleanWin ? 1 : 0),
       wear: result.wearAfter,
+      racingCred: career.racingCred + credDelta,
+      npcStanding: {
+        ...career.npcStanding,
+        dez: career.npcStanding.dez + npcDeltas.dez,
+        marisol: career.npcStanding.marisol + npcDeltas.marisol,
+      },
     };
     const newMods = checkModUnlocks(updated.lifetimeCashEarned, meta.unlockedMods);
-    const newCars = checkCarUnlocks({ reputation: updated.reputation, wins: updated.wins }, meta.unlockedCars);
+    const newCars = checkCarUnlocks({ reputation: updated.reputation, wins: updated.wins }, updated.npcStanding, meta.unlockedCars);
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
-    let metaWithAch = nextMeta;
+    let metaWithAch = checkStandingAchievements(unlockedCareer, nextMeta);
     if (reward.cleanWin) metaWithAch = unlockAchievement(metaWithAch, "clean_win");
     if (MODS.every(m => metaWithAch.unlockedMods.includes(m.id))) metaWithAch = unlockAchievement(metaWithAch, "stage1_complete");
 
@@ -321,13 +353,20 @@ export default function App() {
   const handleMaintain = () => {
     if (career.maintainedThisMonth) return;
     const selfService = career.employment.status === "unemployed";
-    const cost = selfService ? SELF_MAINTAIN_COST : MAINTAIN_COST;
-    const updated = { ...career, cash: career.cash - cost, wear: { engine: 100, tires: 100, brakes: 100, trans: 100 }, maintainedThisMonth: true };
+    // Walt's one-time favor at Trusted standing: he waves the bill once.
+    const waltCovers = (career.npcStanding?.walt ?? 0) >= NPC_STANDING_THRESHOLDS.TRUSTED && !career.waltFreeMaintainUsed;
+    const cost = waltCovers ? 0 : (selfService ? SELF_MAINTAIN_COST : MAINTAIN_COST);
+    const updated = {
+      ...career, cash: career.cash - cost, wear: { engine: 100, tires: 100, brakes: 100, trans: 100 }, maintainedThisMonth: true,
+      waltFreeMaintainUsed: waltCovers ? true : career.waltFreeMaintainUsed,
+    };
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
     setActionResult({
       title: "SERVICED", icon: "🔧", color: C.green,
-      message: selfService
+      message: waltCovers
+        ? "Walt waves you off before you can even reach for your wallet. \"Trusted regulars don't pay for this one. Consider it even.\""
+        : selfService
         ? "Full service complete, done yourself in the driveway — engine, tires, brakes, and trans restored to 100%."
         : "Full service complete — engine, tires, brakes, and trans restored to 100%.",
       cashDelta: -cost,
@@ -347,14 +386,30 @@ export default function App() {
   // purchase; installing a mod requires it be unlocked in meta first
   // (Rex will sell it) and just adds it to this career's installedMods —
   // no extra cash cost beyond what already unlocked it.
+  // Rex's standing rises with every transaction (business is business) and
+  // discounts future tire prices in turn — see ShopScreen, which computes
+  // the same discountedTirePrice() so the displayed price always matches
+  // what actually gets charged here.
   const handleBuyTire = (tireId, price) => {
     if (career.cash < price || (career.ownedTires ?? []).includes(tireId)) return;
-    setCareer({ ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId] });
+    const updated = {
+      ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId],
+      npcStanding: { ...career.npcStanding, rex: career.npcStanding.rex + 4 },
+    };
+    setMeta(checkStandingAchievements(updated, meta));
+    setCareer(updated);
   };
 
+  // Installing a mod bumps both Rex (business) and Walt (respects a
+  // properly built car) — same transaction, two different reasons to care.
   const handleInstallMod = (modId) => {
     if (!meta.unlockedMods.includes(modId) || (career.installedMods ?? []).includes(modId)) return;
-    setCareer({ ...career, installedMods: [...(career.installedMods ?? []), modId] });
+    const updated = {
+      ...career, installedMods: [...(career.installedMods ?? []), modId],
+      npcStanding: { ...career.npcStanding, rex: career.npcStanding.rex + 4, walt: career.npcStanding.walt + 4 },
+    };
+    setMeta(checkStandingAchievements(updated, meta));
+    setCareer(updated);
   };
 
   const handleLeaveShop = () => {
@@ -447,15 +502,20 @@ export default function App() {
     });
   };
 
+  // Getting busted costs Racing Cred too — word gets around the sanctioned
+  // scene, same as a DNF would. A clean pass or better doesn't help it
+  // (it's still off the books — nobody's supposed to know it went well).
   const handleStreetRace = () => {
     const roll = resolveStreetRace(career.wear.tires);
     const updated = {
       ...career, cash: Math.max(0, career.cash + roll.cash),
       lifetimeCashEarned: career.lifetimeCashEarned + Math.max(0, roll.cash),
       wear: { ...career.wear, tires: clampWear(career.wear.tires + roll.tireWearDelta) },
+      racingCred: career.racingCred + (roll.event === "busted" ? -3 : 0),
     };
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
-    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
+    const metaWithAch = checkStandingAchievements(advanced, meta);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, metaWithAch);
     setActionResult({
       title: roll.event === "busted" ? "BUSTED" : "STREET RACING", icon: "🌃",
       color: roll.event === "busted" ? C.red : C.gold, message: roll.message, cashDelta: roll.cash,
@@ -512,6 +572,6 @@ export default function App() {
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
   if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
-  if (screen === "codex") return withCash(<CodexScreen meta={meta} onBack={() => setScreen(prevScreen)} />);
+  if (screen === "codex") return withCash(<CodexScreen meta={meta} career={career} onBack={() => setScreen(prevScreen)} />);
   return null;
 }

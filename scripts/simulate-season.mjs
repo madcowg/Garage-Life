@@ -100,7 +100,7 @@ function runSeason(chooseAction) {
     }
 
     checkModUnlocks(career.lifetimeCashEarned, unlockedMods).forEach(id => unlockedMods.push(id));
-    checkCarUnlocks({ reputation: career.reputation, wins: career.wins }, unlockedCars).forEach(id => unlockedCars.push(id));
+    checkCarUnlocks({ reputation: career.reputation, wins: career.wins }, {}, unlockedCars).forEach(id => unlockedCars.push(id));
   }
 
   const grade = computeSeasonGrade({ wins: career.wins, races: career.racesEntered, reputation: career.reputation });
