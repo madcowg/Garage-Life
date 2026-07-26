@@ -7,21 +7,21 @@
       "vehicleId": "miata_nb",
       "build": "stock",
       "bot": "affinity",
-      "winRate": 14.7,
-      "conesPerRun": 0.03,
+      "winRate": 14.1,
+      "conesPerRun": 0.02,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.54
+      "meanTargetMargin": 0.56
     },
     {
       "vehicleId": "miata_nb",
       "build": "stock",
       "bot": "balanced",
-      "winRate": 15.5,
-      "conesPerRun": 0.03,
+      "winRate": 13.9,
+      "conesPerRun": 0.02,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.54
+      "meanTargetMargin": 0.57
     },
     {
       "vehicleId": "miata_nb",
@@ -31,33 +31,33 @@
       "conesPerRun": 0,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 1.56
+      "meanTargetMargin": 1.57
     },
     {
       "vehicleId": "miata_nb",
       "build": "stock",
       "bot": "aggression",
-      "winRate": 0.8,
-      "conesPerRun": 1.18,
+      "winRate": 1.1,
+      "conesPerRun": 1.17,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.47
+      "meanTargetMargin": 2.46
     },
     {
       "vehicleId": "miata_nb",
       "build": "stock",
       "bot": "random",
       "winRate": 0.1,
-      "conesPerRun": 0.79,
+      "conesPerRun": 0.78,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.6
+      "meanTargetMargin": 2.58
     },
     {
       "vehicleId": "miata_nb",
       "build": "built",
       "bot": "affinity",
-      "winRate": 54.1,
+      "winRate": 54,
       "conesPerRun": 0.05,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
@@ -67,17 +67,17 @@
       "vehicleId": "miata_nb",
       "build": "built",
       "bot": "balanced",
-      "winRate": 53.2,
+      "winRate": 50.6,
       "conesPerRun": 0.03,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": -0.05
+      "meanTargetMargin": -0.03
     },
     {
       "vehicleId": "miata_nb",
       "build": "built",
       "bot": "clean",
-      "winRate": 11.8,
+      "winRate": 11.5,
       "conesPerRun": 0.01,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
@@ -87,17 +87,17 @@
       "vehicleId": "miata_nb",
       "build": "built",
       "bot": "aggression",
-      "winRate": 5.9,
-      "conesPerRun": 1.32,
+      "winRate": 6,
+      "conesPerRun": 1.31,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.2
+      "meanTargetMargin": 2.22
     },
     {
       "vehicleId": "miata_nb",
       "build": "built",
       "bot": "random",
-      "winRate": 1.1,
+      "winRate": 1.3,
       "conesPerRun": 0.91,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
@@ -107,9 +107,9 @@
       "vehicleId": "integra_gsr",
       "build": "stock",
       "bot": "affinity",
-      "winRate": 19.1,
-      "conesPerRun": 0.06,
-      "maintainsPerSeason": 2.8,
+      "winRate": 19.3,
+      "conesPerRun": 0.05,
+      "maintainsPerSeason": 2.76,
       "dnfEventPct": 0,
       "meanTargetMargin": 0.52
     },
@@ -117,11 +117,11 @@
       "vehicleId": "integra_gsr",
       "build": "stock",
       "bot": "balanced",
-      "winRate": 20.4,
-      "conesPerRun": 0.06,
-      "maintainsPerSeason": 2.79,
+      "winRate": 18.1,
+      "conesPerRun": 0.05,
+      "maintainsPerSeason": 2.78,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.5
+      "meanTargetMargin": 0.53
     },
     {
       "vehicleId": "integra_gsr",
@@ -131,55 +131,55 @@
       "conesPerRun": 0,
       "maintainsPerSeason": 2,
       "dnfEventPct": 0,
-      "meanTargetMargin": 1.32
+      "meanTargetMargin": 1.34
     },
     {
       "vehicleId": "integra_gsr",
       "build": "stock",
       "bot": "aggression",
-      "winRate": 2.3,
-      "conesPerRun": 1.16,
+      "winRate": 3,
+      "conesPerRun": 1.15,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.19
+      "meanTargetMargin": 2.14
     },
     {
       "vehicleId": "integra_gsr",
       "build": "stock",
       "bot": "random",
-      "winRate": 0,
+      "winRate": 0.1,
       "conesPerRun": 0.82,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.84
+      "meanTargetMargin": 2.86
     },
     {
       "vehicleId": "integra_gsr",
       "build": "built",
       "bot": "affinity",
-      "winRate": 51.8,
+      "winRate": 53.1,
       "conesPerRun": 0.07,
-      "maintainsPerSeason": 2.73,
+      "maintainsPerSeason": 2.69,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.04
+      "meanTargetMargin": 0.02
     },
     {
       "vehicleId": "integra_gsr",
       "build": "built",
       "bot": "balanced",
-      "winRate": 50.2,
-      "conesPerRun": 0.06,
+      "winRate": 49.3,
+      "conesPerRun": 0.05,
       "maintainsPerSeason": 2.95,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.06
+      "meanTargetMargin": 0.07
     },
     {
       "vehicleId": "integra_gsr",
       "build": "built",
       "bot": "clean",
-      "winRate": 11.4,
+      "winRate": 11.1,
       "conesPerRun": 0.01,
-      "maintainsPerSeason": 2.54,
+      "maintainsPerSeason": 2.53,
       "dnfEventPct": 0,
       "meanTargetMargin": 0.61
     },
@@ -187,61 +187,61 @@
       "vehicleId": "integra_gsr",
       "build": "built",
       "bot": "aggression",
-      "winRate": 7.2,
-      "conesPerRun": 1.3,
+      "winRate": 7,
+      "conesPerRun": 1.31,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.2
+      "meanTargetMargin": 2.24
     },
     {
       "vehicleId": "integra_gsr",
       "build": "built",
       "bot": "random",
-      "winRate": 0.6,
-      "conesPerRun": 0.97,
+      "winRate": 0.5,
+      "conesPerRun": 0.96,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.65
+      "meanTargetMargin": 2.62
     },
     {
       "vehicleId": "corvette_c6",
       "build": "stock",
       "bot": "affinity",
-      "winRate": 20.4,
-      "conesPerRun": 0.17,
+      "winRate": 18.8,
+      "conesPerRun": 0.16,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.61
+      "meanTargetMargin": 0.65
     },
     {
       "vehicleId": "corvette_c6",
       "build": "stock",
       "bot": "balanced",
-      "winRate": 20.4,
-      "conesPerRun": 0.17,
+      "winRate": 19.6,
+      "conesPerRun": 0.16,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.61
+      "meanTargetMargin": 0.62
     },
     {
       "vehicleId": "corvette_c6",
       "build": "stock",
       "bot": "clean",
-      "winRate": 1,
+      "winRate": 0.9,
       "conesPerRun": 0.06,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 1.29
+      "meanTargetMargin": 1.32
     },
     {
       "vehicleId": "corvette_c6",
       "build": "stock",
       "bot": "aggression",
-      "winRate": 4.5,
-      "conesPerRun": 1.31,
+      "winRate": 4.7,
+      "conesPerRun": 1.32,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.33
+      "meanTargetMargin": 2.36
     },
     {
       "vehicleId": "corvette_c6",
@@ -251,57 +251,57 @@
       "conesPerRun": 1.18,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 3.43
+      "meanTargetMargin": 3.44
     },
     {
       "vehicleId": "corvette_c6",
       "build": "built",
       "bot": "affinity",
-      "winRate": 50,
+      "winRate": 52.8,
       "conesPerRun": 0.2,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.1
+      "meanTargetMargin": 0.08
     },
     {
       "vehicleId": "corvette_c6",
       "build": "built",
       "bot": "balanced",
-      "winRate": 47,
+      "winRate": 48.1,
       "conesPerRun": 0.19,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.17
+      "meanTargetMargin": 0.16
     },
     {
       "vehicleId": "corvette_c6",
       "build": "built",
       "bot": "clean",
-      "winRate": 15.1,
+      "winRate": 14.4,
       "conesPerRun": 0.07,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 0.7
+      "meanTargetMargin": 0.68
     },
     {
       "vehicleId": "corvette_c6",
       "build": "built",
       "bot": "aggression",
-      "winRate": 8.2,
+      "winRate": 7.6,
       "conesPerRun": 1.49,
       "maintainsPerSeason": 3.01,
       "dnfEventPct": 0,
-      "meanTargetMargin": 2.44
+      "meanTargetMargin": 2.45
     },
     {
       "vehicleId": "corvette_c6",
       "build": "built",
       "bot": "random",
-      "winRate": 0.6,
-      "conesPerRun": 1.34,
+      "winRate": 0.7,
+      "conesPerRun": 1.33,
       "maintainsPerSeason": 3,
       "dnfEventPct": 0,
-      "meanTargetMargin": 3.22
+      "meanTargetMargin": 3.2
     }
   ]
 }

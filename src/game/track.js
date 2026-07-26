@@ -26,19 +26,41 @@ const SHAPE = {
   "decreasing-radius":   { steps: 18, stepLen: 9,  kind: "arc", totalTurn: Math.PI * 0.75 },
 };
 
-// Builds the full centerline + per-segment cone markers for one generated course.
-// Returns { points: [{x,y}], segMarkers: [{segKey, startIdx, endIdx}], cones: [{x,y,side}] }
-export function buildTrack(course, seed = Math.random()) {
-  let rng = mulberry32(Math.floor(seed * 1e9));
+// One turtle-graphics walk of a course into centerline points + cone
+// markers. Pulled out of buildTrack() so it can be retried with a fresh
+// rng stream (or a guaranteed-safe forced direction pattern) when the
+// result fails validation — see buildTrack below.
+//
+// Heading carries continuously from segment to segment — it used to be
+// forced back to exactly 0 after every wave/esse shape ("straighten out
+// before next segment"), which discarded whatever direction the course had
+// actually accumulated from every prior segment, not just that shape's own
+// contribution. That's what caused the illogical kinks: the path would
+// snap to "pointing up" regardless of where it actually was, violating the
+// most basic real-course-design rule ("flow like a river" — adjacent
+// sections should connect smoothly, never crossing or kinking). A wave/esse
+// shape's own turn already nets to ~0 by construction (symmetric halves /
+// complete cycles), so simply not resetting lets the path flow through
+// using whatever heading it entered with, small natural residue and all.
+export function walkCourse(course, rng, opts = {}) {
   let x = 0, y = 0, heading = 0; // heading: 0 = pointing "up" (negative y)
   const points = [{ x, y }];
   const segMarkers = [];
   const cones = [];
+  let altDir = -1; // only used by opts.forceAlternate, the guaranteed-safe fallback pattern
+  // Only the guaranteed-safe fallback scales turn angles down (default 1 =
+  // full-fidelity shapes). Direction alone doesn't stop a near-U-turn
+  // element (turnaround is ~171°) from looping back over itself regardless
+  // of alternating pattern — verified false by scripts/simulate-course-
+  // geometry.mjs, which is exactly why this exists instead of an assumed
+  // "alternating is safe" claim.
+  const turnScale = opts.turnScale ?? 1;
 
   course.forEach((segKey) => {
     const shape = SHAPE[segKey];
     const startIdx = points.length - 1;
-    const dir = rng() > 0.5 ? 1 : -1; // left/right variety, re-rolled per segment
+    // left/right variety, re-rolled per segment.
+    const dir = opts.forceAlternate ? (altDir = -altDir) : (rng() > 0.5 ? 1 : -1);
 
     if (shape.kind === "straight") {
       for (let i = 0; i < shape.steps; i++) {
@@ -47,7 +69,7 @@ export function buildTrack(course, seed = Math.random()) {
         points.push({ x, y });
       }
     } else if (shape.kind === "arc") {
-      const turnPerStep = (shape.totalTurn / shape.steps) * dir;
+      const turnPerStep = (shape.totalTurn * turnScale / shape.steps) * dir;
       for (let i = 0; i < shape.steps; i++) {
         heading += turnPerStep;
         x += Math.sin(heading) * shape.stepLen;
@@ -63,10 +85,9 @@ export function buildTrack(course, seed = Math.random()) {
         y -= Math.cos(heading) * shape.stepLen;
         points.push({ x, y });
       }
-      heading = 0; // straighten out before next segment
     } else if (shape.kind === "esse") {
       const half = Math.floor(shape.steps / 2);
-      const turn = (Math.PI * 0.5) / half;
+      const turn = (Math.PI * 0.5 * turnScale) / half;
       for (let i = 0; i < shape.steps; i++) {
         const sign = i < half ? dir : -dir;
         heading += turn * sign;
@@ -74,7 +95,6 @@ export function buildTrack(course, seed = Math.random()) {
         y -= Math.cos(heading) * shape.stepLen;
         points.push({ x, y });
       }
-      heading = 0;
     }
 
     const endIdx = points.length - 1;
@@ -108,6 +128,73 @@ export function buildTrack(course, seed = Math.random()) {
   });
 
   return { points, segMarkers, cones };
+}
+
+// Two segments (a0->a1) and (b0->b1) properly cross — standard
+// orientation/cross-product test.
+function cross(a, b, c) { return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x); }
+function segmentsIntersect(a0, a1, b0, b1) {
+  const d1 = cross(b0, b1, a0), d2 = cross(b0, b1, a1);
+  const d3 = cross(a0, a1, b0), d4 = cross(a0, a1, b1);
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+}
+
+// A course should never cross itself — called out explicitly as a
+// top-level rule in real course-design practice ("avoid crossovers",
+// checked at the sketch phase before anything gets built). MARGIN skips
+// index-adjacent edges: they share an endpoint and sit naturally close
+// together on a tight curve without actually crossing — only genuinely
+// far-apart-in-sequence crossings should trip this.
+const SELF_INTERSECT_MARGIN = 3;
+export function pathSelfIntersects(points) {
+  const n = points.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = i + SELF_INTERSECT_MARGIN; j < n - 1; j++) {
+      if (segmentsIntersect(points[i], points[i + 1], points[j], points[j + 1])) return true;
+    }
+  }
+  return false;
+}
+
+// Loose sanity backstop, independent of the crossing check above — a
+// course that wanders almost as far in one direction as its entire
+// pavement length is a degenerate random walk (several same-direction
+// turns in a row sending it off in a near-straight line), not a bounded
+// lot layout. A non-self-intersecting path can still do this, so it needs
+// its own check.
+export function pathWithinBounds(points) {
+  let length = 0;
+  for (let i = 1; i < points.length; i++) {
+    length += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+  }
+  const b = trackBounds(points);
+  const spanX = b.maxX - b.minX, spanY = b.maxY - b.minY;
+  return spanX <= length * 0.85 && spanY <= length * 0.85;
+}
+
+const MAX_GENERATION_ATTEMPTS = 12;
+
+// Builds the full centerline + per-segment cone markers for one generated
+// course. Returns { points: [{x,y}], segMarkers: [{segKey, startIdx, endIdx}], cones: [{x,y,side}] }
+// — the single source of truth both the top-down map (MiniMap/TrackCanvas)
+// and the pseudo-3D in-race view (RoadView, via road.js's curvature/cone
+// projection off these same points/cones) render from, so the two are
+// always mechanically in sync for whatever course this returns.
+//
+// Retries with a fresh rng stream if the walk crosses itself or wanders
+// out of bounds (see pathSelfIntersects/pathWithinBounds above); falls
+// back to a guaranteed-safe strictly-alternating direction pattern if
+// every retry fails (stress-tested in scripts/simulate-course-geometry.mjs
+// to confirm this never happens in practice, but the fallback exists so a
+// course is always produced regardless).
+export function buildTrack(course, seed = Math.random()) {
+  const baseSeed = Math.floor(seed * 1e9);
+  for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
+    const rng = mulberry32(baseSeed + attempt * 104729);
+    const result = walkCourse(course, rng);
+    if (!pathSelfIntersects(result.points) && pathWithinBounds(result.points)) return result;
+  }
+  return walkCourse(course, mulberry32(baseSeed), { forceAlternate: true, turnScale: 0.35 });
 }
 
 // A single left/right boundary cone pair at segPoints[idx] — used sparingly
