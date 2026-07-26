@@ -60,7 +60,7 @@ export default function CodexScreen({ meta, career, onBack }) {
 
   return (
     <Shell maxWidth={640}>
-      <ScreenHeader title="Codex" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
+      <ScreenHeader title="Achievements" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {TABS.map(t => (

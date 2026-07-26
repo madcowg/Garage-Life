@@ -30,7 +30,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           title={career.playerName ?? "My Garage Life"}
           status={`Month ${career.month} / ${SEASON_LENGTH_MONTHS} — ${career.ap} AP left`}
           nav={<>
-            <Button tone="pink" variant="outlined" size="sm" onClick={onViewCodex}>Codex</Button>
+            <Button tone="pink" variant="outlined" size="sm" onClick={onViewCodex}>Achievements</Button>
             <Button tone="gold" variant="outlined" size="sm" onClick={onViewLog}>Course log</Button>
           </>}
         />
