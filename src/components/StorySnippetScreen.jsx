@@ -1,35 +1,37 @@
-import { C } from "../theme";
+import { Shell } from "./shared";
+import { Button } from "./ds/controls/Button";
 
 const BASE = import.meta.env.BASE_URL;
 
-// Full-bleed story beat card — same coastal-highway backdrop treatment as
-// TitleScreen, so narrative moments read as part of the same world instead
-// of a bolted-on popup.
+// Narrative beat card — same Shell column as every other screen (design
+// tokens, same Button), with the coastal-highway art framed as a bordered
+// panel rather than a full-bleed backdrop, so it reads as part of the same
+// app instead of a separate full-screen hero moment.
 export default function StorySnippetScreen({ text, onContinue }) {
   return (
-    <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden", background: C.bg }}>
-      <img
-        src={`${BASE}garage-life-assets/environments/coastal-highway.png`}
-        alt="" draggable={false}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", filter: "brightness(0.55) saturate(0.85)" }}
-      />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,13,26,0.35) 0%, rgba(13,13,26,0.75) 60%, rgba(13,13,26,0.92) 100%)" }} />
+    <Shell>
+      <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-teal)", letterSpacing: 3, marginBottom: 10, textAlign: "center" }}>CAPE MARLOW</div>
 
-      <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "clamp(16px, 5vw, 40px)" }}>
-        <div style={{ fontSize: 9, color: C.teal, letterSpacing: 3, marginBottom: 18 }}>CAPE MARLOW</div>
-        <div style={{
-          maxWidth: 480, fontFamily: "monospace", fontSize: 13, lineHeight: 1.7, color: C.white,
-          textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", marginBottom: 28,
-        }}>
-          {text}
-        </div>
-        <button
-          onClick={onContinue}
-          style={{ padding: "12px 32px", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 12, letterSpacing: 2, cursor: "pointer" }}
-        >
-          CONTINUE →
-        </button>
+      <div style={{
+        position: "relative", aspectRatio: "16 / 9", overflow: "hidden",
+        borderRadius: "var(--gl-radius-panel)", border: "1px solid var(--gl-border)", marginBottom: 20,
+      }}>
+        <img
+          src={`${BASE}garage-life-assets/environments/coastal-highway.png`}
+          alt="" draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", filter: "brightness(0.7) saturate(0.9)" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,10,30,0.1) 0%, rgba(11,10,30,0.8) 100%)" }} />
       </div>
-    </div>
+
+      <div style={{
+        background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)",
+        padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)", textAlign: "center",
+      }}>
+        {text}
+      </div>
+
+      <Button tone="pink" size="lg" block onClick={onContinue}>Continue</Button>
+    </Shell>
   );
 }

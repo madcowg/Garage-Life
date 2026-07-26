@@ -12,7 +12,7 @@ export default function IntroScreen({ onContinue }) {
   const [name, setName] = useState(DEFAULT_NAME);
 
   return (
-    <Shell maxWidth={560}>
+    <Shell>
         <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-teal)", letterSpacing: 3, marginBottom: 10 }}>CAPE MARLOW — ARRIVAL</div>
 
         <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)" }}>

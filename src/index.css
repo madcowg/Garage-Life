@@ -127,6 +127,11 @@
   --gl-radius-tab:2px 2px 7px 7px;
   --gl-radius-pill:20px;
 
+  /* Layout — every non-title screen shares one column width (Shell in
+     shared.jsx) so the app reads as one consistent size instead of each
+     screen picking its own. Change this one value, not per-screen props. */
+  --gl-shell-max-width:640px;
+
   --gl-hairline:1px;
   --gl-border-card:2px;
 

@@ -28,7 +28,7 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
   );
 
   return (
-    <Shell maxWidth={640}>
+    <Shell>
       <ScreenHeader title={playerName ?? "My Garage Life"} status={`New career — ${SEASON_LENGTH_MONTHS}-month season`} />
 
       <Section title="CHOOSE YOUR STARTER">

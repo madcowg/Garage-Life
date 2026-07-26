@@ -34,7 +34,7 @@ export default function CourseLog({ onBack }) {
   const entries = loadCourseLog();
 
   return (
-    <Shell maxWidth={680}>
+    <Shell>
       <ScreenHeader title="Season course log" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       {entries.length === 0 && (

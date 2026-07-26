@@ -14,7 +14,7 @@ export default function SeasonSummaryScreen({ career, grade, unlocksEarned, onNe
   const gradeTone = GRADE_TONE[grade] || "teal";
 
   return (
-    <Shell maxWidth={560}>
+    <Shell>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-teal)", letterSpacing: 2 }}>POINTS CHASE CONCLUDED</div>
           <div style={{ fontSize: 64, fontWeight: "bold", color: `var(--gl-${gradeTone})`, lineHeight: 1 }}>{grade}</div>

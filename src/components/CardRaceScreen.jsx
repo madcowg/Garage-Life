@@ -51,7 +51,7 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
   const activeSeg = Math.min(snap.segmentIndex ?? 0, snap.course.length - 1);
 
   return (
-    <Shell maxWidth={720}>
+    <Shell>
 
         {snap.phase !== "betweenRuns" && snap.phase !== "eventDone" && (
           <>

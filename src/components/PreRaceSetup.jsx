@@ -59,7 +59,7 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
   }, [career.car, career.wear, installedModIds.join(","), tire, diagnostics, courseWalk, maintenance]);
 
   return (
-    <Shell maxWidth={640}>
+    <Shell>
         <ScreenHeader
           title="Race setup"
           status={`${car.name}${career.variant ? ` (${career.variant})` : ""} — month ${career.month}/10`}

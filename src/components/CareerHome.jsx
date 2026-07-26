@@ -25,7 +25,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
 
   return (
     <div data-car={career.car}>
-      <Shell maxWidth={640}>
+      <Shell>
         <ScreenHeader
           title={career.playerName ?? "My Garage Life"}
           status={`Month ${career.month} / ${SEASON_LENGTH_MONTHS} — ${career.ap} AP left`}

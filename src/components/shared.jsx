@@ -17,14 +17,16 @@ function useViewportScale() {
   return scale;
 }
 
-// Shared responsive screen shell — every screen sizes from the actual
-// viewport: 100dvh tall (mobile browser-chrome safe), full-width column on
-// phones, centered column zoomed to match the display on desktop.
-export function Shell({ maxWidth = 760, children }) {
+// Shared responsive screen shell — every non-title screen renders through
+// this one component at the one column width (--gl-shell-max-width), so the
+// app reads as a consistent size instead of each screen picking its own.
+// No per-screen maxWidth override — if a screen needs to be wider or
+// narrower, that's a decision for the shared token, not a one-off prop.
+export function Shell({ children }) {
   const scale = useViewportScale();
   return (
-    <div style={{ minHeight: "100dvh", background: C.bg, color: C.white, fontFamily: "monospace", display: "flex", justifyContent: "center" }}>
-      <div style={{ width: "100%", maxWidth, padding: "clamp(10px, 3vw, 24px)", zoom: scale }}>
+    <div style={{ minHeight: "100dvh", background: "var(--gl-bg)", color: "var(--gl-text-1)", fontFamily: "var(--gl-font-mono)", display: "flex", justifyContent: "center" }}>
+      <div style={{ width: "100%", maxWidth: "var(--gl-shell-max-width)", padding: "clamp(10px, 3vw, 24px)", zoom: scale }}>
         {children}
       </div>
     </div>

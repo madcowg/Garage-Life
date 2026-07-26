@@ -59,7 +59,7 @@ export default function CodexScreen({ meta, career, onBack }) {
   const entries = Object.values(CODEX).filter(e => e.category === tab);
 
   return (
-    <Shell maxWidth={640}>
+    <Shell>
       <ScreenHeader title="Achievements" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>

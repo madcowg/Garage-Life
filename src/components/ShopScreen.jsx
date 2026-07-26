@@ -21,7 +21,7 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
   const spareCars = ownedCars.filter(id => id !== career.car);
 
   return (
-    <Shell maxWidth={640}>
+    <Shell>
       <ScreenHeader
         title="Dead Reckoning Garage"
         status={`${car.name} — cash $${career.cash}`}
