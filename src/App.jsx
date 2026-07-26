@@ -623,7 +623,9 @@ export default function App() {
       onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
     />
   );
-  if (screen === "newCareer") return withCash(<NewCareerScreen meta={meta} onStart={startCareer} />);
+  if (screen === "newCareer") return withCash(
+    <NewCareerScreen meta={meta} onStart={startCareer} playerName={pendingPlayerName ?? career?.playerName ?? "Paul Walker"} />
+  );
   if (screen === "careerHome") return withCash(
     <CareerHome
       career={career}

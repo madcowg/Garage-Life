@@ -7,7 +7,7 @@ import { Section, cardBtnStyle, Shell } from "./shared";
 // Shown once at the start of a career (and again after Season Complete) —
 // picks the starting car/variant. Mods/tire/gauges are chosen per-race in
 // PreRaceSetup instead, since those can change race to race.
-export default function NewCareerScreen({ meta, onStart }) {
+export default function NewCareerScreen({ meta, onStart, playerName }) {
   const [car, setCar] = useState("miata");
   const [variant, setVariant] = useState("NA");
 
@@ -21,7 +21,7 @@ export default function NewCareerScreen({ meta, onStart }) {
 
   return (
     <Shell maxWidth={640}>
-        <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>GARAGE LIFE</div>
+        <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>{playerName ?? "GARAGE LIFE"}</div>
         <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2, marginBottom: 20 }}>
           NEW CAREER — {SEASON_LENGTH_MONTHS}-MONTH SEASON
         </div>
