@@ -198,9 +198,11 @@ function drawHudPanel(ctx, x, y, w, h, r = 4) {
 // "more race game feel" the reference HUD has. The minimap reuses the same
 // drawTrack() the post-race recap uses, so it's always geometrically
 // accurate to the actual course, right down to the start (green) / finish
-// (checkered) gate lines already drawn into every track — autocross start
-// and finish are almost never the same spot, so both stay explicitly
-// marked rather than assuming a closed lap.
+// (red) gate lines already drawn into every track — autocross start and
+// finish are almost never the same spot, so both stay explicitly marked
+// rather than assuming a closed lap. Same bold-line/solid-red-finish style
+// as the post-race recap map (track.js's drawTrack), just without the
+// START/FINISH text labels — this canvas is too small for legible text.
 function drawHudOverlay(ctx, W, hud) {
   if (!hud?.track) return;
   const { track, activeSegIndex, carT, totalTime, targetTime, miniCanvas, carColor } = hud;
@@ -209,10 +211,11 @@ function drawHudOverlay(ctx, W, hud) {
   mctx.imageSmoothingEnabled = false;
   drawTrack(mctx, track, {
     width: MINI_W, height: MINI_H, pad: MINI_PAD, showCones: true, activeSegIndex, carT,
+    trackWidth: 2.5, trackAlpha: 1, finishStyle: "solid",
     palette: {
-      bg: "rgba(13,13,26,0.001)", track: "#8f95ad", active: "#FF6EC7", done: "#00594F",
+      bg: "rgba(13,13,26,0.001)", track: "#F2F2EC", active: "#FF6EC7", done: "#00594F",
       cone: "#FF6B35", gateCone: "#FFD700", apexCone: "#FF2D55",
-      car: carColor, carOutline: "#0a0a14", startLine: "#00C853",
+      car: carColor, carOutline: "#0a0a14", startLine: "#00C853", finishLine: "#FF2D55",
     },
   });
 

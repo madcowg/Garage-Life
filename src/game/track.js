@@ -319,11 +319,11 @@ export function drawTrack(ctx, track, opts = {}) {
   // gate is only a few pixels across, and it reads as a clean stop/finish
   // signal opposite the green go/start line.
   if (points.length > 1) {
-    drawGateLine(ctx, tx, scale, points[0], points[1], "solid", palette.startLine || "#00C853", showGateLabels ? "START" : null, 1);
+    drawGateLine(ctx, tx, scale, points[0], points[1], "solid", palette.startLine || "#00C853", showGateLabels ? "START" : null);
     drawGateLine(
       ctx, tx, scale, points[points.length - 2], points[points.length - 1],
       finishStyle === "solid" ? "solid" : "checkered", palette.finishLine || "#FF2D55",
-      showGateLabels ? "FINISH" : null, -1,
+      showGateLabels ? "FINISH" : null,
     );
   }
 
@@ -370,17 +370,12 @@ export function drawTrack(ctx, track, opts = {}) {
 // CONE_EDGE_WIDTH-based size is already bigger than this floor, so nothing
 // changes there.
 const MIN_GATE_SCREEN_HALFW = 8;
-// `label` + `travelSign` are optional: when a label is given, it's drawn
-// centered on the gate line, offset along the direction of travel so it
-// sits over existing pavement rather than floating off the edge of the
-// course. travelSign is +1 for the start (p0->p1 points forward into the
-// course, so the label sits just past the line) and -1 for the finish
-// (p0->p1 points past the last point, so the label sits just before it).
-function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor, label = null, travelSign = 1) {
+// `label` is optional: when given, it's drawn centered on the gate line
+// itself, rotated to run along it (see below).
+function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor, label = null) {
   const dx = p1.x - p0.x, dy = p1.y - p0.y;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len;
-  const ux = dx / len, uy = dy / len;
   const halfW = Math.max(CONE_EDGE_WIDTH * 1.1, MIN_GATE_SCREEN_HALFW / scale);
   const lineWidth = Math.max(2, 3 * scale);
 
@@ -410,24 +405,28 @@ function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor, label = null, tr
   }
 
   if (label) {
-    // Offset in already-scaled screen space, not world units: a world-unit
-    // offset shrinks along with everything else once scale drops (it came
-    // out ~5px at the recap map's own scale — small enough that the label
-    // merged into the gate line instead of reading as a separate element).
-    // tx() only scales/translates (no rotation), so the direction vector
-    // (ux,uy) points the same way in screen space; a flat pixel offset here
-    // stays legible regardless of course size or canvas scale.
+    // Drawn directly on the gate line itself (centered at p1), rotated to
+    // run along it — the line is perpendicular to the direction of travel,
+    // so the label reads across the course rather than upright and offset
+    // to one side. tx() only scales/translates (no rotation), so the
+    // world-space line direction (nx,ny) is also the correct screen-space
+    // rotation angle.
     const p1s = tx(p1);
-    const labelScreenOffset = 16;
-    const lp = { x: p1s.x + ux * travelSign * labelScreenOffset, y: p1s.y + uy * travelSign * labelScreenOffset };
+    let angle = Math.atan2(ny, nx);
+    if (angle > Math.PI / 2) angle -= Math.PI;
+    if (angle < -Math.PI / 2) angle += Math.PI;
+    ctx.save();
+    ctx.translate(p1s.x, p1s.y);
+    ctx.rotate(angle);
     ctx.font = "bold 9px monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = 3;
     ctx.strokeStyle = "#0a0a14";
-    ctx.strokeText(label, lp.x, lp.y);
+    ctx.strokeText(label, 0, 0);
     ctx.fillStyle = solidColor;
-    ctx.fillText(label, lp.x, lp.y);
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
   }
 }
 
