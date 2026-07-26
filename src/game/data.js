@@ -2,20 +2,22 @@
 // GARAGE LIFE — AUTOCROSS DATA
 // ============================================================================
 
-// Starters — the original three, now with real USDM sprites. Miata has two
-// cosmetic-only variants (NA/NB) — identical stats/multiplier, different
-// sprite skin, picked via spriteVariants in the Setup screen.
+// Starters — Miata and Integra only (NA and NB are separate top-level picks
+// in NewCareerScreen, not a variant toggle on one card). The Corvette moved
+// to the unlockable roster below — same car, now something to earn instead
+// of a third starting choice.
 export const CARS = {
   miata:    { name: "Mazda MX-5 Miata NA/NB", hp: 2, handling: 5, grip: 5, trans: 3, blurb: "Lightweight handler. Autocross bonus.", tier: "starter", variants: ["NA", "NB"], sprite: "mazdaMiataNa", spriteVariants: { NA: "mazdaMiataNa", NB: "mazdaMiataNb" } },
   integra:  { name: "Acura Integra DC2 GS-R", hp: 3, handling: 4, grip: 4, trans: 3, blurb: "Balanced JDM icon. No penalties.", tier: "starter", sprite: "acuraIntegraDc2Gsr" },
-  corvette: { name: "Chevrolet Corvette C6 Coupe", hp: 5, handling: 2, grip: 3, trans: 4, blurb: "Raw power. Tight-technical penalty.", tier: "starter", sprite: "chevroletCorvetteC6" },
 
   // Unlockables — the JDM roster from the asset pack, real-world grounded:
   // light RWD/FWD cars and AWD rally homologation specials get an autocross
   // bonus (agility/traction matter more than raw power in tight technical
   // sections, same logic as the Miata's bonus); heavy big-power GT cars get
-  // a penalty, same logic as the Corvette's. No unlock mechanic exists yet
-  // (pending the reputation/rewards system) — these render locked for now.
+  // a penalty, same logic as the Corvette's. Most of these have no dedicated
+  // unlock condition (see career.js checkCarUnlocks for the two that do) —
+  // they surface as a random Junkyard car-find instead (App.jsx "car_find").
+  corvette:         { name: "Chevrolet Corvette C6 Coupe", hp: 5, handling: 2, grip: 3, trans: 4, blurb: "Raw power. Tight-technical penalty.", tier: "unlockable", sprite: "chevroletCorvetteC6" },
   hondaCivicSir:    { name: "Honda Civic Si (EK)",      hp: 2, handling: 5, grip: 4, trans: 3, blurb: "Featherweight VTEC hatch. Autocross bonus.", tier: "unlockable", sprite: "hondaCivicSir" },
   hondaS2000:       { name: "Honda S2000 (AP1)",        hp: 3, handling: 5, grip: 5, trans: 4, blurb: "High-revving roadster. Razor-sharp chassis.", tier: "unlockable", sprite: "hondaS2000" },
   mazdaRx7Fd:       { name: "Mazda RX-7 FD",           hp: 3, handling: 4, grip: 4, trans: 3, blurb: "Rotary balance icon. Nimble, demands respect.", tier: "unlockable", sprite: "mazdaRx7Fd" },

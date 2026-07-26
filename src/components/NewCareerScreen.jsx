@@ -12,6 +12,15 @@ function cashLabel(id) {
   return `$${STARTING_CASH + delta} starting cash (${delta > 0 ? "+" : ""}${delta})`;
 }
 
+// Fixed 3-slot starter lineup — NA and NB are separate top-level picks (not
+// a variant toggle on one Miata card) so each gets its own card, its own
+// sprite, and its own selection state.
+const STARTER_PICKS = [
+  { id: "miata", variant: "NA", name: "Mazda MX-5 Miata (NA)" },
+  { id: "miata", variant: "NB", name: "Mazda MX-5 Miata (NB)" },
+  { id: "integra", variant: undefined, name: CARS.integra.name },
+];
+
 // Shown once at the start of a career (and again after Season Complete) —
 // picks the starting car/variant. Mods/tire/gauges are chosen per-race in
 // PreRaceSetup instead, since those can change race to race.
@@ -43,25 +52,21 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
 
       <Section title="CHOOSE YOUR STARTER">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {Object.entries(CARS).filter(([, c]) => c.tier === "starter").map(([id, c]) => (
-            <CarCard
-              key={id} carId={id} variant={id === "miata" ? variant : undefined}
-              tone="pink" marker selected={car === id} onClick={() => setCar(id)}
-              name={c.name} desc={c.blurb}
-              stats={`HP ${c.hp} · HDL ${c.handling} · GRIP ${c.grip} · TRN ${c.trans}`}
-              footer={<div style={{ fontSize: 9, color: "var(--gl-text-3)" }}>{cashLabel(id)}</div>}
-            />
-          ))}
+          {STARTER_PICKS.map(pick => {
+            const c = CARS[pick.id];
+            const isSelected = car === pick.id && (!pick.variant || variant === pick.variant);
+            return (
+              <CarCard
+                key={pick.name} carId={pick.id} variant={pick.variant}
+                tone="pink" marker selected={isSelected}
+                onClick={() => { setCar(pick.id); if (pick.variant) setVariant(pick.variant); }}
+                name={pick.name} desc={c.blurb}
+                stats={`HP ${c.hp} · HDL ${c.handling} · GRIP ${c.grip} · TRN ${c.trans}`}
+                footer={<div style={{ fontSize: 9, color: "var(--gl-text-3)" }}>{cashLabel(pick.id)}</div>}
+              />
+            );
+          })}
         </div>
-        {car === "miata" && (
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            {CARS.miata.variants.map(v => (
-              <Button key={v} tone="pink" variant={variant === v ? "filled" : "outlined"} size="sm" onClick={() => setVariant(v)}>
-                {v === "NA" ? "1994 NA (Red)" : "2001 NB (Blue)"}
-              </Button>
-            ))}
-          </div>
-        )}
       </Section>
 
       {unlockedExtraCars.length > 0 && (
@@ -77,7 +82,7 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
       <Section title={`STILL LOCKED (${lockedCars.length})`} collapsible defaultOpen={false}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {lockedCars.map(([id]) => (
-            <CarCard key={id} locked lockNote="earn this during a career" name="???" />
+            <CarCard key={id} carId={id} silhouette locked lockNote="earn this during a career" name="???" />
           ))}
         </div>
       </Section>

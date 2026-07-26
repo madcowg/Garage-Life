@@ -5,7 +5,7 @@ import { CarThumb } from "./CarThumb";
 // every car shown anywhere (car select, garage, dealership) should read as
 // the same species of card as the race-action cards, not a separate list-
 // item style. Art fills the top like a trading card; stats/blurb sit below.
-export function CarCard({ carId, variant, name, stats, desc, tone = "pink", selected = false, locked = false, lockNote, marker = false, onClick, footer }) {
+export function CarCard({ carId, variant, name, stats, desc, tone = "pink", selected = false, locked = false, lockNote, marker = false, silhouette = false, onClick, footer }) {
   const line = locked ? "var(--gl-border)" : selected ? `var(--gl-${tone})` : "var(--gl-border)";
   const clickable = !locked && !!onClick;
   return (
@@ -26,7 +26,7 @@ export function CarCard({ carId, variant, name, stats, desc, tone = "pink", sele
           {selected ? "✓" : "·"}
         </div>
       )}
-      <CarThumb carId={carId} variant={variant} />
+      <CarThumb carId={carId} variant={variant} silhouette={silhouette} />
       <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, marginTop: 6, lineHeight: 1.25, minHeight: 26 }}>{name}</div>
       {stats && <div style={{ fontSize: 9, color: `var(--gl-${tone})`, fontWeight: 700, letterSpacing: 0.5, marginTop: 2, lineHeight: 1.4 }}>{stats}</div>}
       {desc && <div style={{ fontSize: 9, color: "var(--gl-text-3)", lineHeight: 1.4, marginTop: 4, minHeight: 26 }}>{desc}</div>}
