@@ -27,6 +27,16 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
     ([id, c]) => (c.tier === "unlockable" || c.tier === "secret") && meta.unlockedCars.includes(id)
   );
 
+  // Every mapped car that isn't a starter, isn't unlocked yet, and isn't a
+  // secret (those stay hidden entirely) — including "legend" tier, which
+  // has sprite art wired but no in-career unlock path yet. Shown as a
+  // silhouette + "???" (see CarCard mystery cards below), not the real
+  // name/art/stats, so growing this list previews how much more there is
+  // to find without spoiling any of it.
+  const lockedCars = Object.entries(CARS).filter(
+    ([id, c]) => (c.tier === "unlockable" || c.tier === "legend") && !meta.unlockedCars.includes(id)
+  );
+
   return (
     <Shell>
       <ScreenHeader title={playerName ?? "My Garage Life"} status={`New career — ${SEASON_LENGTH_MONTHS}-month season`} />
@@ -64,10 +74,10 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
         </Section>
       )}
 
-      <Section title="STILL LOCKED (earn these during a career)">
+      <Section title={`STILL LOCKED (${lockedCars.length})`} collapsible defaultOpen={false}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {Object.entries(CARS).filter(([id, c]) => c.tier === "unlockable" && !meta.unlockedCars.includes(id)).map(([id, c]) => (
-            <CarCard key={id} carId={id} locked lockNote="earn this during a career" name={c.name} desc={c.blurb} />
+          {lockedCars.map(([id]) => (
+            <CarCard key={id} locked lockNote="earn this during a career" name="???" />
           ))}
         </div>
       </Section>

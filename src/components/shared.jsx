@@ -49,11 +49,27 @@ export function CashBadge({ cash }) {
   );
 }
 
-export function Section({ title, children }) {
+// collapsible/defaultOpen are opt-in — every existing call site renders
+// exactly as before (always open, no toggle chrome).
+export function Section({ title, children, collapsible = false, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const isOpen = collapsible ? open : true;
   return (
     <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>{title}</div>
-      {children}
+      <div
+        onClick={collapsible ? () => setOpen(o => !o) : undefined}
+        style={{
+          fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6,
+          display: "flex", alignItems: "center", gap: 6,
+          cursor: collapsible ? "pointer" : "default", userSelect: collapsible ? "none" : "auto",
+        }}
+      >
+        {collapsible && (
+          <span style={{ display: "inline-block", transition: "transform 0.15s ease", transform: isOpen ? "rotate(90deg)" : "none" }}>▸</span>
+        )}
+        {title}
+      </div>
+      {isOpen && children}
     </div>
   );
 }

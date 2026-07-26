@@ -18,7 +18,7 @@ export function CarCard({ carId, variant, name, stats, desc, tone = "pink", sele
         padding: 8, color: "var(--gl-text-1)", fontFamily: "var(--gl-font-mono)",
         cursor: locked ? "not-allowed" : clickable ? "pointer" : "default",
         opacity: locked ? 0.55 : 1,
-        boxShadow: selected ? `0 0 16px rgba(var(--gl-${tone}-rgb),0.6)` : `0 0 6px rgba(var(--gl-${tone}-rgb),0.2)`,
+        boxShadow: locked ? "none" : selected ? `0 0 16px rgba(var(--gl-${tone}-rgb),0.6)` : `0 0 6px rgba(var(--gl-${tone}-rgb),0.2)`,
       }}
     >
       {marker && (
