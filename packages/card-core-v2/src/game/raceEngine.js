@@ -97,6 +97,28 @@ export function finishSegment(state, begin, { lineInstanceId = null, utility = n
   const lineInstance = lineInstanceId ? state.hand.find((item) => item.instanceId === lineInstanceId) ?? null : null;
   const lineCard = lineInstance ? getCard(lineInstance.cardId) : getCard('safe-line');
   if (lineInstance) discardInstance(state, lineInstance.instanceId);
+
+  // Cheat Code (the secret car's one-off "bypass" card): guaranteed clean,
+  // guaranteed best-case time — segment.par + the card's own timeDelta,
+  // full stop. No affinity check, no cone/hazard-time/control penalty, no
+  // strain penalty, no wear, no vehicle adjustment, no cold-tire penalty —
+  // "no matter the adverse effects in play" means literally none of the
+  // usual modifiers apply. It CANNOT undo a same-segment Course Confusion
+  // DNF: that hazard resolves in beginSegment, before any Line card is even
+  // chosen, so finishSegment never runs at all in that case.
+  if (lineCard.effect?.bypassSegment) {
+    const segmentTime = segment.par + lineCard.timeDelta;
+    state.flow = MAX_FLOW;
+    state.totalTime += segmentTime;
+    const record = {
+      segmentId: segment.id, segmentName: segment.name, lineCardId: lineCard.id,
+      utilityCardId: resolvedUtility.cardId ?? null, onAffinity: true, hazardCardId: hazard.cardId,
+      strainCountAtStart, strainPenalty: 0, coneCount: 0, controlMargin: 99, segmentTime, flowAfter: state.flow, bypassed: true,
+    };
+    state.segments.push(record);
+    return record;
+  }
+
   const onAffinity = isOnAffinity(lineCard, segment);
   const affinityMultiplier = onAffinity ? 1 : OFF_AFFINITY_EFFECT_MULTIPLIER;
   const wearMultiplier = onAffinity ? 1 : OFF_AFFINITY_WEAR_MULTIPLIER;

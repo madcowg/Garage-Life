@@ -30,6 +30,11 @@ export const CARDS = Object.freeze({
   UPGRADED_THRESHOLD: card({ id: 'upgraded-threshold', name: 'Upgraded Threshold', type: CARD_TYPES.TECHNIQUE, timing: TIMINGS.LINE, affinity: [SEGMENT_TAGS.BRAKING, SEGMENT_TAGS.TIGHT], timeDelta: -1.35, control: 2, wear: { [SYSTEMS.BRAKES]: 1, [SYSTEMS.TIRES]: 1 }, text: 'Pads and lines improve modulation and repeatability.' }),
   SET_THE_PLATFORM: card({ id: 'set-the-platform', name: 'Set the Platform', type: CARD_TYPES.TECHNIQUE, timing: TIMINGS.LINE, affinity: [SEGMENT_TAGS.TRANSITION, SEGMENT_TAGS.FLOWING, SEGMENT_TAGS.PRECISION], timeDelta: -1.25, control: 2, wear: { [SYSTEMS.TIRES]: 1 }, text: 'Settle the chassis before the next direction change.', effect: { protectFlowFromHazard: true } }),
   GRIP_WINDOW: card({ id: 'grip-window', name: 'Grip Window', type: CARD_TYPES.UTILITY, timing: TIMINGS.PRE_LINE, text: 'The next Line gains -0.1s and pays half tire wear. Draw 1, then discard 1.', effect: { nextLineTime: -0.1, tireWearMultiplier: 0.5, draw: 1, discard: 1 } }),
+  // Secret car identity card (The Titty Twister / beater_van, vehicles.js) —
+  // the joke car's one cheat: bypasses the segment entirely for a guaranteed
+  // best-case result, no matter what hazard/cone/strain state is in play.
+  // See raceEngine.js finishSegment's bypassSegment branch for the mechanic.
+  CHEAT_CODE: card({ id: 'cheat-code', name: 'Cheat Code', type: CARD_TYPES.TECHNIQUE, timing: TIMINGS.LINE, affinity: ['any'], timeDelta: -2.3, control: 5, text: "Bypass this section clean. Best possible result, guaranteed — hazards, cones, and strain don't apply here.", effect: { bypassSegment: true } }),
 });
 
 export const BASE_AUTOCROSS_DECK = Object.freeze([

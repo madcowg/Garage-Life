@@ -27,6 +27,7 @@ export default function IntroScreen({ onContinue }) {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
+          onClick={() => { if (name === DEFAULT_NAME) setName(""); }}
           placeholder={DEFAULT_NAME}
           maxLength={40}
           style={{
