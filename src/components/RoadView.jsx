@@ -31,10 +31,11 @@ const MINI_W = 62, MINI_H = 74, MINI_PAD = 5, MINI_MARGIN = 6;
 // list of {point, color, size} instead of the one it draws today; no
 // consumer needs that yet, so it isn't built speculatively here.
 
-// beaterVan has no sprite art (procedural draw only, see drawVanRear below).
-// Integra/Corvette/Miata all have accurate real sprites now and render from
-// CAR_SPRITES like the rest of the roster.
-const FORCE_PROCEDURAL = new Set(["beaterVan"]);
+// Every car (including beaterVan now) renders from CAR_SPRITES; this set is
+// the escape hatch for a future car that ships without art — drawCarSprite
+// already falls back to the procedural draw automatically if a sprite fails
+// to load, so nothing needs to be forced into it today.
+const FORCE_PROCEDURAL = new Set([]);
 
 const CAR_PALETTES = {
   miataNA:  { body: "#D0233B", dark: "#7A0F22", glass: "#1B2233", tail: "#FF2D55", trim: "#2b0d14" },

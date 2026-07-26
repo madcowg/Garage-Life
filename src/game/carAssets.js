@@ -22,6 +22,7 @@ export const CAR_SPRITES = {
   subaruImprezaWrx: { rear: `${BASE}garage-life-assets/cars/subaruImprezaWrx-rear.png`, front: `${BASE}garage-life-assets/cars/subaruImprezaWrx-front.png` },
   hondaS2000:       { rear: `${BASE}garage-life-assets/cars/hondaS2000-rear.png`, front: `${BASE}garage-life-assets/cars/hondaS2000-front.png` },
   hondaNsxNa1:      { rear: `${BASE}garage-life-assets/cars/hondaNsxNa1-rear.png`, front: `${BASE}garage-life-assets/cars/hondaNsxNa1-front.png` },
+  beaterVan:        { rear: `${BASE}garage-life-assets/cars/beaterVan-rear.png`, front: `${BASE}garage-life-assets/cars/beaterVan-front.png` },
 
   // BMW Legends — future upgrade tier (see data.js CARS comment). Paths
   // wired now so dropping the cropped PNGs in is the only step left once

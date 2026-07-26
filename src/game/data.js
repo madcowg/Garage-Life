@@ -40,11 +40,8 @@ export const CARS = {
   // Secret — not shown anywhere in the normal car list. Two unrelated ways
   // in: the "sell a car early" achievement payoff (App.jsx handleSellCar),
   // or typing "Lou"/"Fanaz" as your name at the intro screen (App.jsx
-  // handleIntroContinue) — same car either way. No sprite asset (that
-  // pipeline's blocked, see PixelLab backlog note) — it renders through a
-  // dedicated procedural draw instead (RoadView.jsx drawVanRear), same as
-  // the three starters.
-  beaterVan: { name: "The Titty Twister", hp: 1, handling: 3, grip: 2, trans: 2, blurb: "A rattling convertible-top cargo van, all the badges long gone. Rex swears it runs. Rex was right, annoyingly.", tier: "secret" },
+  // handleIntroContinue) — same car either way.
+  beaterVan: { name: "The Titty Twister", hp: 1, handling: 3, grip: 2, trans: 2, blurb: "A rattling convertible-top cargo van, all the badges long gone. Rex swears it runs. Rex was right, annoyingly.", tier: "secret", sprite: "beaterVan" },
 };
 
 // Stage 1 mod progression (Season 1 design doc §7). Each unlocks permanently
