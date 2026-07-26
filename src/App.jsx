@@ -13,6 +13,7 @@ import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER
 import { MODS, CARS, TIRE_CATALOG } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
+import IntroScreen from "./components/IntroScreen";
 import { Shell, CashBadge } from "./components/shared";
 import AchievementToast from "./components/AchievementToast";
 import TrackCanvas from "./components/TrackCanvas";
@@ -101,6 +102,7 @@ export default function App() {
   const [storyQueue, setStoryQueue] = useState([]);
   const [storyReturnScreen, setStoryReturnScreen] = useState("careerHome");
   const [achievementPopupQueue, setAchievementPopupQueue] = useState([]);
+  const [pendingPlayerName, setPendingPlayerName] = useState(null);
 
   // Every meta transition goes through here instead of setMeta directly, so
   // a newly-unlocked achievement (from ANY code path — story triggers,
@@ -132,6 +134,7 @@ export default function App() {
       racingCred: 0, npcStanding: { rex: 0, dez: 0, marisol: 0, walt: 0 },
       dezFreeEntryUsed: false, waltFreeMaintainUsed: false,
       ownedCars: [snap.career.car], everOwnedMultipleCars: false, carsSoldCount: 0,
+      playerName: "Paul Walker",
       ...snap.career,
     });
     setSeasonEnded(snap.seasonEnded ?? false);
@@ -218,14 +221,30 @@ export default function App() {
     proceedAfterStory([...extraTriggers, seasonEndTrigger], "seasonSummary");
   };
 
+  // Name comes from IntroScreen (a genuinely new game) when set; a season
+  // rollover into its next career (SeasonSummaryScreen's onNewCareer, which
+  // skips the intro entirely) instead carries the just-finished career's
+  // name forward, so returning players are never asked twice.
   const startCareer = ({ car, variant }) => {
-    const newCareer = createNewCareer(car, variant);
+    const playerName = pendingPlayerName ?? career?.playerName ?? "Paul Walker";
+    const newCareer = createNewCareer(car, variant, playerName);
     const nextMeta = applyTriggerUnlocks(meta, resolveTriggerUnlocks("career_start", { carId: car }));
     updateMeta(nextMeta);
     setCareer({ ...newCareer, storySeen: ["career_start"] });
+    setPendingPlayerName(null);
     setSeasonEnded(false);
     setSeasonGrade(null);
     proceedAfterStory(["career_start"], "careerHome");
+  };
+
+  // Lou/Fanaz is a hidden second unlock path for the same secret car Fire
+  // Sale grants (App.jsx handleSellCar) — no achievement here, just the car,
+  // since typing a name isn't really an "achievement" to announce.
+  const handleIntroContinue = (name) => {
+    const lower = name.trim().toLowerCase();
+    if (lower === "lou" || lower === "fanaz") updateMeta(unlockCar(meta, "beaterVan"));
+    setPendingPlayerName(name);
+    setScreen("newCareer");
   };
 
   const goHomeOrSummary = () => setScreen(seasonEnded ? "seasonSummary" : "careerHome");
@@ -595,10 +614,11 @@ export default function App() {
     const seed = career ? `${career.car}-${career.month}-${career.wins}-${career.reputation}` : "";
     return withCash(<StorySnippetScreen text={pickSnippetText(storyQueue[0], seed)} onContinue={handleStoryContinue} />);
   }
+  if (screen === "intro") return withCash(<IntroScreen onContinue={handleIntroContinue} />);
   if (screen === "title") return withCash(
     <TitleScreen
       hasSave={Boolean(loadCareerSnapshot())}
-      onNewGame={() => setScreen("newCareer")}
+      onNewGame={() => setScreen("intro")}
       onContinue={continueCareer}
       onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
     />

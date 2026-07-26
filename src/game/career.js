@@ -43,10 +43,18 @@ export function createInitialEmployment() {
   return { status: "employed", tenureMonths: 0, baseSalary: BASE_SALARY };
 }
 
-export function createNewCareer(car, variant) {
+// Starter cash tilts by car, flavor-first: Miata is the baseline, Integra
+// gets a cushion (a bit slower off the line, per its stats), Corvette gives
+// some back (pricier car to run). The gap is a real but modest economic
+// tilt, not a competitive one — simulate-cardgame.mjs's win-rate gates don't
+// touch career-layer cash at all, so this can't skew race outcomes; it only
+// shifts how many months each car's player spends cash-strapped early on.
+export const STARTER_CASH_DELTA = { integra: 100, corvette: -100 };
+
+export function createNewCareer(car, variant, playerName = "Paul Walker") {
   return {
-    car, variant, month: 1, ap: AP_PER_MONTH,
-    cash: STARTING_CASH, reputation: 0, lifetimeCashEarned: 0,
+    car, variant, playerName, month: 1, ap: AP_PER_MONTH,
+    cash: STARTING_CASH + (STARTER_CASH_DELTA[car] ?? 0), reputation: 0, lifetimeCashEarned: 0,
     wins: 0, cleanWins: 0, racesEntered: 0,
     wear: { engine: 100, tires: 100, brakes: 100, trans: 100 },
     employment: createInitialEmployment(),

@@ -25,12 +25,14 @@ export const CARS = {
   nissanSkylineR34: { name: "Nissan Skyline GT-R R34",  hp: 5, handling: 3, grip: 5, trans: 4, blurb: "AWD grip monster — weight bites in tight corners.", tier: "unlockable", sprite: "nissanSkylineR34" },
   toyotaSupraMk4:   { name: "Toyota Supra Mk4",        hp: 5, handling: 2, grip: 3, trans: 4, blurb: "Turbocharged 2JZ powerhouse. Heavy in the tight stuff.", tier: "unlockable", sprite: "toyotaSupraMk4" },
 
-  // Secret — not shown anywhere in the normal car list, only reachable via
-  // the "sell a car early" achievement payoff (App.jsx handleSellCar). No
-  // sprite asset (that pipeline's blocked, see PixelLab backlog note) — it
-  // renders through a dedicated procedural draw instead (RoadView.jsx
-  // drawVanRear), same as the three starters.
-  beaterVan: { name: "The Getaway Van", hp: 1, handling: 3, grip: 2, trans: 2, blurb: "A rattling convertible-top cargo van, all the badges long gone. Rex swears it runs. Rex was right, annoyingly.", tier: "secret" },
+  // Secret — not shown anywhere in the normal car list. Two unrelated ways
+  // in: the "sell a car early" achievement payoff (App.jsx handleSellCar),
+  // or typing "Lou"/"Fanaz" as your name at the intro screen (App.jsx
+  // handleIntroContinue) — same car either way. No sprite asset (that
+  // pipeline's blocked, see PixelLab backlog note) — it renders through a
+  // dedicated procedural draw instead (RoadView.jsx drawVanRear), same as
+  // the three starters.
+  beaterVan: { name: "The Titty Twister", hp: 1, handling: 3, grip: 2, trans: 2, blurb: "A rattling convertible-top cargo van, all the badges long gone. Rex swears it runs. Rex was right, annoyingly.", tier: "secret" },
 };
 
 // Corner-type segments get a direct time multiplier per car — matches the GDD

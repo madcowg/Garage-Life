@@ -42,7 +42,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
     <Shell maxWidth={640}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>GARAGE LIFE</div>
+            <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>{career.playerName ?? "GARAGE LIFE"}</div>
             <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2 }}>MONTH {career.month} / {SEASON_LENGTH_MONTHS} — {career.ap} AP LEFT</div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
