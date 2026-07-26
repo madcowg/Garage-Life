@@ -24,10 +24,14 @@ export function outlinedFace({ tone = "teal", pressed = false, disabled = false,
   };
 }
 
+// Padding pulls from a per-size CSS var (falling back to the design-system
+// default) so a specific screen can tighten one button stack — e.g. a
+// shorter, more font-fitted press — without changing every "lg" button
+// app-wide.
 const SIZES = {
-  sm: { padding: "6px 12px", fontSize: "var(--gl-size-micro)" },
-  md: { padding: "9px 16px", fontSize: "var(--gl-size-label)" },
-  lg: { padding: "14px 20px", fontSize: "var(--gl-size-heading)" },
+  sm: { padding: "var(--gl-btn-pad-sm, 6px 12px)", fontSize: "var(--gl-size-micro)" },
+  md: { padding: "var(--gl-btn-pad-md, 9px 16px)", fontSize: "var(--gl-size-label)" },
+  lg: { padding: "var(--gl-btn-pad-lg, 14px 20px)", fontSize: "var(--gl-size-heading)" },
 };
 
 // The primary control. Filled means "this advances the game" — reserve it for

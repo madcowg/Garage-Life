@@ -29,17 +29,17 @@ function useIntroMusic(src) {
     let cancelled = false;
     const start = async () => {
       if (startedRef.current || cancelled) return;
+      startedRef.current = true;
       try {
         if (ctx.state === "suspended") await ctx.resume();
         const buf = await fetch(src).then(r => r.arrayBuffer());
         const decoded = await ctx.decodeAudioData(buf);
         if (cancelled) return;
-        startedRef.current = true;
         const source = ctx.createBufferSource();
         source.buffer = decoded;
         source.connect(gain);
         source.start(0);
-      } catch { /* autoplay blocked or decode failed — the gesture listener below retries */ }
+      } catch { startedRef.current = false; }
     };
     start();
     const onGesture = () => { start(); window.removeEventListener("pointerdown", onGesture); window.removeEventListener("keydown", onGesture); };
@@ -118,6 +118,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
       <div style={{ position: "relative", width: "min(640px, 90vw)", maxHeight: "68vh" }}>
         <div style={{
           position: "relative", width: "100%", aspectRatio: "4 / 3", maxHeight: "68vh", overflow: "hidden",
+          background: "var(--gl-bg)",
           borderRadius: zooming ? 0 : "var(--gl-radius-panel)", border: zooming ? "none" : "3px solid var(--gl-border)",
           boxShadow: zooming ? "none" : "0 0 32px rgba(var(--gl-teal-rgb),0.25), var(--gl-inset-highlight)",
           transform: zooming ? "scale(9)" : "scale(1)",
@@ -128,7 +129,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
           <img
             src={`${BASE}garage-life-assets/environments/airfield.png`}
             alt="" draggable={false}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", filter: "brightness(0.85)" }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated", filter: "brightness(0.85)" }}
           />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,10,30,0.15) 0%, rgba(11,10,30,0.6) 65%, rgba(11,10,30,0.9) 100%)" }} />
         </div>
@@ -142,7 +143,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
           src={`${BASE}garage-life-assets/menu/garage-life-logo.png`}
           alt="My Garage Life" draggable={false}
           style={{
-            position: "absolute", top: "70%", left: "50%", zIndex: 5,
+            position: "absolute", top: "40%", left: "50%", zIndex: 5,
             maxHeight: "34vh", maxWidth: "82vw", width: "auto", height: "auto",
             objectFit: "contain", imageRendering: "pixelated",
             filter: "drop-shadow(0 0 28px rgba(var(--gl-pink-rgb),0.55))",
@@ -162,13 +163,18 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
         <div style={{
           position: "absolute", inset: 0, zIndex: 10,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
-          gap: 10, padding: "clamp(10px, 3vw, 20px)", "--gl-size-heading": "14px",
+          gap: 10, padding: "clamp(10px, 3vw, 20px)", "--gl-size-heading": "14px", "--gl-btn-pad-lg": "8px 20px",
           opacity: zooming ? 0 : 1, pointerEvents: zooming ? "none" : "auto",
           transition: "opacity 0.2s ease",
         }}>
           {!showSettings ? (
             <>
-              <div style={{ width: 180 }}><Button tone="pink" size="lg" block onClick={() => launch(onNewGame)}>New game</Button></div>
+              {/* Filled pink button reads visually smaller than the outlined
+                  ones at the same font-size (dark text on a bright fill vs
+                  bright text on a dark outline — a real irradiation
+                  illusion, confirmed all four render at the same computed
+                  14px). Bumping just this one compensates for it. */}
+              <div style={{ width: 180, "--gl-size-heading": "15px" }}><Button tone="pink" size="lg" block onClick={() => launch(onNewGame)}>New game</Button></div>
               <div style={{ width: 180 }}><Button tone="teal" variant="outlined" size="lg" block disabled={!hasSave} reason={hasSave ? undefined : "no career saved yet"} onClick={() => launch(onContinue)}>Continue</Button></div>
               <div style={{ width: 180 }}><Button tone="violet" variant="outlined" size="lg" block onClick={onCodex}>Achievements</Button></div>
               <div style={{ width: 180, marginBottom: 4 }}><Button tone="teal" variant="outlined" size="lg" block onClick={() => setShowSettings(true)}>Settings</Button></div>
