@@ -21,6 +21,15 @@ export const CAR_SPRITES = {
   nissanSkylineR34: { rear: `${BASE}garage-life-assets/cars/nissanSkylineR34-rear.png`, front: `${BASE}garage-life-assets/cars/nissanSkylineR34-front.png` },
   subaruImprezaWrx: { rear: `${BASE}garage-life-assets/cars/subaruImprezaWrx-rear.png`, front: `${BASE}garage-life-assets/cars/subaruImprezaWrx-front.png` },
   hondaS2000:       { rear: `${BASE}garage-life-assets/cars/hondaS2000-rear.png`, front: `${BASE}garage-life-assets/cars/hondaS2000-front.png` },
+  hondaNsxNa1:      { rear: `${BASE}garage-life-assets/cars/hondaNsxNa1-rear.png`, front: `${BASE}garage-life-assets/cars/hondaNsxNa1-front.png` },
+
+  // BMW Legends — future upgrade tier (see data.js CARS comment). Paths
+  // wired now so dropping the cropped PNGs in is the only step left once
+  // that tier is switched on.
+  bmwM3E36: { rear: `${BASE}garage-life-assets/cars/bmwM3E36-rear.png`, front: `${BASE}garage-life-assets/cars/bmwM3E36-front.png` },
+  bmwM3E46: { rear: `${BASE}garage-life-assets/cars/bmwM3E46-rear.png`, front: `${BASE}garage-life-assets/cars/bmwM3E46-front.png` },
+  bmwM5E39: { rear: `${BASE}garage-life-assets/cars/bmwM5E39-rear.png`, front: `${BASE}garage-life-assets/cars/bmwM5E39-front.png` },
+  bmwM3E90: { rear: `${BASE}garage-life-assets/cars/bmwM3E90-rear.png`, front: `${BASE}garage-life-assets/cars/bmwM3E90-front.png` },
 
   // USDM starters
   mazdaMiataNa:      { rear: `${BASE}garage-life-assets/cars/mazdaMiataNa/race-rear.png`, front: `${BASE}garage-life-assets/cars/mazdaMiataNa/race-front.png`, garageRear: `${BASE}garage-life-assets/cars/mazdaMiataNa/garage-rear.png`, garageFront: `${BASE}garage-life-assets/cars/mazdaMiataNa/garage-front.png` },

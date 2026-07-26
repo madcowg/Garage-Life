@@ -3,7 +3,6 @@ import { buildRoadStrip, projectRows } from "../game/road";
 import { drawTrack } from "../game/track";
 import { CARS } from "../game/data";
 import { CAR_SPRITES } from "../game/carAssets";
-import { SCANLINE_OVERLAY, scanlinesEnabled } from "../theme";
 
 // Forward-perspective "driving" view — SNES Mode-7 style (Mario Kart /
 // F-Zero), replacing a flat top-down look for the live race screen. The
@@ -32,12 +31,10 @@ const MINI_W = 62, MINI_H = 74, MINI_PAD = 5, MINI_MARGIN = 6;
 // list of {point, color, size} instead of the one it draws today; no
 // consumer needs that yet, so it isn't built speculatively here.
 
-// Integra/Corvette still use hand-coded procedural art: their original PNGs
-// were flagged as inaccurate, and regenerating them via PixelLab stalled on
-// exhausted account credits. The Miata NA/NB now have accurate
-// PixelLab-generated PNGs (installed as race-rear.png) and render as
-// sprites. Drop cars from this set as their corrected PNGs arrive.
-const FORCE_PROCEDURAL = new Set(["integra", "corvette", "beaterVan"]);
+// beaterVan has no sprite art (procedural draw only, see drawVanRear below).
+// Integra/Corvette/Miata all have accurate real sprites now and render from
+// CAR_SPRITES like the rest of the roster.
+const FORCE_PROCEDURAL = new Set(["beaterVan"]);
 
 const CAR_PALETTES = {
   miataNA:  { body: "#D0233B", dark: "#7A0F22", glass: "#1B2233", tail: "#FF2D55", trim: "#2b0d14" },
@@ -163,7 +160,6 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
         height={INTERNAL_H}
         style={{ width: "100%", height: "auto", display: "block", imageRendering: "pixelated" }}
       />
-      {scanlinesEnabled() && <div style={SCANLINE_OVERLAY} />}
     </div>
   );
 }
