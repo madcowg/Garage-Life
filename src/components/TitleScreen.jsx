@@ -115,12 +115,12 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
           logo can sit ABOVE the frame in paint order while overlapping down
           into its top edge, instead of the two being separate flex siblings
           (which just pushed the frame further down the page). */}
-      <div style={{ position: "relative", width: "min(640px, 90vw)", maxHeight: "68vh" }}>
+      <div style={{ position: "relative", width: "min(800px, 95vw)", maxHeight: "85vh" }}>
         <div style={{
-          position: "relative", width: "100%", aspectRatio: "4 / 3", maxHeight: "68vh", overflow: "hidden",
+          position: "relative", width: "100%", aspectRatio: "4 / 3", maxHeight: "85vh", overflow: "hidden",
           background: "var(--gl-bg)",
-          borderRadius: zooming ? 0 : "var(--gl-radius-panel)", border: zooming ? "none" : "3px solid var(--gl-border)",
-          boxShadow: zooming ? "none" : "0 0 32px rgba(var(--gl-teal-rgb),0.25), var(--gl-inset-highlight)",
+          borderRadius: zooming ? 0 : "var(--gl-radius-panel)", border: zooming ? "none" : "4px solid var(--gl-border)",
+          boxShadow: zooming ? "none" : "0 0 40px rgba(var(--gl-teal-rgb),0.25), var(--gl-inset-highlight)",
           transform: zooming ? "scale(9)" : "scale(1)",
           transition: `transform ${ZOOM_MS}ms cubic-bezier(0.6,0,0.9,0), border-radius ${ZOOM_MS}ms ease`,
           pointerEvents: zooming ? "none" : "auto",
@@ -144,12 +144,12 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
           alt="My Garage Life" draggable={false}
           style={{
             position: "absolute", top: "40%", left: "50%", zIndex: 5,
-            maxHeight: "34vh", maxWidth: "82vw", width: "auto", height: "auto",
+            maxHeight: "42vh", maxWidth: "95vw", width: "auto", height: "auto",
             objectFit: "contain", imageRendering: "pixelated",
-            filter: "drop-shadow(0 0 28px rgba(var(--gl-pink-rgb),0.55))",
+            filter: "drop-shadow(0 0 35px rgba(var(--gl-pink-rgb),0.55))",
             transform: logoDropped
-              ? "translate(-50%, calc(-50% - 46px))"
-              : "translate(-50%, calc(-50% - 46px - 900px))",
+              ? "translate(-50%, calc(-50% - 58px))"
+              : "translate(-50%, calc(-50% - 58px - 900px))",
             opacity: zooming ? 0 : 1,
             transition: "transform 1.8s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease",
           }}
@@ -163,8 +163,8 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
         <div style={{
           position: "absolute", inset: 0, zIndex: 10,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
-          gap: 10, padding: "clamp(10px, 3vw, 20px)", "--gl-size-heading": "14px", "--gl-btn-pad-lg": "8px 20px",
-          transform: "translateY(-46px)",
+          gap: 13, padding: "clamp(13px, 3.75vw, 25px)", "--gl-size-heading": "18px", "--gl-btn-pad-lg": "10px 25px",
+          transform: "translateY(-58px)",
           opacity: zooming ? 0 : 1, pointerEvents: zooming ? "none" : "auto",
           transition: "opacity 0.2s ease",
         }}>
@@ -175,10 +175,10 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
                   bright text on a dark outline — a real irradiation
                   illusion, confirmed all four render at the same computed
                   14px). Bumping just this one compensates for it. */}
-              <div style={{ width: 180, "--gl-size-heading": "15px" }}><Button tone="pink" size="lg" block onClick={() => launch(onNewGame)}>New game</Button></div>
-              <div style={{ width: 180 }}><Button tone="teal" variant="outlined" size="lg" block disabled={!hasSave} reason={hasSave ? undefined : "no career saved yet"} onClick={() => launch(onContinue)}>Continue</Button></div>
-              <div style={{ width: 180 }}><Button tone="violet" variant="outlined" size="lg" block onClick={onCodex}>Achievements</Button></div>
-              <div style={{ width: 180, marginBottom: 4 }}><Button tone="teal" variant="outlined" size="lg" block onClick={() => setShowSettings(true)}>Settings</Button></div>
+              <div style={{ width: 225, "--gl-size-heading": "19px" }}><Button tone="pink" size="lg" block onClick={() => launch(onNewGame)}>New game</Button></div>
+              <div style={{ width: 225 }}><Button tone="teal" variant="outlined" size="lg" block disabled={!hasSave} reason={hasSave ? undefined : "no career saved yet"} onClick={() => launch(onContinue)}>Continue</Button></div>
+              <div style={{ width: 225 }}><Button tone="violet" variant="outlined" size="lg" block onClick={onCodex}>Achievements</Button></div>
+              <div style={{ width: 225, marginBottom: 4 }}><Button tone="teal" variant="outlined" size="lg" block onClick={() => setShowSettings(true)}>Settings</Button></div>
             </>
           ) : (
           <div style={{
