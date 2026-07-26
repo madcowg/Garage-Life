@@ -16,12 +16,12 @@ export const CARS = {
   // sections, same logic as the Miata's bonus); heavy big-power GT cars get
   // a penalty, same logic as the Corvette's. No unlock mechanic exists yet
   // (pending the reputation/rewards system) — these render locked for now.
-  hondaCivicSir:    { name: "Honda Civic SiR",         hp: 2, handling: 5, grip: 4, trans: 3, blurb: "Featherweight VTEC hatch. Autocross bonus.", tier: "unlockable", sprite: "hondaCivicSir" },
-  hondaS2000:       { name: "Honda S2000",             hp: 3, handling: 5, grip: 5, trans: 4, blurb: "High-revving roadster. Razor-sharp chassis.", tier: "unlockable", sprite: "hondaS2000" },
+  hondaCivicSir:    { name: "Honda Civic Si (EK)",      hp: 2, handling: 5, grip: 4, trans: 3, blurb: "Featherweight VTEC hatch. Autocross bonus.", tier: "unlockable", sprite: "hondaCivicSir" },
+  hondaS2000:       { name: "Honda S2000 (AP1)",        hp: 3, handling: 5, grip: 5, trans: 4, blurb: "High-revving roadster. Razor-sharp chassis.", tier: "unlockable", sprite: "hondaS2000" },
   mazdaRx7Fd:       { name: "Mazda RX-7 FD",           hp: 3, handling: 4, grip: 4, trans: 3, blurb: "Rotary balance icon. Nimble, demands respect.", tier: "unlockable", sprite: "mazdaRx7Fd" },
-  subaruImprezaWrx: { name: "Subaru Impreza WRX",      hp: 3, handling: 4, grip: 5, trans: 3, blurb: "Rally-bred AWD traction, confident in tight sections.", tier: "unlockable", sprite: "subaruImprezaWrx" },
+  subaruImprezaWrx: { name: "Subaru Impreza WRX (bugeye)", hp: 3, handling: 4, grip: 5, trans: 3, blurb: "Rally-bred AWD traction, confident in tight sections.", tier: "unlockable", sprite: "subaruImprezaWrx" },
   mitsubishiEvo6:   { name: "Mitsubishi Lancer Evo VI", hp: 4, handling: 4, grip: 5, trans: 4, blurb: "AWD rally homologation special.", tier: "unlockable", sprite: "mitsubishiEvo6" },
-  nissan180sx:      { name: "Nissan 180SX",            hp: 3, handling: 3, grip: 3, trans: 3, blurb: "SR20 RWD tuner platform. No penalties, no favors.", tier: "unlockable", sprite: "nissan180sx" },
+  nissan180sx:      { name: "Nissan 240SX Fastback (S13)", hp: 3, handling: 3, grip: 3, trans: 3, blurb: "SR20 RWD tuner platform. No penalties, no favors.", tier: "unlockable", sprite: "nissan180sx" },
   nissanSkylineR34: { name: "Nissan Skyline GT-R R34",  hp: 5, handling: 3, grip: 5, trans: 4, blurb: "AWD grip monster — weight bites in tight corners.", tier: "unlockable", sprite: "nissanSkylineR34" },
   toyotaSupraMk4:   { name: "Toyota Supra Mk4",        hp: 5, handling: 2, grip: 3, trans: 4, blurb: "Turbocharged 2JZ powerhouse. Heavy in the tight stuff.", tier: "unlockable", sprite: "toyotaSupraMk4" },
   hondaNsxNa1:      { name: "Honda NSX (NA1)",         hp: 4, handling: 5, grip: 5, trans: 4, blurb: "Mid-engine, aluminum-chassis precision. Senna-tuned balance.", tier: "unlockable", sprite: "hondaNsxNa1" },

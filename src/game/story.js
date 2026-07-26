@@ -151,7 +151,7 @@ export const ACHIEVEMENTS = [
   { id: "rep_20", title: "On the Board", desc: "Reach 20 points in a single season.", quip: "Your name is on a clipboard. This is what fame looks like in Cape Marlow." },
   { id: "stage1_complete", title: "Fully Built", desc: "Unlock every Stage 1 mod.", quip: "Every bolt-on Rex sells, installed. The car is now 4% you and 96% invoice." },
   { id: "nationals_bid", title: "Nationals Bid", desc: "End a season with a Nationals-bid points finish.", quip: "Somewhere, a Nationals official is spelling your name wrong on an envelope. Progress." },
-  { id: "car_hondaCivicSir", title: "SiR Respect", desc: "Unlock the Honda Civic SiR.", quip: "Its fourth owner in Cape Marlow. It has opinions about all three previous ones." },
+  { id: "car_hondaCivicSir", title: "Civic Duty", desc: "Unlock the Honda Civic Si (EK).", quip: "Its fourth owner in Cape Marlow. It has opinions about all three previous ones." },
   { id: "car_mazdaRx7Fd", title: "Rotary Regard", desc: "Unlock the Mazda RX-7 FD.", quip: "It burns a little oil, it whines a little loud, and everyone still turns around for it. Rotary tax." },
   { id: "cred_legend", title: "Paddock Legend", desc: "Reach Paddock Legend racing cred in a season.", quip: "Paddock Legend. Not Nationals Legend, not Actually Famous Legend — Paddock Legend. Take the win." },
   { id: "trusted_by_all", title: "One of Us", desc: "Earn Trusted standing with everyone in Cape Marlow.", quip: "Rex, Dez, Marisol, and Walt all trust you now. Historians will note this took less effort than it should have." },

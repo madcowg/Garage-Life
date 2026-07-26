@@ -17,7 +17,7 @@ const TABS = [
 const NPC_PERKS = {
   rex: "10% off tires at Friendly, 20% at Trusted.",
   dez: "At Trusted, Dez covers your next entry fee once.",
-  marisol: "Lowers the Civic SiR's points requirement (40 → 30 → 20).",
+  marisol: "Lowers the Civic Si's points requirement (40 → 30 → 20).",
   walt: "Lowers the RX-7's win requirement (3 → 2 → 1); at Trusted, waves one Maintain bill.",
 };
 
