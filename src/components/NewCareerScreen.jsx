@@ -81,8 +81,8 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
 
       <Section title={`STILL LOCKED (${lockedCars.length})`} collapsible defaultOpen={false}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {lockedCars.map(([id]) => (
-            <CarCard key={id} carId={id} silhouette locked lockNote="earn this during a career" name="???" />
+          {lockedCars.map(([id, c]) => (
+            <CarCard key={id} carId={id} silhouette locked lockNote="earn this during a career" name="???" desc={c.blurb} />
           ))}
         </div>
       </Section>
