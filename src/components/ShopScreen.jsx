@@ -4,6 +4,7 @@ import { Shell, Section } from "./shared";
 import { ScreenHeader } from "./ds/shell/ScreenHeader";
 import { Button } from "./ds/controls/Button";
 import { ItemCard } from "./ds/cards/ItemCard";
+import { CarCard } from "./ds/cards/CarCard";
 
 // Dead Reckoning Garage — the only place tires get bought and mods get
 // bolted in. Browsing is free; leaving is the actual action (1 AP), same
@@ -86,14 +87,10 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
         <Section title="GARAGE">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {spareCars.map(id => (
-              <ItemCard
-                key={id}
-                title={CARS[id]?.name ?? id}
-                desc="Not your active car — just sitting here."
-                affordable
-                actionLabel="Sell"
-                price={CAR_SELL_PRICE}
-                onAction={() => onSellCar(id)}
+              <CarCard
+                key={id} carId={id} tone="violet"
+                name={CARS[id]?.name ?? id} desc="Not your active car — just sitting here."
+                footer={<Button tone="gold" size="sm" block onClick={() => onSellCar(id)}>Sell ${CAR_SELL_PRICE}</Button>}
               />
             ))}
           </div>

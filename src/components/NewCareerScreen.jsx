@@ -3,8 +3,8 @@ import { CARS } from "../game/data";
 import { STARTING_CASH, STARTER_CASH_DELTA, SEASON_LENGTH_MONTHS } from "../game/career";
 import { Section, Shell } from "./shared";
 import { ScreenHeader } from "./ds/shell/ScreenHeader";
-import { ChoiceBox } from "./ds/controls/ChoiceBox";
 import { Button } from "./ds/controls/Button";
+import { CarCard } from "./ds/cards/CarCard";
 
 function cashLabel(id) {
   const delta = STARTER_CASH_DELTA[id] ?? 0;
@@ -34,10 +34,12 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
       <Section title="CHOOSE YOUR STARTER">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {Object.entries(CARS).filter(([, c]) => c.tier === "starter").map(([id, c]) => (
-            <ChoiceBox
-              key={id} tone="pink" marker selected={car === id} onClick={() => setCar(id)}
-              title={c.name} desc={c.blurb}
-              meta={`HP ${c.hp} · HDL ${c.handling} · GRIP ${c.grip} · TRN ${c.trans} — ${cashLabel(id)}`}
+            <CarCard
+              key={id} carId={id} variant={id === "miata" ? variant : undefined}
+              tone="pink" marker selected={car === id} onClick={() => setCar(id)}
+              name={c.name} desc={c.blurb}
+              stats={`HP ${c.hp} · HDL ${c.handling} · GRIP ${c.grip} · TRN ${c.trans}`}
+              footer={<div style={{ fontSize: 9, color: "var(--gl-text-3)" }}>{cashLabel(id)}</div>}
             />
           ))}
         </div>
@@ -56,16 +58,16 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
         <Section title="UNLOCKED FROM PAST CAREERS">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {unlockedExtraCars.map(([id, c]) => (
-              <ChoiceBox key={id} tone="pink" marker selected={car === id} onClick={() => setCar(id)} title={c.name} desc={c.blurb} />
+              <CarCard key={id} carId={id} tone="pink" marker selected={car === id} onClick={() => setCar(id)} name={c.name} desc={c.blurb} />
             ))}
           </div>
         </Section>
       )}
 
       <Section title="STILL LOCKED (earn these during a career)">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 6 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {Object.entries(CARS).filter(([id, c]) => c.tier === "unlockable" && !meta.unlockedCars.includes(id)).map(([id, c]) => (
-            <ChoiceBox key={id} locked lockNote="earn this during a career" title={c.name} desc={c.blurb} />
+            <CarCard key={id} carId={id} locked lockNote="earn this during a career" name={c.name} desc={c.blurb} />
           ))}
         </div>
       </Section>

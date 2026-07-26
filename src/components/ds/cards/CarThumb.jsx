@@ -1,0 +1,49 @@
+import { useState } from "react";
+import { CARS } from "../../../game/data";
+import { CAR_SPRITES } from "../../../game/carAssets";
+
+function spriteSrcFor(carId, variant) {
+  const car = CARS[carId];
+  if (!car) return null;
+  const key = (variant && car.spriteVariants?.[variant]) || car.sprite;
+  const entry = key && CAR_SPRITES[key];
+  if (!entry) return null;
+  return entry.garageFront || entry.front || entry.garageRear || entry.rear || null;
+}
+
+// Blocky placeholder silhouette for any car with no sprite art yet (a few of
+// the JDM unlockable roster's asset-pack entries are still missing) — so a
+// 404 reads as "art coming soon" instead of a broken-image icon.
+function PlaceholderGlyph() {
+  return (
+    <svg viewBox="0 0 32 16" style={{ width: "38%", height: "38%", color: "var(--gl-text-dead)" }}>
+      <rect x="2" y="9" width="28" height="5" fill="currentColor" />
+      <rect x="8" y="4" width="17" height="6" fill="currentColor" />
+      <rect x="4" y="13" width="5" height="3" fill="currentColor" />
+      <rect x="22" y="13" width="5" height="3" fill="currentColor" />
+    </svg>
+  );
+}
+
+// Static car sprite for menu/list screens (car select, garage, dealership) —
+// same sprite pack RoadView draws from, at a fixed thumbnail aspect so every
+// screen that shows a car shows it the same size.
+export function CarThumb({ carId, variant }) {
+  const [broken, setBroken] = useState(false);
+  const src = spriteSrcFor(carId, variant);
+
+  return (
+    <div style={{
+      position: "relative", aspectRatio: "16 / 10", borderRadius: "var(--gl-radius-plate)",
+      background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)",
+      display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
+    }}>
+      {src && !broken ? (
+        <img
+          src={src} alt="" draggable={false} onError={() => setBroken(true)}
+          style={{ maxWidth: "86%", maxHeight: "86%", objectFit: "contain", imageRendering: "pixelated" }}
+        />
+      ) : <PlaceholderGlyph />}
+    </div>
+  );
+}

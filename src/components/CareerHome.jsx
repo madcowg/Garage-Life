@@ -6,6 +6,7 @@ import { Button } from "./ds/controls/Button";
 import { ActionRow } from "./ds/controls/ActionRow";
 import { StatTile } from "./ds/instruments/StatTile";
 import { WearMeter } from "./ds/instruments/WearMeter";
+import { CarCard } from "./ds/cards/CarCard";
 
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
@@ -55,13 +56,16 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           <StatTile label="JOB" value={jobLabel} tone={jobTone} lcd={false} />
         </div>
 
-        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10, marginBottom: 16 }}>
-          <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", marginBottom: 8, textTransform: "uppercase" }}>{car.name} — car condition</div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <WearMeter label="ENGINE" value={career.wear.engine} />
-            <WearMeter label="TIRES" value={career.wear.tires} />
-            <WearMeter label="BRAKES" value={career.wear.brakes} />
-            <WearMeter label="TRANS" value={career.wear.trans} />
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "stretch" }}>
+          <CarCard carId={career.car} variant={career.variant} tone="teal" name={car.name} />
+          <div style={{ flex: 1, background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10 }}>
+            <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", marginBottom: 8, textTransform: "uppercase" }}>{car.name} — car condition</div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <WearMeter label="ENGINE" value={career.wear.engine} />
+              <WearMeter label="TIRES" value={career.wear.tires} />
+              <WearMeter label="BRAKES" value={career.wear.brakes} />
+              <WearMeter label="TRANS" value={career.wear.trans} />
+            </div>
           </div>
         </div>
 
