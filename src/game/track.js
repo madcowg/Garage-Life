@@ -244,14 +244,14 @@ export function trackBounds(points) {
   return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
 }
 
-// Shared draw routine — used by both the full TrackCanvas and the HUD MiniMap
-// so the two always agree on shape. Renders at whatever internal resolution
-// the canvas already has; caller controls pixel-chunkiness via canvas size.
+// Shared draw routine — used by the post-race TrackCanvas recap and by
+// RoadView's in-race minimap overlay, so every view of a course always
+// agrees on its shape. Renders at whatever internal resolution the canvas
+// already has; caller controls pixel-chunkiness via canvas size and pad.
 export function drawTrack(ctx, track, opts = {}) {
-  const { width, height, showCones = true, activeSegIndex = -1, carT = 0, palette = {} } = opts;
+  const { width, height, showCones = true, activeSegIndex = -1, carT = 0, palette = {}, pad = 20 } = opts;
   const { points, segMarkers, cones } = track;
   const b = trackBounds(points);
-  const pad = 20;
   const spanX = Math.max(1, b.maxX - b.minX);
   const spanY = Math.max(1, b.maxY - b.minY);
   const scale = Math.min((width - pad * 2) / spanX, (height - pad * 2) / spanY);
@@ -347,11 +347,19 @@ export function drawTrack(ctx, track, opts = {}) {
 // Draws a gate line perpendicular to travel direction at p1 (the start or
 // finish point), spanning the course width — "solid" is a plain green start
 // line, "checkered" is an alternating black/white finish line.
+// Below ~8px on screen the gate line all but disappears (found in fewer
+// than half of sampled courses at the in-race minimap's tiny size, checked
+// directly by scanning rendered pixels) — floor its world-space half-width
+// so the ON-SCREEN result never shrinks past that, regardless of how small
+// scale gets. At the larger recap/HUD sizes (bigger scale), the natural
+// CONE_EDGE_WIDTH-based size is already bigger than this floor, so nothing
+// changes there.
+const MIN_GATE_SCREEN_HALFW = 8;
 function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor) {
   const dx = p1.x - p0.x, dy = p1.y - p0.y;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len;
-  const halfW = CONE_EDGE_WIDTH * 1.1;
+  const halfW = Math.max(CONE_EDGE_WIDTH * 1.1, MIN_GATE_SCREEN_HALFW / scale);
   const lineWidth = Math.max(2, 3 * scale);
 
   if (kind === "solid") {

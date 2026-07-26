@@ -1,19 +1,36 @@
 import { useRef, useEffect } from "react";
 import { buildRoadStrip, projectRows } from "../game/road";
+import { drawTrack } from "../game/track";
 import { CARS } from "../game/data";
 import { CAR_SPRITES } from "../game/carAssets";
 import { SCANLINE_OVERLAY, scanlinesEnabled } from "../theme";
 
 // Forward-perspective "driving" view — SNES Mode-7 style (Mario Kart /
 // F-Zero), replacing a flat top-down look for the live race screen. The
-// top-down TrackCanvas/MiniMap stay as-is for the course-recap and HUD map;
-// this is only the in-race visual, so the player sees the road curving away
-// ahead of them instead of a bird's-eye line.
+// top-down TrackCanvas stays as-is for the post-race course recap; this is
+// only the in-race visual, so the player sees the road curving away ahead
+// of them instead of a bird's-eye line. The course minimap and elapsed
+// time are composited as HUD overlays directly onto this same canvas
+// (top-left / top-center) instead of living in a separate panel below —
+// same reference-game framing as a real racing HUD.
 const INTERNAL_W = 288;
 const INTERNAL_H = 176;
 const HORIZON_Y = 66;
 const ROAD_WIDTH = 168;
 const DEPTH = 46;
+
+// Minimap overlay — reuses track.js's shared drawTrack() (same points/cones
+// every other view reads from, so it's always geometrically accurate to
+// what's actually being driven), rendered to a small offscreen canvas and
+// composited into the corner. pad is much smaller than the full-size
+// HUD/recap map's default (20px) — at ~70px across that would eat most of
+// the canvas.
+const MINI_W = 62, MINI_H = 74, MINI_PAD = 5, MINI_MARGIN = 6;
+// Single car for now (solo autocross) — the dot is sized/colored for a
+// player car. Multiple simultaneous cars (future disciplines with other
+// participants) would extend drawTrack's car-marker drawing to accept a
+// list of {point, color, size} instead of the one it draws today; no
+// consumer needs that yet, so it isn't built speculatively here.
 
 // Integra/Corvette still use hand-coded procedural art: their original PNGs
 // were flagged as inaccurate, and regenerating them via PixelLab stalled on
@@ -28,6 +45,16 @@ const CAR_PALETTES = {
   integra:  { body: "#E7E9EE", dark: "#9AA0AC", glass: "#161B26", tail: "#FF2D55", amber: "#FFB300", trim: "#5b5f68" },
   corvette: { body: "#CE1F2A", dark: "#7A0F16", glass: "#12151D", tail: "#FF2D55", trim: "#120608" },
 };
+
+// The minimap's player dot matches the car's actual body color, same idea
+// as the reference HUD (dot color = car color). Unlockable JDM roster
+// (sprite-based, no procedural palette) falls back to the HUD teal accent.
+function carDotColor(carId, variant) {
+  if (carId === "miata") return variant === "NB" ? CAR_PALETTES.miataNB.body : CAR_PALETTES.miataNA.body;
+  if (carId === "integra") return CAR_PALETTES.integra.body;
+  if (carId === "corvette") return CAR_PALETTES.corvette.body;
+  return "#00F5D4";
+}
 
 // Module-level image cache — preloaded once, shared across every RoadView
 // instance/render, since Image() loads asynchronously and we don't want to
@@ -77,8 +104,19 @@ function contentBBox(img) {
   return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
 }
 
-export default function RoadView({ track, activeSegIndex, carT, carId = "miata", variant, theme = "default" }) {
+export default function RoadView({ track, activeSegIndex, carT, carId = "miata", variant, theme = "default", totalTime = 0, targetTime = 0 }) {
   const canvasRef = useRef(null);
+  // Lazily-created offscreen canvas the minimap draws into each frame, then
+  // gets composited onto the main canvas — keeps drawTrack()'s own
+  // clearRect/fillRect fully self-contained instead of fighting the main
+  // canvas's road/sky drawing for the same pixels.
+  const miniCanvasRef = useRef(null);
+  if (!miniCanvasRef.current) {
+    const c = document.createElement("canvas");
+    c.width = MINI_W;
+    c.height = MINI_H;
+    miniCanvasRef.current = c;
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,24 +128,25 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
     const rows = projectRows(strip.rows, {
       width: INTERNAL_W, height: INTERNAL_H, horizonY: HORIZON_Y, roadWidth: ROAD_WIDTH,
     });
+    const hud = { track, activeSegIndex, carT, totalTime, targetTime, miniCanvas: miniCanvasRef.current, carColor: carDotColor(carId, variant) };
     // Draw once synchronously so the frame shows up immediately even if the
     // tab/pane isn't actively compositing yet (rAF alone can be suspended
     // until the page is visible) — then hand off to rAF for the cosmetic
     // scroll/bob animation on top of this same static geometry.
     let tick = 0;
-    drawFrame(ctx, rows, strip, tick, carId, variant, theme);
+    drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud);
 
     let running = true;
     let raf;
     const frame = () => {
       if (!running) return;
       tick += 1;
-      drawFrame(ctx, rows, strip, tick, carId, variant, theme);
+      drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => { running = false; cancelAnimationFrame(raf); };
-  }, [track, activeSegIndex, carT, carId, variant, theme]);
+  }, [track, activeSegIndex, carT, carId, variant, theme, totalTime, targetTime]);
 
   return (
     <div style={{
@@ -125,7 +164,7 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
   );
 }
 
-function drawFrame(ctx, rows, strip, tick, carId, variant, theme) {
+function drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud) {
   const W = INTERNAL_W, H = INTERNAL_H;
   ctx.clearRect(0, 0, W, H);
 
@@ -133,6 +172,74 @@ function drawFrame(ctx, rows, strip, tick, carId, variant, theme) {
   drawGroundAndRoad(ctx, rows, tick);
   drawCones(ctx, rows, strip.cones);
   drawCarSprite(ctx, W, H, strip.carLean, tick, carId, variant);
+  drawHudOverlay(ctx, W, hud);
+}
+
+// Translucent rounded panel used by every HUD element drawn on top of the
+// road view — same treatment for the minimap corner and the time pill so
+// they read as one consistent HUD, not two different UI styles bolted on.
+function drawHudPanel(ctx, x, y, w, h, r = 4) {
+  ctx.fillStyle = "rgba(10,10,20,0.62)";
+  roundRect(ctx, x, y, w, h, r);
+  ctx.strokeStyle = "rgba(0,245,212,0.35)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  ctx.stroke();
+}
+
+// Course minimap (top-left) + elapsed/target time (top-center), composited
+// straight onto the race view instead of a separate panel below it — the
+// "more race game feel" the reference HUD has. The minimap reuses the same
+// drawTrack() the post-race recap uses, so it's always geometrically
+// accurate to the actual course, right down to the start (green) / finish
+// (checkered) gate lines already drawn into every track — autocross start
+// and finish are almost never the same spot, so both stay explicitly
+// marked rather than assuming a closed lap.
+function drawHudOverlay(ctx, W, hud) {
+  if (!hud?.track) return;
+  const { track, activeSegIndex, carT, totalTime, targetTime, miniCanvas, carColor } = hud;
+
+  const mctx = miniCanvas.getContext("2d");
+  mctx.imageSmoothingEnabled = false;
+  drawTrack(mctx, track, {
+    width: MINI_W, height: MINI_H, pad: MINI_PAD, showCones: true, activeSegIndex, carT,
+    palette: {
+      bg: "rgba(13,13,26,0.001)", track: "#8f95ad", active: "#FF6EC7", done: "#00594F",
+      cone: "#FF6B35", gateCone: "#FFD700", apexCone: "#FF2D55",
+      car: carColor, carOutline: "#0a0a14", startLine: "#00C853",
+    },
+  });
+
+  const panelW = MINI_W + 6, panelH = MINI_H + 6;
+  drawHudPanel(ctx, MINI_MARGIN, MINI_MARGIN, panelW, panelH);
+  ctx.drawImage(miniCanvas, MINI_MARGIN + 3, MINI_MARGIN + 3);
+
+  // Elapsed / target time, top-center.
+  const timeText = `${totalTime.toFixed(2)}s`;
+  const targetText = `/ ${targetTime.toFixed(1)}s`;
+  ctx.font = "bold 11px monospace";
+  const timeW = ctx.measureText(timeText).width;
+  ctx.font = "8px monospace";
+  const targetW = ctx.measureText(targetText).width;
+  const pillW = Math.max(timeW, targetW) + 20;
+  const pillH = 26;
+  const pillX = W / 2 - pillW / 2;
+  const pillY = MINI_MARGIN;
+  drawHudPanel(ctx, pillX, pillY, pillW, pillH);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#E8EAF6";
+  ctx.font = "bold 11px monospace";
+  ctx.fillText(timeText, W / 2, pillY + 12);
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "8px monospace";
+  ctx.fillText(targetText, W / 2, pillY + 22);
+  ctx.textAlign = "left";
 }
 
 // "palm" theme adds Outrun-style palm silhouettes against the sunset for a

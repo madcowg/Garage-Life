@@ -56,12 +56,14 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
         {snap.phase !== "betweenRuns" && snap.phase !== "eventDone" && (
           <>
             <RunBanner snap={snap} />
-            <RoadView track={track} activeSegIndex={activeSeg} carT={carT} carId={loadout.car} variant={loadout.variant} theme={theme} />
+            <RoadView
+              track={track} activeSegIndex={activeSeg} carT={carT} carId={loadout.car} variant={loadout.variant} theme={theme}
+              totalTime={snap.totalTime} targetTime={snap.targetTime}
+            />
             <div style={{ height: 8 }} />
             <HUD
               loadout={{ ...loadout, gauges: { oilGauge: loadout.diagnostics, coolantGauge: false, boostGauge: false, transGauge: loadout.diagnostics } }}
-              wear={toCareerWear(snap.wear)} totalTime={snap.totalTime} target={snap.targetTime}
-              track={track} activeSegIndex={activeSeg} carT={carT}
+              wear={toCareerWear(snap.wear)}
             />
           </>
         )}
