@@ -148,8 +148,8 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
             objectFit: "contain", imageRendering: "pixelated",
             filter: "drop-shadow(0 0 28px rgba(var(--gl-pink-rgb),0.55))",
             transform: logoDropped
-              ? "translate(-50%, -50%)"
-              : "translate(-50%, calc(-50% - 900px))",
+              ? "translate(-50%, calc(-50% - 46px))"
+              : "translate(-50%, calc(-50% - 46px - 900px))",
             opacity: zooming ? 0 : 1,
             transition: "transform 1.8s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease",
           }}
@@ -164,6 +164,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
           position: "absolute", inset: 0, zIndex: 10,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
           gap: 10, padding: "clamp(10px, 3vw, 20px)", "--gl-size-heading": "14px", "--gl-btn-pad-lg": "8px 20px",
+          transform: "translateY(-46px)",
           opacity: zooming ? 0 : 1, pointerEvents: zooming ? "none" : "auto",
           transition: "opacity 0.2s ease",
         }}>
