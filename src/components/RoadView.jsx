@@ -308,15 +308,22 @@ function drawGroundAndRoad(ctx, rows, tick) {
     ctx.fillStyle = stripe ? "#2A2A44" : "#242440";
     ctx.fillRect(cx - row.halfWidth, row.y, row.halfWidth * 2, bandH);
 
-    const rumbleW = Math.max(1, row.halfWidth * 0.09);
-    ctx.fillStyle = stripe ? "#FF2D55" : "#E8EAF6";
-    ctx.fillRect(cx - row.halfWidth - rumbleW, row.y, rumbleW, bandH);
-    ctx.fillRect(cx + row.halfWidth, row.y, rumbleW, bandH);
+    // Boundary marking: autocross courses use a painted chalk line, never a
+    // curb/rumble strip (there's no curbing on a parking-lot course) — so
+    // this stays a single chalk-white color, just alternating bright/dim for
+    // the same scrolling-motion read a curb stripe would have given.
+    const chalkW = Math.max(1, row.halfWidth * 0.07);
+    ctx.fillStyle = stripe ? "#F2F2EC" : "rgba(242,242,236,0.4)";
+    ctx.fillRect(cx - row.halfWidth - chalkW, row.y, chalkW, bandH);
+    ctx.fillRect(cx + row.halfWidth, row.y, chalkW, bandH);
   }
 }
 
 // Tapered traffic-cone silhouette (triangle body + stripe band) instead of a
-// flat rectangle — stays chunky/low-res, just reads as an actual cone.
+// flat rectangle — stays chunky/low-res, just reads as an actual cone. Every
+// cone is the same standard pylon orange regardless of role (boundary, gate,
+// apex): real autocross doesn't color-code cones by function, it's cones and
+// chalk only, so a gate cone on course looks identical to a boundary cone.
 function drawCones(ctx, rows, cones) {
   const W = INTERNAL_W;
   cones.forEach(c => {
@@ -329,7 +336,7 @@ function drawCones(ctx, rows, cones) {
     const baseY = row.y;
     const topY = row.y - h;
 
-    ctx.fillStyle = c.side === "gate" ? "#FFD700" : "#FF6B35";
+    ctx.fillStyle = "#FF6B35";
     ctx.beginPath();
     ctx.moveTo(cx, topY);
     ctx.lineTo(cx + baseW / 2, baseY);
@@ -339,7 +346,7 @@ function drawCones(ctx, rows, cones) {
 
     const stripeY = topY + h * 0.45;
     const stripeHalfW = (baseW / 2) * 0.55;
-    ctx.fillStyle = c.side === "gate" ? "#7a5f00" : "#E8EAF6";
+    ctx.fillStyle = "#E8EAF6";
     ctx.fillRect(cx - stripeHalfW, stripeY, stripeHalfW * 2, Math.max(1, h * 0.12));
   });
 }

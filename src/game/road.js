@@ -36,6 +36,15 @@ export function curvatureAt(points, i) {
 // `depth` points further, deliberately overrunning into the next segment's
 // points so its upcoming bend is visible before the car reaches it (the
 // whole point of the SNES pseudo-3D look).
+//
+// Lookahead is also hard-capped at the end of the *immediately upcoming*
+// segment (never further). `depth` alone isn't a safe bound: courses vary in
+// how point-dense each segment is, so a fixed point count can overrun 2-3
+// segments ahead depending on layout. Piling multiple unrelated future
+// elements' curvature and cones into the same horizon view reads as visual
+// noise (wildly swinging edges, cones scattered with no coherent line) — a
+// single upcoming corner previewed early is the intended effect; three
+// stacked corners compressed at the vanishing point is not.
 export function buildRoadStrip(track, activeSegIndex, carT, depth = 46) {
   const { points, segMarkers, cones } = track;
   const marker = segMarkers[activeSegIndex];
@@ -44,7 +53,8 @@ export function buildRoadStrip(track, activeSegIndex, carT, depth = 46) {
   const { startIdx, endIdx } = marker;
   const span = Math.max(1, endIdx - startIdx);
   const carIdx = Math.floor(startIdx + span * clamp(carT, 0, 1));
-  const maxIdx = Math.min(points.length - 1, carIdx + depth);
+  const nextSegEnd = segMarkers[activeSegIndex + 1]?.endIdx ?? points.length - 1;
+  const maxIdx = Math.min(points.length - 1, carIdx + depth, nextSegEnd);
 
   const rows = [];
   let cumCurve = 0;
