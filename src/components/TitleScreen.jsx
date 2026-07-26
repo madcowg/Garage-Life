@@ -53,7 +53,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex })
       <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
         <img
           src={`${BASE}garage-life-assets/menu/garage-life-logo.png`}
-          alt="Garage Life" draggable={false}
+          alt="My Garage Life" draggable={false}
           style={{ width: "min(480px, 80vw)", imageRendering: "pixelated", marginBottom: 18, filter: "drop-shadow(0 0 18px rgba(255,110,199,0.55))" }}
         />
 

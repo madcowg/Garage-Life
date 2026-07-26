@@ -60,7 +60,7 @@ export function GameCard({ card, onClick, disabled, highlight, small, matchesSeg
   );
 }
 
-// Card back — the Garage Life logo, used for the draw pile indicator.
+// Card back — the My Garage Life logo, used for the draw pile indicator.
 export function CardBack({ count }) {
   return (
     <div style={{
@@ -70,7 +70,7 @@ export function CardBack({ count }) {
     }}>
       <img
         src={`${import.meta.env.BASE_URL}garage-life-assets/menu/garage-life-logo.png`}
-        alt="Garage Life" draggable={false}
+        alt="My Garage Life" draggable={false}
         style={{ width: 54, imageRendering: "pixelated" }}
       />
       <div style={{ fontSize: 9, color: C.teal, fontFamily: "monospace" }}>×{count}</div>

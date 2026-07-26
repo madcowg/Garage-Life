@@ -1,4 +1,4 @@
-# Garage Life Card Core v2
+# My Garage Life Card Core v2
 
 A headless, dependency-free implementation of the redesigned **“The Deck Is the Car”** autocross system.
 

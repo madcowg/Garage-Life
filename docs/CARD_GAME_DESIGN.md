@@ -147,7 +147,7 @@ Go over par → lose it. Suspension's *Composure* protects it. Simple, chains se
 - **Race view kept** as-is on top (updates to be discussed separately).
 - **HUD map**: remake in NFSU/GT style — clean single-weight track outline, position dot, start/finish ticks, apex cones only. (Separate visual pass, user to give direction.)
 - **Cards**: vaporwave frames by type (teal/pink/gold/red/gray), pixel-art icons from the existing sprite pack (cars, cones, parts), CRT overlay consistent with everything else.
-- **Card back**: the Garage Life logo from the original asset pack (`menu/garage-life-logo.png`) — needs to be copied into the repo from the first asset ZIP.
+- **Card back**: the My Garage Life logo from the original asset pack (`menu/garage-life-logo.png`) — needs to be copied into the repo from the first asset ZIP.
 
 ## 11. Build order
 

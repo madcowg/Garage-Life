@@ -1,4 +1,4 @@
-# Garage Life — Autocross
+# My Garage Life — Autocross
 
 A solo time-trial autocross card game prototype: procedurally generated SNES-style
 top-down courses, dice-driven consequence resolution, and a car-state deck where
