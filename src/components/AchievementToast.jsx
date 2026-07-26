@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { C } from "../theme";
 
 const DISPLAY_MS = 5000;
 const FADE_MS = 300;
@@ -29,19 +28,19 @@ export default function AchievementToast({ achievement, onDismiss }) {
       onClick={() => setClosing(true)}
       style={{
         position: "fixed", top: 14, right: 14, zIndex: 60, cursor: "pointer",
-        maxWidth: 280, background: "rgba(10,10,20,0.94)", border: `1px solid ${C.gold}`,
-        borderRadius: 6, padding: "10px 14px", fontFamily: "monospace",
-        boxShadow: "0 4px 18px rgba(0,0,0,0.5)",
+        maxWidth: 280, background: "var(--gl-panel)", border: "1px solid var(--gl-gold)",
+        borderRadius: "var(--gl-radius-panel)", padding: "10px 14px", fontFamily: "var(--gl-font-mono)",
+        boxShadow: "0 0 16px rgba(var(--gl-gold-rgb),0.35), var(--gl-inset-highlight)",
         opacity: closing ? 0 : 1, transform: closing ? "translateX(12px)" : "translateX(0)",
         transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ease`,
       }}
     >
-      <div style={{ fontSize: 9, color: C.gold, fontWeight: "bold", letterSpacing: 2 }}>🏆 NEW ACHIEVEMENT!</div>
-      <div style={{ fontSize: 12, fontWeight: "bold", color: C.white, marginTop: 4 }}>
-        {achievement.icon} {achievement.title}
+      <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-gold)", fontWeight: 700, letterSpacing: 2 }}>NEW ACHIEVEMENT!</div>
+      <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, color: "var(--gl-text-1)", marginTop: 4 }}>
+        {achievement.title}
       </div>
       {achievement.quip && (
-        <div style={{ fontSize: 9, color: "#999", marginTop: 4, lineHeight: 1.4 }}>{achievement.quip}</div>
+        <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginTop: 4, lineHeight: 1.4 }}>{achievement.quip}</div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { C } from "../theme";
 import { Shell } from "./shared";
+import { Button } from "./ds/controls/Button";
 
 const DEFAULT_NAME = "Paul Walker";
 
@@ -13,9 +13,9 @@ export default function IntroScreen({ onContinue }) {
 
   return (
     <Shell maxWidth={560}>
-        <div style={{ fontSize: 11, color: C.teal, letterSpacing: 3, marginBottom: 10 }}>CAPE MARLOW — ARRIVAL</div>
+        <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-teal)", letterSpacing: 3, marginBottom: 10 }}>CAPE MARLOW — ARRIVAL</div>
 
-        <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 6, padding: 16, marginBottom: 20, fontSize: 12, lineHeight: 1.7, color: "#ccc" }}>
+        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)" }}>
           Cape Marlow's been running the same coast-road autocross points chase every summer for longer than
           anyone bothers to count. A beat-up shop two blocks off the highway, an airfield lined with orange
           cones and chalk, and a standings sheet that doesn't care who you were before you showed up.
@@ -23,7 +23,7 @@ export default function IntroScreen({ onContinue }) {
           Rex doesn't need your life story. Just a name for the waiver.
         </div>
 
-        <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>WHAT SHOULD WE CALL YOU?</div>
+        <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: 2, marginBottom: 8 }}>WHAT SHOULD WE CALL YOU?</div>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -31,17 +31,12 @@ export default function IntroScreen({ onContinue }) {
           placeholder={DEFAULT_NAME}
           maxLength={40}
           style={{
-            width: "100%", padding: 12, marginBottom: 20, background: C.panel, border: `1px solid ${C.border}`,
-            borderRadius: 4, color: C.white, fontFamily: "monospace", fontSize: 13, boxSizing: "border-box",
+            width: "100%", padding: 12, marginBottom: 20, background: "var(--gl-panel)", border: "1px solid var(--gl-border)",
+            borderRadius: "var(--gl-radius-panel)", color: "var(--gl-text-1)", fontFamily: "var(--gl-font-mono)", fontSize: 13, boxSizing: "border-box",
           }}
         />
 
-        <button
-          onClick={() => onContinue((name || "").trim() || DEFAULT_NAME)}
-          style={{ width: "100%", padding: "14px 0", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: "pointer", letterSpacing: 2 }}
-        >
-          CONTINUE →
-        </button>
+        <Button tone="pink" size="lg" block onClick={() => onContinue((name || "").trim() || DEFAULT_NAME)}>Continue</Button>
     </Shell>
   );
 }

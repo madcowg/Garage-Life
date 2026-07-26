@@ -56,10 +56,6 @@ export function Section({ title, children }) {
   );
 }
 
-export function cardBtnStyle(active) {
-  return { flex: "1 1 160px", minWidth: 160, textAlign: "left", padding: 10, background: active ? "#1c1c3a" : C.panel, border: `1px solid ${active ? C.pink : C.border}`, borderRadius: 4, cursor: "pointer", color: C.white };
-}
-
 export function ToggleRow({ label, desc, active, onClick }) {
   return (
     <button onClick={onClick} style={{ textAlign: "left", padding: 8, background: active ? "#122b28" : C.panel, border: `1px solid ${active ? C.teal : C.border}`, borderRadius: 4, cursor: "pointer", color: C.white }}>

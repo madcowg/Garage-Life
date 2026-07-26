@@ -1,4 +1,4 @@
-import { C, SCANLINE_OVERLAY, scanlinesEnabled } from "../theme";
+import { C } from "../theme";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -14,7 +14,6 @@ export default function StorySnippetScreen({ text, onContinue }) {
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", filter: "brightness(0.55) saturate(0.85)" }}
       />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,13,26,0.35) 0%, rgba(13,13,26,0.75) 60%, rgba(13,13,26,0.92) 100%)" }} />
-      {scanlinesEnabled() && <div style={{ ...SCANLINE_OVERLAY, position: "absolute" }} />}
 
       <div style={{ position: "relative", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "clamp(16px, 5vw, 40px)" }}>
         <div style={{ fontSize: 9, color: C.teal, letterSpacing: 3, marginBottom: 18 }}>CAPE MARLOW</div>

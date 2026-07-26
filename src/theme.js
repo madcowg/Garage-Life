@@ -1,20 +1,15 @@
-// Shared vaporwave palette — used across all screens for visual consistency.
+// Shared vaporwave palette — mirrors src/index.css's --gl-* color tokens as
+// plain hex strings. Canvas 2D (RoadView.jsx, TrackCanvas.jsx) can't resolve
+// CSS custom properties in fillStyle/strokeStyle, so this stays a literal JS
+// object rather than "var(--gl-x)" — but the values themselves must stay in
+// sync with index.css by hand. DOM/React components should reach for the CSS
+// tokens directly where practical; C exists for canvas and any inline style
+// that predates the token system.
 export const C = {
-  pink: "#FF6EC7", teal: "#00F5D4", purple: "#1A0533", white: "#E8EAF6",
-  orange: "#FF6B35", red: "#FF2D55", gold: "#FFD700", green: "#00C853",
-  bg: "#0D0D1A", panel: "#12122A", panel2: "#0a0a14", border: "#242440",
-};
-
-// CRT scanline overlay — a pure CSS effect layered on top of a scaled-up
-// pixel-art canvas via an absolutely-positioned sibling div. Doesn't touch
-// the canvas's own low-res buffer, so the underlying art stays chunky/16-bit;
-// this only adds the CRT sheen on display. Apply to a `position: relative`
-// wrapper around any pixelated canvas. Toggleable from the title screen's
-// Settings panel — components check scanlinesEnabled() at render time.
-export const SCANLINE_OVERLAY = {
-  position: "absolute", inset: 0, pointerEvents: "none",
-  backgroundImage: "repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0.22) 2px, rgba(0,0,0,0.22) 3px)",
-  mixBlendMode: "multiply",
+  pink: "#FF5CC8", teal: "#16F2D6", purple: "#150730", white: "#E8EAF6",
+  orange: "#FF7A2F", red: "#FF3B5C", gold: "#FFC93C", green: "#1FD75F",
+  violet: "#7B2FBE",
+  bg: "#0B0A1E", panel: "#14132E", panel2: "#0C0B20", border: "#272552",
 };
 
 const SCANLINE_KEY = "garageLifeScanlines";

@@ -144,19 +144,19 @@ export function resolveCodexEntry(entry) {
 // game-show-host jab at the player, not a description (desc already covers
 // that). Written deadpan/teasing, never actually mean.
 export const ACHIEVEMENTS = [
-  { id: "first_start", title: "New Arrival", desc: "Start your first career in Cape Marlow.", icon: "🧳", quip: "Congratulations, you have arrived somewhere. The bar was on the floor and you still had to duck." },
-  { id: "first_entry", title: "Paid Your Dues", desc: "Pay your first event entry fee and grid up.", icon: "🎫", quip: "You handed a stranger $25 to let you drive in a circle. Bold opening move." },
-  { id: "first_win", title: "Beat the Clock", desc: "Beat the target time in an autocross event.", icon: "🏆", quip: "The clock lost. The clock has never lost before. We're all very surprised, including you." },
-  { id: "clean_win", title: "Cone Free", desc: "Win an event without hitting a single cone.", icon: "✨", quip: "Not one cone. Rex is checking your car for hidden radar. There isn't any. You're just good now." },
-  { id: "rep_20", title: "On the Board", desc: "Reach 20 points in a single season.", icon: "📋", quip: "Your name is on a clipboard. This is what fame looks like in Cape Marlow." },
-  { id: "stage1_complete", title: "Fully Built", desc: "Unlock every Stage 1 mod.", icon: "🔧", quip: "Every bolt-on Rex sells, installed. The car is now 4% you and 96% invoice." },
-  { id: "nationals_bid", title: "Nationals Bid", desc: "End a season with a Nationals-bid points finish.", icon: "🥇", quip: "Somewhere, a Nationals official is spelling your name wrong on an envelope. Progress." },
-  { id: "car_hondaCivicSir", title: "SiR Respect", desc: "Unlock the Honda Civic SiR.", icon: "🚗", quip: "Its fourth owner in Cape Marlow. It has opinions about all three previous ones." },
-  { id: "car_mazdaRx7Fd", title: "Rotary Regard", desc: "Unlock the Mazda RX-7 FD.", icon: "🚗", quip: "It burns a little oil, it whines a little loud, and everyone still turns around for it. Rotary tax." },
-  { id: "cred_legend", title: "Paddock Legend", desc: "Reach Paddock Legend racing cred in a season.", icon: "🏅", quip: "Paddock Legend. Not Nationals Legend, not Actually Famous Legend — Paddock Legend. Take the win." },
-  { id: "trusted_by_all", title: "One of Us", desc: "Earn Trusted standing with everyone in Cape Marlow.", icon: "🤝", quip: "Rex, Dez, Marisol, and Walt all trust you now. Historians will note this took less effort than it should have." },
-  { id: "ride_or_die", title: "Ride or Die", desc: "Finish a season with a spare car you never sold.", icon: "🔑", quip: "A whole spare car sat in the garage all season and you just... let it sit there. Loyalty, or laziness. We're not judging. We're a little judging." },
-  { id: "fire_sale", title: "Fire Sale", desc: "Sell a car before the season hits its halfway point.", icon: "💸", quip: "Barely warmed the seat before flipping it for cash. Ruthless. Efficient. Slightly concerning." },
+  { id: "first_start", title: "New Arrival", desc: "Start your first career in Cape Marlow.", quip: "Congratulations, you have arrived somewhere. The bar was on the floor and you still had to duck." },
+  { id: "first_entry", title: "Paid Your Dues", desc: "Pay your first event entry fee and grid up.", quip: "You handed a stranger $25 to let you drive in a circle. Bold opening move." },
+  { id: "first_win", title: "Beat the Clock", desc: "Beat the target time in an autocross event.", quip: "The clock lost. The clock has never lost before. We're all very surprised, including you." },
+  { id: "clean_win", title: "Cone Free", desc: "Win an event without hitting a single cone.", quip: "Not one cone. Rex is checking your car for hidden radar. There isn't any. You're just good now." },
+  { id: "rep_20", title: "On the Board", desc: "Reach 20 points in a single season.", quip: "Your name is on a clipboard. This is what fame looks like in Cape Marlow." },
+  { id: "stage1_complete", title: "Fully Built", desc: "Unlock every Stage 1 mod.", quip: "Every bolt-on Rex sells, installed. The car is now 4% you and 96% invoice." },
+  { id: "nationals_bid", title: "Nationals Bid", desc: "End a season with a Nationals-bid points finish.", quip: "Somewhere, a Nationals official is spelling your name wrong on an envelope. Progress." },
+  { id: "car_hondaCivicSir", title: "SiR Respect", desc: "Unlock the Honda Civic SiR.", quip: "Its fourth owner in Cape Marlow. It has opinions about all three previous ones." },
+  { id: "car_mazdaRx7Fd", title: "Rotary Regard", desc: "Unlock the Mazda RX-7 FD.", quip: "It burns a little oil, it whines a little loud, and everyone still turns around for it. Rotary tax." },
+  { id: "cred_legend", title: "Paddock Legend", desc: "Reach Paddock Legend racing cred in a season.", quip: "Paddock Legend. Not Nationals Legend, not Actually Famous Legend — Paddock Legend. Take the win." },
+  { id: "trusted_by_all", title: "One of Us", desc: "Earn Trusted standing with everyone in Cape Marlow.", quip: "Rex, Dez, Marisol, and Walt all trust you now. Historians will note this took less effort than it should have." },
+  { id: "ride_or_die", title: "Ride or Die", desc: "Finish a season with a spare car you never sold.", quip: "A whole spare car sat in the garage all season and you just... let it sit there. Loyalty, or laziness. We're not judging. We're a little judging." },
+  { id: "fire_sale", title: "Fire Sale", desc: "Sell a car before the season hits its halfway point.", quip: "Barely warmed the seat before flipping it for cash. Ruthless. Efficient. Slightly concerning." },
 ];
 
 // Per-career triggers get de-duped via career.storySeen (fire once per run);

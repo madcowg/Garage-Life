@@ -18,7 +18,12 @@ export { getCard, CARD_TYPES };
 // Career car id (+ Miata variant) -> engine vehicle id. The NA and NB are
 // mechanically identical in the career layer, so both map to the one
 // validated Miata identity package; the sprite variant stays cosmetic.
-const VEHICLE_MAP = { miata: "miata_nb", integra: "integra_gsr", corvette: "corvette_c6", beaterVan: "beater_van" };
+const VEHICLE_MAP = {
+  miata: "miata_nb", integra: "integra_gsr", corvette: "corvette_c6", beaterVan: "beater_van",
+  toyotaSupraMk4: "toyota_supra_mk4", nissanSkylineR34: "nissan_skyline_r34",
+  mazdaRx7Fd: "mazda_rx7_fd", mitsubishiEvo6: "mitsubishi_evo_vi", hondaNsxNa1: "honda_nsx_na1",
+  bmwM3E36: "bmw_m3_e36", bmwM3E46: "bmw_m3_e46", bmwM5E39: "bmw_m5_e39", bmwM3E90: "bmw_m3_e90",
+};
 
 // Career Stage 1 mod ids -> engine mod ids. stage1_safety becomes driver_fit
 // (mulligan, no speed); gauges collapse into basic_diagnostics (pre-race

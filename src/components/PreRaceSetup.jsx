@@ -2,9 +2,11 @@ import { useState, useMemo } from "react";
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
 import { PREP_COSTS, DIY_PREP_AP_COST, effectiveEntryFee, NPC_STANDING_THRESHOLDS } from "../game/career";
 import { buildPreRacePreview, getCard } from "../game/v2";
-import { GameCard } from "./CardHand";
-import { C } from "../theme";
+import { GameCard } from "./ds/cards/GameCard";
 import { Section, ToggleRow, Shell } from "./shared";
+import { ScreenHeader } from "./ds/shell/ScreenHeader";
+import { Button } from "./ds/controls/Button";
+import { ChoiceBox } from "./ds/controls/ChoiceBox";
 
 // Shown when the player spends a Race action from CareerHome — tire
 // selection/gauges/maintenance-checklist, same as the old one-shot Setup
@@ -58,24 +60,19 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
 
   return (
     <Shell maxWidth={640}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>RACE SETUP</div>
-            <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2 }}>{car.name}{career.variant ? ` (${career.variant})` : ""} — MONTH {career.month}/10</div>
-          </div>
-          <button onClick={onBack} style={{ padding: "8px 12px", background: C.panel, color: C.teal, border: `1px solid ${C.teal}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>← BACK</button>
-        </div>
+        <ScreenHeader
+          title="Race setup"
+          status={`${car.name}${career.variant ? ` (${career.variant})` : ""} — month ${career.month}/10`}
+          nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>}
+        />
 
         <Section title="INSTALLED MODS">
           {installedMods.length === 0 ? (
-            <div style={{ fontSize: 10, color: "#666" }}>Nothing installed yet — visit Dead Reckoning Garage (Shop, 1 AP) to bolt in anything you've unlocked.</div>
+            <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>Nothing installed yet — visit Dead Reckoning Garage (Shop, 1 AP) to bolt in anything you've unlocked.</div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {installedMods.map(m => (
-                <div key={m.id} style={{ padding: 8, background: "#122b28", border: `1px solid ${C.teal}`, borderRadius: 4 }}>
-                  <div style={{ fontSize: 10, fontWeight: "bold" }}>✓ {m.label}</div>
-                  <div style={{ fontSize: 8, color: "#888" }}>{m.desc}</div>
-                </div>
+                <ChoiceBox key={m.id} tone="teal" marker selected title={m.label} desc={m.desc} />
               ))}
             </div>
           )}
@@ -86,18 +83,15 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
             {owned.map(id => {
               const t = TIRE_CATALOG[id];
               return (
-                <div key={id} style={{ flex: 1, padding: 10, background: tire === id ? "#1c1c3a" : C.panel, border: `1px solid ${tire === id ? C.pink : C.border}`, borderRadius: 4, color: C.white }}>
-                  <div style={{ fontSize: 10, fontWeight: "bold" }}>{t.label}</div>
-                  <div style={{ fontSize: 8, color: "#888", minHeight: 26, marginTop: 2 }}>{t.desc}</div>
-                  <button onClick={() => setTire(id)} style={{ marginTop: 6, width: "100%", padding: 6, background: tire === id ? C.pink : C.panel2, color: tire === id ? C.purple : C.teal, border: `1px solid ${tire === id ? C.pink : C.teal}`, borderRadius: 3, cursor: "pointer", fontFamily: "monospace", fontSize: 9, fontWeight: "bold" }}>
-                    {tire === id ? "MOUNTED" : "MOUNT"}
-                  </button>
-                </div>
+                <ChoiceBox
+                  key={id} tone="pink" marker selected={tire === id} onClick={() => setTire(id)}
+                  title={t.label} desc={t.desc} meta={tire === id ? "MOUNTED" : "tap to mount"}
+                />
               );
             })}
           </div>
           {owned.length < Object.keys(TIRE_CATALOG).length && (
-            <div style={{ fontSize: 9, color: "#666", marginTop: 8 }}>Want better rubber? Buy it at Dead Reckoning Garage (Shop, from CareerHome).</div>
+            <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginTop: 8 }}>Want better rubber? Buy it at Dead Reckoning Garage (Shop, from CareerHome).</div>
           )}
         </Section>
 
@@ -128,13 +122,14 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
         {preview && (
           <Section title={`YOUR DECK (${preview.deck.cardIds.length} cards${preview.hazardIds.length ? ` + ${preview.hazardIds.length} hazards` : ""})`}>
             <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4 }}>
-              {[...preview.deck.cardIds].sort().map((id, i) => (
-                <GameCard key={`${id}-${i}`} card={getCard(id)} small />
-              ))}
+              {[...preview.deck.cardIds].sort().map((id, i) => {
+                const c = getCard(id);
+                return <GameCard key={`${id}-${i}`} name={c.name} type={c.type} text={c.text} timeDelta={c.timeDelta} small />;
+              })}
             </div>
             {preview.hazardIds.length > 0 && (
-              <div style={{ fontSize: 10, color: C.red, marginTop: 6 }}>
-                ⚠ {preview.preview.exact
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-red)", marginTop: 6 }}>
+                {preview.preview.exact
                   ? Object.entries(preview.preview.exact).map(([id, n]) => `${n}× ${getCard(id).name}`).join(", ")
                   : `${preview.hazardIds.length} hazard cards in the deck${preview.preview.unknown ? ` (${preview.preview.unknown} unknown — no diagnostics)` : ""}`}
               </div>
@@ -142,7 +137,7 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           </Section>
         )}
 
-        <div style={{ textAlign: "center", fontSize: 9, color: "#666", margin: "12px 0", lineHeight: 1.5 }}>
+        <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5 }}>
           The event is 4 timed runs on one course — best run counts. Your deck is your car: play one Line card
           per segment (plus an optional Utility). On-affinity cards get full effect.
         </div>
@@ -155,31 +150,27 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           return (
             <>
               {dezCoversEntry && (
-                <div style={{ textAlign: "center", fontSize: 9, color: C.gold, marginBottom: 8 }}>
-                  🤝 Dez is covering your entry this time — Trusted standing perk, one-time.
+                <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-gold)", marginBottom: 8 }}>
+                  Dez is covering your entry this time — Trusted standing perk, one-time.
                 </div>
               )}
               {(prepCost > 0 || diyPrep || entryFee !== 25) && !dezCoversEntry && (
-                <div style={{ textAlign: "center", fontSize: 9, color: "#888", marginBottom: 8 }}>
+                <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginBottom: 8 }}>
                   {diyPrep
                     ? `$${entryFee} entry (prep done yourself, +${extraAp} AP)`
                     : `$${entryFee} entry + $${prepCost} prep = $${totalCost} total`}
                 </div>
               )}
-              <button
-                onClick={() => ok && onStart(loadout, totalCost, extraAp, dezCoversEntry)}
-                disabled={!ok}
-                style={{ width: "100%", padding: "14px 0", background: ok ? C.pink : "#1a1a2e", color: ok ? C.purple : "#555", border: "none", borderRadius: 4, fontFamily: "monospace", fontWeight: "bold", fontSize: 13, cursor: ok ? "pointer" : "not-allowed", letterSpacing: 2 }}
-              >
-                {diyPrep ? `DIY PREP (${extraAp} AP) + ` : ""}PAY ${totalCost} & GRID UP →
-              </button>
+              <Button tone="pink" size="lg" block disabled={!ok} onClick={() => onStart(loadout, totalCost, extraAp, dezCoversEntry)}>
+                {diyPrep ? `DIY prep (${extraAp} AP) + ` : ""}Pay ${totalCost} & grid up
+              </Button>
               {!canAffordCash && (
-                <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
+                <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-red)", marginTop: 8 }}>
                   Need ${totalCost} cash (${entryFee} entry + ${prepCost} prep) — uncheck some prep or DIY it instead.
                 </div>
               )}
               {canAffordCash && !canAffordAp && (
-                <div style={{ textAlign: "center", fontSize: 9, color: C.red, marginTop: 8 }}>
+                <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-red)", marginTop: 8 }}>
                   Need {apNeeded} AP this month ({diyPrep ? "1 for DIY prep + 1 for the race itself" : "1 for the race"}) — only {career.ap} left.
                 </div>
               )}

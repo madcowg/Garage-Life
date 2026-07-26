@@ -5,26 +5,26 @@ import CardHand from "./CardHand";
 import { AutocrossEvent, getCard, toCareerWear } from "../game/v2";
 import { buildTrack } from "../game/track";
 import { saveCourseToLog } from "./CourseLog";
-import { C } from "../theme";
 import { Shell } from "./shared";
+import { Button } from "./ds/controls/Button";
 
 // Display metadata for card-core-v2 course elements.
 const ELEMENT_DISPLAY = {
-  start:               { icon: "🚦", color: C.pink,   desc: "Standing start. Get the power down." },
-  slalom:              { icon: "🔀", color: C.gold,   desc: "Cone gates. Rhythm and transitions." },
-  offsets:             { icon: "↔️", color: C.teal,   desc: "Offset gates. Connect them in a straight line." },
-  sweeper:             { icon: "↩️", color: C.orange, desc: "Long arc. Sustained grip and power." },
-  turnaround:          { icon: "🔄", color: "#7B2FBE", desc: "Tight 180°. Slow in, rotate, drive out." },
-  "chicago-box":       { icon: "🧩", color: C.red,    desc: "Enter, cross, and exit the box precisely." },
-  "decreasing-radius": { icon: "🌀", color: C.orange, desc: "Tightens as it goes. Patience on entry." },
-  finish:              { icon: "🏁", color: C.white,  desc: "Finish gate. Drive through, stay precise." },
+  start:               { tone: "pink",   desc: "Standing start. Get the power down." },
+  slalom:              { tone: "gold",   desc: "Cone gates. Rhythm and transitions." },
+  offsets:             { tone: "teal",   desc: "Offset gates. Connect them in a straight line." },
+  sweeper:             { tone: "orange", desc: "Long arc. Sustained grip and power." },
+  turnaround:          { tone: "violet", desc: "Tight 180°. Slow in, rotate, drive out." },
+  "chicago-box":       { tone: "red",    desc: "Enter, cross, and exit the box precisely." },
+  "decreasing-radius": { tone: "orange", desc: "Tightens as it goes. Patience on entry." },
+  finish:              { tone: "teal",   desc: "Finish gate. Drive through, stay precise." },
 };
 
 function RunBanner({ snap }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#888", marginBottom: 6 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginBottom: 6 }}>
       <span>RUN {snap.runIndex + 1}/{snap.totalRuns} · SEGMENT {Math.min(snap.segmentIndex + 1, snap.course.length)}/{snap.course.length}</span>
-      <span>FLOW {snap.flow > 0 ? "🔥" : "—"} · CONES {snap.cones}</span>
+      <span>FLOW {snap.flow > 0 ? "ON" : "—"} · CONES {snap.cones}</span>
     </div>
   );
 }
@@ -38,7 +38,7 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
   const track = useMemo(() => buildTrack(snap.course.map(s => s.id), Math.random()), [snap.course]);
 
   const act = (fn) => { fn(); rerender(); };
-  const disp = snap.segment ? (ELEMENT_DISPLAY[snap.segment.id] ?? { icon: "🏁", color: C.white, desc: "" }) : null;
+  const disp = snap.segment ? (ELEMENT_DISPLAY[snap.segment.id] ?? { tone: "teal", desc: "" }) : null;
 
   const finishEvent = () => {
     const summary = event.summary();
@@ -70,19 +70,19 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
 
         {snap.phase === "chooseCards" && snap.segment && (
           <>
-            <div style={{ background: C.panel, border: `2px solid ${disp.color}`, borderRadius: 6, padding: 12, marginBottom: 8 }}>
-              <div style={{ fontSize: 15, fontWeight: "bold", color: disp.color }}>{disp.icon} {snap.segment.name.toUpperCase()} <span style={{ fontSize: 9, color: "#888" }}>par {snap.segment.par.toFixed(1)}s · precision {snap.segment.precision}</span></div>
-              <div style={{ fontSize: 10, color: "#aaa" }}>{disp.desc}</div>
-              <div style={{ fontSize: 9, color: C.teal, marginTop: 4 }}>wants: {snap.segment.tags.join(" · ")}</div>
+            <div style={{ background: "var(--gl-panel)", border: `2px solid var(--gl-${disp.tone})`, borderRadius: "var(--gl-radius-panel)", padding: 12, marginBottom: 8 }}>
+              <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: `var(--gl-${disp.tone})` }}>{snap.segment.name.toUpperCase()} <span style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>par {snap.segment.par.toFixed(1)}s · precision {snap.segment.precision}</span></div>
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>{disp.desc}</div>
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", marginTop: 4 }}>wants: {snap.segment.tags.join(" · ")}</div>
               {snap.hazard?.fired && (
-                <div style={{ fontSize: 10, color: snap.hazard.negated ? C.gold : C.red, marginTop: 6 }}>
-                  ⚠ {getCard(snap.hazard.cardId).name} {snap.hazard.negated ? "— negated by your course walk" : `fired: +${snap.hazard.timePenalty.toFixed(1)}s`}
+                <div style={{ fontSize: "var(--gl-size-micro)", color: snap.hazard.negated ? "var(--gl-gold)" : "var(--gl-red)", marginTop: 6 }}>
+                  {getCard(snap.hazard.cardId).name} {snap.hazard.negated ? "— negated by your course walk" : `fired: +${snap.hazard.timePenalty.toFixed(1)}s`}
                 </div>
               )}
-              {snap.strainPenalty > 0 && <div style={{ fontSize: 10, color: C.orange, marginTop: 2 }}>Unsettled car: +{snap.strainPenalty.toFixed(1)}s this segment</div>}
-              {snap.utilityResult?.played && <div style={{ fontSize: 10, color: C.gold, marginTop: 2 }}>{snap.utilityResult.removedStrain ? "Strain discarded — composure restored." : `${getCard(snap.utilityResult.cardId).name} played.`}</div>}
+              {snap.strainPenalty > 0 && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-orange)", marginTop: 2 }}>Unsettled car: +{snap.strainPenalty.toFixed(1)}s this segment</div>}
+              {snap.utilityResult?.played && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-gold)", marginTop: 2 }}>{snap.utilityResult.removedStrain ? "Strain discarded — composure restored." : `${getCard(snap.utilityResult.cardId).name} played.`}</div>}
             </div>
-            <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2 }}>PLAY YOUR LINE {snap.utilityPlayed ? "" : "(optional: one utility first)"}</div>
+            <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: 2 }}>PLAY YOUR LINE {snap.utilityPlayed ? "" : "(optional: one utility first)"}</div>
             <CardHand
               hand={snap.hand} segment={snap.segment}
               utilityPlayed={snap.utilityPlayed}
@@ -90,55 +90,51 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
               onPlayLine={(id) => act(() => event.playLine(id))}
               onPlayUtility={(id) => act(() => event.playUtility(id))}
             />
-            <button onClick={() => act(() => event.playLine(null))} style={{ marginTop: 6, padding: "8px 12px", background: C.panel, color: "#999", border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>
-              SAFE LINE (fallback, +0.6s)
-            </button>
+            <div style={{ marginTop: 6 }}>
+              <Button tone="violet" variant="outlined" size="sm" onClick={() => act(() => event.playLine(null))}>Safe line (fallback, +0.6s)</Button>
+            </div>
           </>
         )}
 
         {snap.phase === "segmentDone" && snap.lastRecord && (
           <div style={{ marginTop: 8 }}>
-            <div style={{ background: C.panel2, border: `1px solid ${snap.lastRecord.onAffinity ? C.green : C.orange}`, borderRadius: 6, padding: 12, textAlign: "center" }}>
-              <div style={{ fontSize: 12, fontWeight: "bold" }}>{getCard(snap.lastRecord.lineCardId).name} — {snap.lastRecord.onAffinity ? "ON LINE" : "OFF LINE (½ effect)"}</div>
-              <div style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>{snap.lastRecord.segmentTime.toFixed(2)}s <span style={{ fontSize: 10, color: "#888" }}>(par {snap.segment?.par.toFixed(1) ?? "—"}s)</span></div>
-              {snap.lastRecord.coneCount > 0 && <div style={{ fontSize: 10, color: C.red }}>🔺 {snap.lastRecord.coneCount} cone{snap.lastRecord.coneCount > 1 ? "s" : ""} (+{(snap.lastRecord.coneCount * 2).toFixed(0)}s)</div>}
-              {snap.lastRecord.flowAfter > 0 && <div style={{ fontSize: 10, color: C.teal }}>🔥 Flow — next segment −0.3s</div>}
+            <div style={{ background: "var(--gl-panel-sunk)", border: `1px solid ${snap.lastRecord.onAffinity ? "var(--gl-green)" : "var(--gl-orange)"}`, borderRadius: "var(--gl-radius-panel)", padding: 12, textAlign: "center" }}>
+              <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700 }}>{getCard(snap.lastRecord.lineCardId).name} — {snap.lastRecord.onAffinity ? "ON LINE" : "OFF LINE (½ effect)"}</div>
+              <div style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>{snap.lastRecord.segmentTime.toFixed(2)}s <span style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>(par {snap.segment?.par.toFixed(1) ?? "—"}s)</span></div>
+              {snap.lastRecord.coneCount > 0 && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-red)" }}>{snap.lastRecord.coneCount} cone{snap.lastRecord.coneCount > 1 ? "s" : ""} (+{(snap.lastRecord.coneCount * 2).toFixed(0)}s)</div>}
+              {snap.lastRecord.flowAfter > 0 && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)" }}>Flow — next segment −0.3s</div>}
             </div>
-            <button onClick={() => act(() => event.nextSegment())} style={{ width: "100%", padding: 12, marginTop: 8, background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontWeight: "bold", cursor: "pointer", fontFamily: "monospace" }}>
-              NEXT →
-            </button>
+            <div style={{ marginTop: 8 }}>
+              <Button tone="pink" size="lg" block onClick={() => act(() => event.nextSegment())}>Next</Button>
+            </div>
           </div>
         )}
 
         {snap.phase === "betweenRuns" && (
           <div style={{ textAlign: "center", paddingTop: 30 }}>
-            <div style={{ fontSize: 16, fontWeight: "bold", color: C.pink, letterSpacing: 2 }}>
+            <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: "var(--gl-pink)", letterSpacing: 2 }}>
               {snap.runIndex < 0 ? "GRID UP" : `RUN ${snap.runIndex + 1} COMPLETE`}
             </div>
             {snap.runIndex >= 0 && snap.results.length > 0 && (
               <div style={{ margin: "14px 0" }}>
                 {snap.results.map((r, i) => (
-                  <div key={i} style={{ fontSize: 11, color: r.dnf ? C.red : C.white }}>
-                    Run {i + 1}: {r.dnf ? "DNF" : `${r.time.toFixed(2)}s${r.cones ? ` (${r.cones} 🔺)` : ""}`}
+                  <div key={i} style={{ fontSize: "var(--gl-size-label)", color: r.dnf ? "var(--gl-red)" : "var(--gl-text-1)" }}>
+                    Run {i + 1}: {r.dnf ? "DNF" : `${r.time.toFixed(2)}s${r.cones ? ` (${r.cones} cone${r.cones > 1 ? "s" : ""})` : ""}`}
                   </div>
                 ))}
-                <div style={{ fontSize: 11, color: C.gold, marginTop: 6 }}>Best: {event.bestRun() ? event.bestRun().time.toFixed(2) + "s" : "—"} / Target {snap.targetTime.toFixed(2)}s</div>
+                <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-gold)", marginTop: 6 }}>Best: {event.bestRun() ? event.bestRun().time.toFixed(2) + "s" : "—"} / Target {snap.targetTime.toFixed(2)}s</div>
               </div>
             )}
             {snap.runIndex < 0 && snap.hazardPreview.total > 0 && (
-              <div style={{ fontSize: 10, color: C.orange, margin: "10px 0" }}>
-                ⚠ Tech inspection: {snap.hazardPreview.total} hazard card{snap.hazardPreview.total > 1 ? "s" : ""} in your deck
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-orange)", margin: "10px 0" }}>
+                Tech inspection: {snap.hazardPreview.total} hazard card{snap.hazardPreview.total > 1 ? "s" : ""} in your deck
                 {snap.hazardPreview.unknown > 0 ? ` (${snap.hazardPreview.unknown} unknown — no diagnostics)` : ""}
               </div>
             )}
-            <button onClick={() => act(() => event.startRun())} style={{ padding: "12px 28px", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontWeight: "bold", cursor: "pointer", fontFamily: "monospace", letterSpacing: 1 }}>
-              {snap.runIndex < 0 ? "FIRST RUN →" : `RUN ${snap.runIndex + 2} →`}
-            </button>
+            <Button tone="pink" size="lg" onClick={() => act(() => event.startRun())}>{snap.runIndex < 0 ? "First run" : `Run ${snap.runIndex + 2}`}</Button>
             {snap.runIndex >= 0 && event.bestRun() && (
-              <div>
-                <button onClick={() => act(() => { event.endEventEarly(); })} style={{ marginTop: 10, padding: "8px 16px", background: C.panel, color: "#999", border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>
-                  BANK BEST TIME, SKIP REMAINING RUNS
-                </button>
+              <div style={{ marginTop: 10 }}>
+                <Button tone="violet" variant="outlined" size="sm" onClick={() => act(() => { event.endEventEarly(); })}>Bank best time, skip remaining runs</Button>
               </div>
             )}
           </div>
@@ -146,16 +142,14 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
 
         {snap.phase === "eventDone" && (
           <div style={{ textAlign: "center", paddingTop: 30 }}>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: event.summary().won ? C.gold : C.orange, letterSpacing: 2 }}>
-              {event.summary().won ? "🏆 TARGET BEATEN" : event.summary().bestTime == null ? "EVENT DNF" : "EVENT COMPLETE"}
+            <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: event.summary().won ? "var(--gl-gold)" : "var(--gl-orange)", letterSpacing: 2, textTransform: "uppercase" }}>
+              {event.summary().won ? "Target beaten" : event.summary().bestTime == null ? "Event DNF" : "Event complete"}
             </div>
             <div style={{ fontSize: 24, fontWeight: "bold", margin: "10px 0" }}>
               {event.summary().bestTime != null ? `${event.summary().bestTime.toFixed(2)}s` : "—"}
-              <span style={{ fontSize: 12, color: "#888" }}> / {snap.targetTime.toFixed(2)}s target</span>
+              <span style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}> / {snap.targetTime.toFixed(2)}s target</span>
             </div>
-            <button onClick={finishEvent} style={{ padding: "12px 28px", background: C.pink, color: C.purple, border: "none", borderRadius: 4, fontWeight: "bold", cursor: "pointer", fontFamily: "monospace", letterSpacing: 1 }}>
-              SEE RESULTS →
-            </button>
+            <Button tone="pink" size="lg" onClick={finishEvent}>See results</Button>
           </div>
         )}
     </Shell>

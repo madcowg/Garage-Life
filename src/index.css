@@ -1,10 +1,183 @@
-* { box-sizing: border-box; }
-html, body, #root { margin: 0; padding: 0; height: 100%; background: #0D0D1A; }
-body { font-family: monospace; }
-button { font-family: inherit; }
+/* ============================================================================
+ * MY GARAGE LIFE — DESIGN TOKENS
+ * Ported from the "My Garage Life Design System" Claude Design project.
+ * Token names match 1:1 so nothing downstream has to change to adopt them —
+ * only the values here and src/theme.js's C object (canvas code needs literal
+ * hex strings, not var(), so C stays a plain JS mirror of the --gl-* colors).
+ * ============================================================================ */
 
-/* Mobile: comfortable tap targets and no double-tap zoom on game buttons */
-button { touch-action: manipulation; min-height: 30px; }
-@media (pointer: coarse) {
-  button { min-height: 40px; }
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+@font-face {
+  font-family: "DSEG7 Classic";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Italic.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Italic.woff") format("woff");
 }
+
+:root {
+  /* Accents — one job each */
+  --gl-pink:#FF5CC8;    /* advances the game */
+  --gl-gold:#FFC93C;    /* spends money */
+  --gl-teal:#16F2D6;    /* navigates and confirms */
+  --gl-red:#FF3B5C;     /* destroys */
+  --gl-orange:#FF7A2F;  /* cautions */
+  --gl-green:#1FD75F;   /* signals gain */
+  --gl-violet:#7B2FBE;  /* neutral emphasis — never grey */
+
+  --gl-pink-rgb:255,92,200;
+  --gl-gold-rgb:255,201,60;
+  --gl-teal-rgb:22,242,214;
+  --gl-red-rgb:255,59,92;
+  --gl-orange-rgb:255,122,47;
+  --gl-green-rgb:31,215,95;
+  --gl-violet-rgb:123,47,190;
+
+  --gl-pink-shadow:#A32C7C;
+  --gl-gold-shadow:#A67300;
+  --gl-teal-shadow:#0A9384;
+  --gl-red-shadow:#A31736;
+  --gl-orange-shadow:#A64512;
+  --gl-green-shadow:#0F8038;
+  --gl-violet-shadow:#4A1878;
+
+  --gl-pink-fill:#2B1435;
+  --gl-gold-fill:#2A2210;
+  --gl-teal-fill:#0D2431;
+  --gl-red-fill:#2B1225;
+  --gl-orange-fill:#2A1A1C;
+  --gl-green-fill:#102A2B;
+  --gl-violet-fill:#1D1339;
+
+  --gl-bg:#0B0A1E;
+  --gl-panel:#14132E;
+  --gl-panel-sunk:#0C0B20;
+  --gl-border:#272552;
+  --gl-ink:#150730;
+
+  --gl-text-1:#E8EAF6;
+  --gl-text-2:#ABA7DC;
+  --gl-text-3:#8480B8;
+  --gl-text-dead:#5A5688;
+  --gl-text-off:#3D3A66;
+
+  --gl-surface-app:var(--gl-bg);
+  --gl-surface-card:var(--gl-panel);
+  --gl-surface-well:var(--gl-panel-sunk);
+  --gl-text-body:var(--gl-text-2);
+  --gl-text-heading:var(--gl-text-1);
+  --gl-text-disabled:var(--gl-text-dead);
+  --gl-action-advance:var(--gl-pink);
+  --gl-action-spend:var(--gl-gold);
+  --gl-action-navigate:var(--gl-teal);
+  --gl-action-destroy:var(--gl-red);
+  --gl-status-caution:var(--gl-orange);
+  --gl-status-gain:var(--gl-green);
+  --gl-status-neutral:var(--gl-violet);
+
+  --gl-wear-ok:var(--gl-teal);
+  --gl-wear-warn:var(--gl-orange);
+  --gl-wear-bad:var(--gl-red);
+
+  --gl-card-technique:var(--gl-teal);
+  --gl-card-aggression:var(--gl-pink);
+  --gl-card-utility:var(--gl-gold);
+  --gl-card-hazard:var(--gl-red);
+  --gl-card-strain:var(--gl-violet);
+
+  --gl-car-ramp-0:#7FE0FF;
+  --gl-car-ramp-1:#2FA8E0;
+  --gl-car-ramp-2:#1B6FA8;
+  --gl-car-ramp-3:#0E3E63;
+
+  /* Fonts */
+  --gl-font-display:"Press Start 2P","Courier New",monospace;
+  --gl-font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --gl-font-lcd:"DSEG7 Classic","IBM Plex Mono",monospace;
+
+  /* Typography scale */
+  --gl-size-hero:22px;
+  --gl-size-title:16px;
+  --gl-size-heading:12px;
+  --gl-size-label:10px;
+  --gl-size-body:11px;
+  --gl-size-small:10px;
+  --gl-size-micro:9px;
+
+  --gl-lcd-lg:26px;
+  --gl-lcd-md:18px;
+  --gl-lcd-sm:13px;
+  --gl-lcd-unit-scale:0.6;
+
+  --gl-track-display:1px;
+  --gl-track-label:2px;
+  --gl-leading-body:1.5;
+  --gl-leading-tight:1.25;
+
+  /* Spacing + radii */
+  --gl-space-1:2px; --gl-space-2:4px; --gl-space-3:6px; --gl-space-4:8px;
+  --gl-space-5:10px; --gl-space-6:12px; --gl-space-7:14px; --gl-space-8:16px;
+  --gl-space-10:20px; --gl-space-12:24px;
+
+  --gl-radius-chip:2px;
+  --gl-radius-plate:3px;
+  --gl-radius-panel:4px;
+  --gl-radius-card:6px;
+  --gl-radius-tab:2px 2px 7px 7px;
+  --gl-radius-pill:20px;
+
+  --gl-hairline:1px;
+  --gl-border-card:2px;
+
+  --gl-screen-max:640px;
+  --gl-screen-wide:760px;
+  --gl-screen-pad:clamp(10px,3vw,24px);
+
+  /* Depth */
+  --gl-edge-button:4px;
+  --gl-edge-choice:3px;
+  --gl-edge-dead:2px;
+  --gl-press-travel:4px;
+
+  --gl-glow-rest:0.28;
+  --gl-glow-hover:0.55;
+
+  --gl-inset-highlight:inset 0 1px 0 rgba(255,255,255,0.22);
+  --gl-inset-shade:inset 0 -2px 0 rgba(0,0,0,0.35);
+
+  --gl-face-texture:repeating-linear-gradient(to bottom,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 1px,rgba(0,0,0,0) 1px,rgba(0,0,0,0) 3px);
+
+  --gl-glass-blur:blur(3px);
+  --gl-glass-border-alpha:0.38;
+
+  /* CRT */
+  --gl-scanline-alpha:0.22;
+  --gl-grille-alpha:0.04;
+  --gl-vignette-alpha:0.45;
+}
+
+/* Per-car HUD ramps — set data-car on any ancestor to re-tint. */
+[data-car="miata"]{--gl-car-ramp-0:#FF8A8A;--gl-car-ramp-1:#E23C3C;--gl-car-ramp-2:#A32222;--gl-car-ramp-3:#5E1212}
+[data-car="miataNb"]{--gl-car-ramp-0:#7EE8C0;--gl-car-ramp-1:#2FB88A;--gl-car-ramp-2:#1B8060;--gl-car-ramp-3:#0D4636}
+[data-car="integra"]{--gl-car-ramp-0:#FFF3C4;--gl-car-ramp-1:#E8CE6A;--gl-car-ramp-2:#A8913C;--gl-car-ramp-3:#5E5020}
+[data-car="corvette"]{--gl-car-ramp-0:#B7C6E8;--gl-car-ramp-1:#7086B8;--gl-car-ramp-2:#465880;--gl-car-ramp-3:#232C45}
+[data-car="hondaS2000"]{--gl-car-ramp-0:#FFD9E8;--gl-car-ramp-1:#FF8FBE;--gl-car-ramp-2:#C05485;--gl-car-ramp-3:#6B2848}
+[data-car="nissanSkylineR34"]{--gl-car-ramp-0:#8FD8FF;--gl-car-ramp-1:#2E9BE0;--gl-car-ramp-2:#1A65A0;--gl-car-ramp-3:#0C3558}
+
+/* Reset */
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; height: 100%; background: var(--gl-bg); color: var(--gl-text-1); font-family: var(--gl-font-mono); }
+button { font-family: inherit; touch-action: manipulation; min-height: 30px; }
+@media (pointer: coarse) { button { min-height: 40px; } }
+img { image-rendering: pixelated; }
+a { color: var(--gl-teal); text-decoration: none; border-bottom: 1px solid rgba(var(--gl-teal-rgb), 0.4); }
+a:hover { color: var(--gl-pink); border-bottom-color: rgba(var(--gl-pink-rgb), 0.6); }
+::selection { background: rgba(var(--gl-pink-rgb), 0.35); color: var(--gl-text-1); }
+
+/* CRT — three fixed passes mounted once above the router (App.jsx CrtOverlay).
+   Nothing else in the game draws scanlines. */
+.gl-crt { position: fixed; inset: 0; pointer-events: none; z-index: 9000; }
+.gl-crt-scanlines { background-image: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,var(--gl-scanline-alpha)) 2px, rgba(0,0,0,var(--gl-scanline-alpha)) 3px); mix-blend-mode: multiply; }
+.gl-crt-grille { background-image: repeating-linear-gradient(to right, rgba(255,0,0,var(--gl-grille-alpha)) 0px, rgba(0,255,0,var(--gl-grille-alpha)) 1px, rgba(0,0,255,var(--gl-grille-alpha)) 2px, rgba(0,0,0,0) 3px); mix-blend-mode: screen; }
+.gl-crt-vignette { background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,var(--gl-vignette-alpha)) 100%); }

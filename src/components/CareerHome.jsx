@@ -1,28 +1,11 @@
 import { CARS } from "../game/data";
 import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, JUNKYARD_CAR_CLAIM_PRICE, effectiveEntryFee, racingCredTier } from "../game/career";
-import { C } from "../theme";
 import { Shell } from "./shared";
-
-function WearBar({ label, value }) {
-  return (
-    <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 8, color: "#888" }}>{label}</div>
-      <div style={{ height: 5, background: "#222", borderRadius: 2, marginTop: 2 }}>
-        <div style={{ height: 5, width: `${value}%`, background: value > 50 ? C.teal : value > 25 ? C.orange : C.red, borderRadius: 2 }} />
-      </div>
-      <div style={{ fontSize: 8, marginTop: 1 }}>{Math.round(value)}%</div>
-    </div>
-  );
-}
-
-function actionBtnStyle(color, disabled) {
-  return {
-    textAlign: "left", padding: 14, background: disabled ? "#0a0a14" : C.panel2,
-    border: `1px solid ${disabled ? C.border : color}`, borderRadius: 4,
-    cursor: disabled ? "not-allowed" : "pointer", color: disabled ? "#555" : C.white,
-    opacity: disabled ? 0.6 : 1, fontFamily: "monospace", fontSize: 12, width: "100%",
-  };
-}
+import { ScreenHeader } from "./ds/shell/ScreenHeader";
+import { Button } from "./ds/controls/Button";
+import { ActionRow } from "./ds/controls/ActionRow";
+import { StatTile } from "./ds/instruments/StatTile";
+import { WearMeter } from "./ds/instruments/WearMeter";
 
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
@@ -37,103 +20,82 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
   const canClaim = offer && career.cash >= JUNKYARD_CAR_CLAIM_PRICE;
   const entryFee = effectiveEntryFee(career.racingCred ?? 0);
   const credTier = racingCredTier(career.racingCred ?? 0);
+  const jobLabel = emp.status === "employed" ? `Employed (${emp.tenureMonths}mo)` : emp.status === "pending" ? "Starts next month" : "Unemployed";
+  const jobTone = emp.status === "employed" ? "green" : emp.status === "pending" ? "orange" : "red";
 
   return (
-    <Shell maxWidth={640}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: "bold", color: C.pink, letterSpacing: 3 }}>{career.playerName ?? "GARAGE LIFE"}</div>
-            <div style={{ fontSize: 11, color: C.teal, letterSpacing: 2 }}>MONTH {career.month} / {SEASON_LENGTH_MONTHS} — {career.ap} AP LEFT</div>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={onViewCodex} style={{ padding: "8px 12px", background: C.panel, color: C.pink, border: `1px solid ${C.pink}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📖 CODEX</button>
-            <button onClick={onViewLog} style={{ padding: "8px 12px", background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 9 }}>📋 COURSE LOG</button>
-          </div>
-        </div>
+    <div data-car={career.car}>
+      <Shell maxWidth={640}>
+        <ScreenHeader
+          title={career.playerName ?? "My Garage Life"}
+          status={`Month ${career.month} / ${SEASON_LENGTH_MONTHS} — ${career.ap} AP left`}
+          nav={<>
+            <Button tone="pink" variant="outlined" size="sm" onClick={onViewCodex}>Codex</Button>
+            <Button tone="gold" variant="outlined" size="sm" onClick={onViewLog}>Course log</Button>
+          </>}
+        />
 
         {offerCar && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", background: "#2a1f0a", border: `1px solid ${C.gold}`, borderRadius: 4, padding: 12, marginBottom: 16 }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap",
+            background: "var(--gl-gold-fill)", border: "1px solid var(--gl-gold)", borderRadius: "var(--gl-radius-panel)", padding: 12, marginBottom: 16,
+          }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: "bold", color: C.gold }}>🚗 JUNKYARD FIND: {offerCar.name}</div>
-              <div style={{ fontSize: 9, color: "#aaa" }}>Claim for ${JUNKYARD_CAR_CLAIM_PRICE} by month {offer.expiresMonth}, or the yard sells it off.</div>
+              <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, color: "var(--gl-gold)" }}>Junkyard find: {offerCar.name}</div>
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>Claim for ${JUNKYARD_CAR_CLAIM_PRICE} by month {offer.expiresMonth}, or the yard sells it off.</div>
             </div>
-            <button onClick={onClaimJunkyardCar} disabled={!canClaim} style={{ padding: "8px 14px", background: canClaim ? C.gold : "#1a1a2e", color: canClaim ? C.purple : "#555", border: "none", borderRadius: 4, cursor: canClaim ? "pointer" : "not-allowed", fontFamily: "monospace", fontSize: 10, fontWeight: "bold", whiteSpace: "nowrap" }}>
-              CLAIM ${JUNKYARD_CAR_CLAIM_PRICE}
-            </button>
+            <Button tone="gold" size="sm" disabled={!canClaim} reason={canClaim ? undefined : "can't afford yet"} onClick={onClaimJunkyardCar}>Claim ${JUNKYARD_CAR_CLAIM_PRICE}</Button>
           </div>
         )}
 
         <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
-            <div style={{ fontSize: 8, color: "#888" }}>CASH</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: C.gold }}>${career.cash}</div>
-          </div>
-          <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
-            <div style={{ fontSize: 8, color: "#888" }}>POINTS</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: C.teal }}>{career.reputation}</div>
-          </div>
-          <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
-            <div style={{ fontSize: 8, color: "#888" }}>CRED</div>
-            <div style={{ fontSize: 12, fontWeight: "bold", color: C.pink }}>{career.racingCred ?? 0} — {credTier.label}</div>
-          </div>
-          <div style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, padding: 12 }}>
-            <div style={{ fontSize: 8, color: "#888" }}>JOB</div>
-            <div style={{ fontSize: 10, fontWeight: "bold", color: emp.status === "employed" ? C.green : emp.status === "pending" ? C.orange : C.red }}>
-              {emp.status === "employed" ? `Employed (${emp.tenureMonths}mo)` : emp.status === "pending" ? "Starts next month" : "Unemployed"}
-            </div>
-          </div>
+          <StatTile label="CASH" value={career.cash} prefix="$" tone="gold" />
+          <StatTile label="POINTS" value={career.reputation} tone="teal" />
+          <StatTile label="CRED" value={`${career.racingCred ?? 0} — ${credTier.label}`} tone="pink" lcd={false} />
+          <StatTile label="JOB" value={jobLabel} tone={jobTone} lcd={false} />
         </div>
 
-        <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 10, marginBottom: 16 }}>
-          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>{car.name} — CAR CONDITION</div>
+        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10, marginBottom: 16 }}>
+          <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", marginBottom: 8, textTransform: "uppercase" }}>{car.name} — car condition</div>
           <div style={{ display: "flex", gap: 12 }}>
-            <WearBar label="ENGINE" value={career.wear.engine} />
-            <WearBar label="TIRES" value={career.wear.tires} />
-            <WearBar label="BRAKES" value={career.wear.brakes} />
-            <WearBar label="TRANS" value={career.wear.trans} />
+            <WearMeter label="ENGINE" value={career.wear.engine} />
+            <WearMeter label="TIRES" value={career.wear.tires} />
+            <WearMeter label="BRAKES" value={career.wear.brakes} />
+            <WearMeter label="TRANS" value={career.wear.trans} />
           </div>
         </div>
 
-        <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 8 }}>THIS MONTH'S ACTIONS</div>
+        <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", marginBottom: 8, textTransform: "uppercase" }}>This month's actions</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <button onClick={onRace} disabled={career.racedThisMonth} style={actionBtnStyle(C.pink, career.racedThisMonth)}>
-            🏁 RACE <span style={{ fontSize: 9, opacity: 0.7 }}>
-              — {career.racedThisMonth ? "already run this month — one sanctioned event per month" : `1 AP, $${entryFee} entry fee, autocross event at the Airfield`}
-            </span>
-          </button>
+          <ActionRow
+            label="Race" tone="pink" onClick={onRace} disabled={career.racedThisMonth}
+            reason="already run this month — one sanctioned event per month"
+            cost={`1 AP, $${entryFee} entry fee, autocross event at the Airfield`}
+          />
 
           {emp.status === "employed" && (
-            <button onClick={onWork} style={actionBtnStyle(C.teal)}>
-              💼 WORK <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, ${emp.baseSalary}/mo base salary</span>
-            </button>
+            <ActionRow label="Work" tone="teal" onClick={onWork} cost={`1 AP, $${emp.baseSalary}/mo base salary`} />
           )}
           {emp.status === "pending" && (
-            <div style={actionBtnStyle(C.orange, true)}>💼 New job starts next month</div>
+            <ActionRow label="Work" tone="orange" disabled reason="new job starts next month" cost="new job starts next month" />
           )}
           {emp.status === "unemployed" && (
-            <button onClick={onWork} style={actionBtnStyle(C.orange)}>
-              🔍 LOOK FOR WORK <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, unemployed</span>
-            </button>
+            <ActionRow label="Look for work" tone="orange" onClick={onWork} cost="1 AP, unemployed" />
           )}
 
-          <button onClick={onMaintain} disabled={!canMaintain} style={actionBtnStyle(C.green, !canMaintain)}>
-            🔧 MAINTAIN <span style={{ fontSize: 9, opacity: 0.7 }}>
-              — {career.maintainedThisMonth ? "already serviced this month" : `1 AP, $${maintainCost}${emp.status === "unemployed" ? " (DIY, no job)" : ""}, full service`}
-            </span>
-          </button>
+          <ActionRow
+            label="Maintain" tone="green" onClick={onMaintain} disabled={!canMaintain}
+            reason="already serviced this month"
+            cost={`1 AP, $${maintainCost}${emp.status === "unemployed" ? " (DIY, no job)" : ""}, full service`}
+          />
 
-          <button onClick={onShop} style={actionBtnStyle(C.gold)}>
-            🏪 SHOP <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, buy tires / install mods at Dead Reckoning Garage</span>
-          </button>
+          <ActionRow label="Shop" tone="gold" onClick={onShop} cost="1 AP, buy tires / install mods at Dead Reckoning Garage" />
 
-          <button onClick={onJunkyard} style={actionBtnStyle("#8a8a4a")}>
-            🗑️ JUNKYARD <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, d20 for parts (nat 1 = $5 fee, nat 19 = mod for $10, nat 20 = a car to claim)</span>
-          </button>
+          <ActionRow label="Junkyard" tone="violet" onClick={onJunkyard} cost="1 AP, d20 for parts (nat 1 = $5 fee, nat 19 = mod for $10, nat 20 = a car to claim)" />
 
-          <button onClick={onStreetRace} style={actionBtnStyle(C.red)}>
-            🌃 STREET RACING <span style={{ fontSize: 9, opacity: 0.7 }}>— 1 AP, no entry fee, off the books — risky, no points</span>
-          </button>
+          <ActionRow label="Street racing" tone="red" onClick={onStreetRace} cost="1 AP, no entry fee, off the books — risky, no points" />
         </div>
-    </Shell>
+      </Shell>
+    </div>
   );
 }

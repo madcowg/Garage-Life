@@ -27,7 +27,9 @@ import SeasonSummaryScreen from "./components/SeasonSummaryScreen";
 import StorySnippetScreen from "./components/StorySnippetScreen";
 import CodexScreen from "./components/CodexScreen";
 import ShopScreen from "./components/ShopScreen";
-import { C } from "./theme";
+import { CrtOverlay } from "./components/ds/shell/CrtOverlay";
+import { Button } from "./components/ds/controls/Button";
+import { scanlinesEnabled, setScanlinesEnabled } from "./theme";
 
 function clampWear(v) { return Math.max(0, Math.min(100, v)); }
 
@@ -42,48 +44,48 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
         <div style={{ height: 12 }} />
 
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: won ? C.gold : C.orange, letterSpacing: 2 }}>{won ? "🏆 TARGET BEATEN" : bestTime == null ? "EVENT DNF" : "EVENT COMPLETE"}</div>
+          <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: won ? "var(--gl-gold)" : "var(--gl-orange)", letterSpacing: 2, textTransform: "uppercase" }}>{won ? "Target beaten" : bestTime == null ? "Event DNF" : "Event complete"}</div>
           <div style={{ fontSize: 26, fontWeight: "bold", marginTop: 6 }}>{bestTime != null ? `${bestTime.toFixed(2)}s` : "—"}</div>
-          {diff != null && <div style={{ fontSize: 11, color: won ? C.green : C.red }}>{diff > 0 ? "+" : ""}{diff.toFixed(2)}s vs target ({targetTime.toFixed(2)}s)</div>}
-          {bestCones > 0 && <div style={{ fontSize: 10, color: C.red, marginTop: 4 }}>🔺 {bestCones} cone{bestCones > 1 ? "s" : ""} on your best run</div>}
+          {diff != null && <div style={{ fontSize: "var(--gl-size-label)", color: won ? "var(--gl-green)" : "var(--gl-red)" }}>{diff > 0 ? "+" : ""}{diff.toFixed(2)}s vs target ({targetTime.toFixed(2)}s)</div>}
+          {bestCones > 0 && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-red)", marginTop: 4 }}>{bestCones} cone{bestCones > 1 ? "s" : ""} on your best run</div>}
           {reward && (
-            <div style={{ fontSize: 13, fontWeight: "bold", marginTop: 10, color: C.gold }}>
+            <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, marginTop: 10, color: "var(--gl-gold)" }}>
               +${reward.cash} cash{reward.reputation > 0 ? ` · +${reward.reputation} reputation` : ""}
             </div>
           )}
         </div>
 
-        <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 10, marginBottom: 12 }}>
-          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>RUN SHEET</div>
+        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10, marginBottom: 12 }}>
+          <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: 2, marginBottom: 6 }}>RUN SHEET</div>
           {runs.map((r, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${C.border}` }}>
-              <span style={{ fontSize: 9, color: "#999" }}>Run {i + 1}</span>
-              <span style={{ fontSize: 9, color: r.dnf ? C.red : "#ccc", flex: 1, textAlign: "center" }}>
-                {r.dnf ? "DNF" : `${r.time.toFixed(2)}s`}{r.cones ? ` · ${r.cones} 🔺` : ""}
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid var(--gl-border)" }}>
+              <span style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>Run {i + 1}</span>
+              <span style={{ fontSize: "var(--gl-size-micro)", color: r.dnf ? "var(--gl-red)" : "var(--gl-text-1)", flex: 1, textAlign: "center" }}>
+                {r.dnf ? "DNF" : `${r.time.toFixed(2)}s`}{r.cones ? ` · ${r.cones} cone${r.cones > 1 ? "s" : ""}` : ""}
               </span>
-              <span style={{ fontSize: 10, fontWeight: "bold", color: !r.dnf && r.time === bestTime ? C.gold : "#666" }}>
+              <span style={{ fontSize: "var(--gl-size-micro)", fontWeight: 700, color: !r.dnf && r.time === bestTime ? "var(--gl-gold)" : "var(--gl-text-dead)" }}>
                 {!r.dnf && r.time === bestTime ? "BEST" : ""}
               </span>
             </div>
           ))}
         </div>
 
-        <div style={{ background: C.panel2, border: `1px solid ${C.border}`, borderRadius: 4, padding: 10, marginBottom: 16 }}>
-          <div style={{ fontSize: 9, color: C.teal, letterSpacing: 2, marginBottom: 6 }}>WEAR REPORT (post-event)</div>
+        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10, marginBottom: 16 }}>
+          <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: 2, marginBottom: 6 }}>WEAR REPORT (post-event)</div>
           <div style={{ display: "flex", gap: 16, justifyContent: "space-around" }}>
             {[["Engine", wearAfter.engine], ["Tires", wearAfter.tires], ["Brakes", wearAfter.brakes], ["Trans", wearAfter.trans]].map(([l, v]) => (
               <div key={l} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 8, color: "#777" }}>{l}</div>
-                <div style={{ fontSize: 13, fontWeight: "bold", color: v > 60 ? C.green : v > 30 ? C.orange : C.red }}>{Math.round(v)}%</div>
+                <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>{l}</div>
+                <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, color: v > 60 ? "var(--gl-green)" : v > 30 ? "var(--gl-orange)" : "var(--gl-red)" }}>{Math.round(v)}%</div>
               </div>
             ))}
           </div>
-          {Object.values(wearAfter).some(v => v < 40) && <div style={{ fontSize: 9, color: C.orange, marginTop: 8 }}>⚠ Systems below 40% — spend a Maintain action before your next event</div>}
+          {Object.values(wearAfter).some(v => v < 40) && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-orange)", marginTop: 8 }}>Systems below 40% — spend a Maintain action before your next event</div>}
         </div>
 
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={onViewLog} style={{ flex: 1, padding: 12, background: C.panel, color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 11 }}>📋 COURSE LOG</button>
-          <button onClick={onContinue} style={{ flex: 1, padding: 12, background: C.pink, color: C.purple, border: "none", borderRadius: 4, cursor: "pointer", fontFamily: "monospace", fontSize: 11, fontWeight: "bold" }}>CONTINUE →</button>
+          <Button tone="gold" variant="outlined" block onClick={onViewLog}>Course log</Button>
+          <Button tone="pink" block onClick={onContinue}>Continue</Button>
         </div>
     </Shell>
   );
@@ -103,6 +105,12 @@ export default function App() {
   const [storyReturnScreen, setStoryReturnScreen] = useState("careerHome");
   const [achievementPopupQueue, setAchievementPopupQueue] = useState([]);
   const [pendingPlayerName, setPendingPlayerName] = useState(null);
+  const [scanlines, setScanlines] = useState(() => scanlinesEnabled());
+  const toggleScanlines = () => {
+    const next = !scanlines;
+    setScanlinesEnabled(next);
+    setScanlines(next);
+  };
 
   // Every meta transition goes through here instead of setMeta directly, so
   // a newly-unlocked achievement (from ANY code path — story triggers,
@@ -345,10 +353,10 @@ export default function App() {
       const { career: advanced, seasonEnded: ended } = advanceAfterAction({ ...career, employment: newEmployment });
       const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
       const result = hunt.success
-        ? { title: hunt.instant ? "HIRED — NATURAL 20!" : "HIRED", icon: "🎉", color: C.green,
+        ? { title: hunt.instant ? "HIRED — NATURAL 20!" : "HIRED", tone: "green",
             message: hunt.instant ? "Hired on the spot — you can Work again this month." : "Hired! Your new job starts next month.",
             detail: `Rolled ${hunt.rawRoll}` }
-        : { title: "STILL LOOKING", icon: "😕", color: C.orange, message: "No luck this month (need 11+ on a d20). Try again next month.", detail: `Rolled ${hunt.rawRoll}` };
+        : { title: "STILL LOOKING", tone: "orange", message: "No luck this month (need 11+ on a d20). Try again next month.", detail: `Rolled ${hunt.rawRoll}` };
       setActionResult(result);
       if (ended) {
         finishSeason(careerWithStory, metaWithStory, triggers);
@@ -373,13 +381,13 @@ export default function App() {
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
 
     const EVENT_STYLE = {
-      fired: ["FIRED", "💥", C.red], bad_economy: ["SLOW MONTH", "📉", C.orange],
-      bonus: ["BONUS!", "🎁", C.gold], promoted: ["PROMOTED!", "⭐", C.gold], normal: ["PAYDAY", "💼", C.teal],
+      fired: ["FIRED", "red"], bad_economy: ["SLOW MONTH", "orange"],
+      bonus: ["BONUS!", "gold"], promoted: ["PROMOTED!", "gold"], normal: ["PAYDAY", "teal"],
     };
-    const [title, icon, color] = EVENT_STYLE[work.event];
+    const [title, tone] = EVENT_STYLE[work.event];
     const detail = `Rolled ${work.rawRoll}${work.modifier ? ` +${work.modifier} tenure → ${work.effectiveRoll}` : ""}${work.promoRoll ? ` — promotion roll (d10): ${work.promoRoll}` : ""}`;
 
-    setActionResult({ title, icon, color, message: work.message, detail, cashDelta: work.cash });
+    setActionResult({ title, tone, message: work.message, detail, cashDelta: work.cash });
     if (ended) {
       finishSeason(careerWithStory, metaWithStory, triggers);
     } else {
@@ -402,7 +410,7 @@ export default function App() {
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
     setActionResult({
-      title: "SERVICED", icon: "🔧", color: C.green,
+      title: "SERVICED", tone: "green",
       message: waltCovers
         ? "Walt waves you off before you can even reach for your wallet. \"Trusted regulars don't pay for this one. Consider it even.\""
         : selfService
@@ -509,14 +517,14 @@ export default function App() {
     const roll = resolveJunkyard();
     let cashDelta = roll.cash;
     let title = "JUNKYARD RUN";
-    let color = C.gold;
+    let tone = "gold";
     let message = roll.message;
     let installedModsNext = career.installedMods ?? [];
     let junkyardCarOfferNext = career.junkyardCarOffer;
 
     if (roll.event === "yard_fee") {
       title = "EMPTY HANDED";
-      color = "#888";
+      tone = "violet";
     } else if (roll.event === "cheap_upgrade") {
       const uninstalled = MODS.filter(m => !installedModsNext.includes(m.id));
       if (uninstalled.length > 0) {
@@ -557,7 +565,7 @@ export default function App() {
     const { meta: nextMeta, career: unlockedCareer } = applyUnlocks(updated, meta);
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(unlockedCareer);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
-    setActionResult({ title, icon: "🗑️", color, message, cashDelta });
+    setActionResult({ title, tone, message, cashDelta });
     if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
     else { updateMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
   };
@@ -592,8 +600,8 @@ export default function App() {
     const metaWithAch = checkStandingAchievements(advanced, meta);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, metaWithAch);
     setActionResult({
-      title: roll.event === "busted" ? "BUSTED" : "STREET RACING", icon: "🌃",
-      color: roll.event === "busted" ? C.red : C.gold, message: roll.message, cashDelta: roll.cash,
+      title: roll.event === "busted" ? "BUSTED" : "STREET RACING",
+      tone: roll.event === "busted" ? "red" : "gold", message: roll.message, cashDelta: roll.cash,
     });
     if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
     else { updateMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
@@ -604,6 +612,7 @@ export default function App() {
   const activeAchievement = achievementPopupQueue[0] ? ACHIEVEMENTS.find(a => a.id === achievementPopupQueue[0]) : null;
   const withCash = (el) => (
     <>
+      <CrtOverlay enabled={scanlines} />
       {el}
       {career && <CashBadge cash={career.cash} />}
       {activeAchievement && <AchievementToast achievement={activeAchievement} onDismiss={dismissAchievementPopup} />}
@@ -621,6 +630,8 @@ export default function App() {
       onNewGame={() => setScreen("intro")}
       onContinue={continueCareer}
       onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
+      scan={scanlines}
+      onToggleScan={toggleScanlines}
     />
   );
   if (screen === "newCareer") return withCash(
