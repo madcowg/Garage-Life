@@ -38,9 +38,12 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex })
 
   return (
     <div style={{ position: "relative", minHeight: "100dvh", overflow: "hidden", background: C.bg }}>
-      {/* Coastal highway backdrop — pixel art scaled to cover, CRT on top */}
+      {/* Airfield backdrop (event setup at sunset) — pixel art scaled to
+          cover, CRT on top. coastal-highway.png stays in the asset folder
+          for the planned intro animation (drive down the coast, logo
+          drops) that plays before landing on this screen. */}
       <img
-        src={`${BASE}garage-life-assets/environments/coastal-highway.png`}
+        src={`${BASE}garage-life-assets/environments/airfield.png`}
         alt="" draggable={false}
         style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
