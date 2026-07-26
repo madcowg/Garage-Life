@@ -10,6 +10,11 @@ import { Button } from "./ds/controls/Button";
 // HTMLMediaElement entirely. One-shot (matches the no-loop requirement);
 // mute/unmute is a gain toggle rather than pause/resume since there's
 // nothing to resume from once the single playback finishes.
+//
+// Playback only ever starts from the explicit click-gate (the browser
+// autoplay policy requires a real user gesture anyway), so there's no
+// mount-time attempt and no global gesture listener here — `start` is
+// called directly by whatever gesture should trigger it.
 function useIntroMusic(src) {
   const [musicOn, setMusicOn] = useState(true);
   const ctxRef = useRef(null);
@@ -25,34 +30,25 @@ function useIntroMusic(src) {
     gain.connect(ctx.destination);
     ctxRef.current = ctx;
     gainRef.current = gain;
+    return () => { ctx.close().catch(() => {}); };
+  }, []);
 
-    let cancelled = false;
-    const start = async () => {
-      if (startedRef.current || cancelled) return;
-      startedRef.current = true;
-      try {
-        if (ctx.state === "suspended") await ctx.resume();
-        const buf = await fetch(src).then(r => r.arrayBuffer());
-        const decoded = await ctx.decodeAudioData(buf);
-        if (cancelled) return;
-        const source = ctx.createBufferSource();
-        source.buffer = decoded;
-        source.connect(gain);
-        source.start(0);
-      } catch { startedRef.current = false; }
-    };
-    start();
-    const onGesture = () => { start(); window.removeEventListener("pointerdown", onGesture); window.removeEventListener("keydown", onGesture); };
-    window.addEventListener("pointerdown", onGesture);
-    window.addEventListener("keydown", onGesture);
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("keydown", onGesture);
-      ctx.close().catch(() => {});
-    };
-  }, [src]);
+  const start = async () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    const ctx = ctxRef.current;
+    const gain = gainRef.current;
+    if (!ctx || !gain) { startedRef.current = false; return; }
+    try {
+      if (ctx.state === "suspended") await ctx.resume();
+      const buf = await fetch(src).then(r => r.arrayBuffer());
+      const decoded = await ctx.decodeAudioData(buf);
+      const source = ctx.createBufferSource();
+      source.buffer = decoded;
+      source.connect(gain);
+      source.start(0);
+    } catch { startedRef.current = false; }
+  };
 
   const toggleMusic = () => {
     setMusicOn(next => {
@@ -62,7 +58,7 @@ function useIntroMusic(src) {
     });
   };
 
-  return { musicOn, toggleMusic };
+  return { musicOn, toggleMusic, start };
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -86,24 +82,61 @@ function useTvZoom() {
 export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, scan, onToggleScan }) {
   const [showSettings, setShowSettings] = useState(false);
   const [confirmErase, setConfirmErase] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
   const [logoDropped, setLogoDropped] = useState(false);
   const { zooming, launch } = useTvZoom();
-  const { musicOn, toggleMusic } = useIntroMusic(`${BASE}garage-life-assets/audio/racing-by-the-coast.mp3`);
+  const { musicOn, toggleMusic, start: startMusic } = useIntroMusic(`${BASE}garage-life-assets/audio/racing-by-the-coast.mp3`);
 
   // Logo drop-in, early-90s-game style: starts off the top edge, eases into
   // place with a little overshoot. Fixed px offset (not a percentage) so
   // the transform's reference frame can't shift while the image is still
-  // resolving its intrinsic size.
+  // resolving its intrinsic size. Waits on the click-gate so the drop and
+  // the music start together, instead of the drop firing on mount while
+  // audio silently waits on a gesture that may never come.
   useEffect(() => {
+    if (!gateOpen) return undefined;
     const t = setTimeout(() => setLogoDropped(true), 80);
     return () => clearTimeout(t);
-  }, []);
+  }, [gateOpen]);
+
+  const enterTitle = () => {
+    setGateOpen(true);
+    startMusic();
+  };
 
   const eraseAll = () => {
     clearCareerSnapshot();
     try { localStorage.removeItem(META_KEY); } catch { /* noop */ }
     window.location.reload();
   };
+
+  // Black click/tap gate: the one deliberate user gesture the browser's
+  // autoplay policy requires, framed as part of the intro rather than an
+  // incidental first click — so audio and the logo drop fire together.
+  if (!gateOpen) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={enterTitle}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") enterTitle(); }}
+        style={{
+          position: "relative", height: "100dvh", width: "100%", background: "#000",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", boxSizing: "border-box",
+        }}
+      >
+        <div style={{
+          fontFamily: "var(--gl-font-display)", fontSize: "clamp(11px, 2.4vw, 16px)",
+          letterSpacing: "var(--gl-track-display)", textTransform: "uppercase", textAlign: "center",
+          color: "var(--gl-teal)", textShadow: "0 0 16px rgba(var(--gl-teal-rgb),0.6)",
+          animation: "gl-blink 1.2s steps(2) infinite",
+        }}>
+          Click anywhere to start
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
