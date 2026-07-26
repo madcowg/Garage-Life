@@ -249,7 +249,10 @@ export function trackBounds(points) {
 // agrees on its shape. Renders at whatever internal resolution the canvas
 // already has; caller controls pixel-chunkiness via canvas size and pad.
 export function drawTrack(ctx, track, opts = {}) {
-  const { width, height, showCones = true, activeSegIndex = -1, carT = 0, palette = {}, pad = 20 } = opts;
+  const {
+    width, height, showCones = true, activeSegIndex = -1, carT = 0, palette = {}, pad = 20,
+    trackWidth = 2, trackAlpha = 0.6, finishStyle = "checkered", showGateLabels = false,
+  } = opts;
   const { points, segMarkers, cones } = track;
   const b = trackBounds(points);
   const spanX = Math.max(1, b.maxX - b.minX);
@@ -266,13 +269,17 @@ export function drawTrack(ctx, track, opts = {}) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  // Suggested driving line — a thin guide, not a paved road. Real autocross
-  // has no surface markings at all, just cones; this stays subtle so the
-  // cones (not the line) read as the actual course, matching real course-map
-  // conventions (e.g. cone.ninja-style layouts).
+  // Suggested driving line. Real autocross has no surface markings at all,
+  // just cones and chalk — but a post-race recap reads the course shape
+  // itself as the main content (no cone clutter to lean on there), so this
+  // is a caller-tunable bold/bright line rather than a fixed subtle guide:
+  // the small HUD minimap and course-log thumbnails keep the old thin/dim
+  // default (they still show cones), while the full recap map cranks
+  // trackWidth/trackAlpha up so the line itself is the primary readable
+  // element.
   ctx.strokeStyle = palette.track || "#2a2a44";
-  ctx.lineWidth = Math.max(1, 2 * scale);
-  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = Math.max(1, trackWidth * scale);
+  ctx.globalAlpha = trackAlpha;
   ctx.beginPath();
   points.forEach((p, i) => { const q = tx(p); if (i === 0) ctx.moveTo(q.x, q.y); else ctx.lineTo(q.x, q.y); });
   ctx.stroke();
@@ -304,12 +311,20 @@ export function drawTrack(ctx, track, opts = {}) {
     ctx.stroke();
   }
 
-  // Start (green) and finish (checkered) gate lines, perpendicular to travel
-  // direction at the very first/last point — every real autocross course has
-  // both, and the map was missing them entirely.
+  // Start (green) and finish gate lines, perpendicular to travel direction at
+  // the very first/last point — every real autocross course has both. Finish
+  // defaults to the checkered-flag pattern (the tiny in-race HUD minimap and
+  // course-log thumbnails still use this); the full recap map instead asks
+  // for a plain solid red line — clearer than the checker pattern once the
+  // gate is only a few pixels across, and it reads as a clean stop/finish
+  // signal opposite the green go/start line.
   if (points.length > 1) {
-    drawGateLine(ctx, tx, scale, points[0], points[1], "solid", palette.startLine || "#00C853");
-    drawGateLine(ctx, tx, scale, points[points.length - 2], points[points.length - 1], "checkered");
+    drawGateLine(ctx, tx, scale, points[0], points[1], "solid", palette.startLine || "#00C853", showGateLabels ? "START" : null, 1);
+    drawGateLine(
+      ctx, tx, scale, points[points.length - 2], points[points.length - 1],
+      finishStyle === "solid" ? "solid" : "checkered", palette.finishLine || "#FF2D55",
+      showGateLabels ? "FINISH" : null, -1,
+    );
   }
 
   // Cones as small dots (real cone color), not squares — apex/pointer cones
@@ -355,10 +370,17 @@ export function drawTrack(ctx, track, opts = {}) {
 // CONE_EDGE_WIDTH-based size is already bigger than this floor, so nothing
 // changes there.
 const MIN_GATE_SCREEN_HALFW = 8;
-function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor) {
+// `label` + `travelSign` are optional: when a label is given, it's drawn
+// centered on the gate line, offset along the direction of travel so it
+// sits over existing pavement rather than floating off the edge of the
+// course. travelSign is +1 for the start (p0->p1 points forward into the
+// course, so the label sits just past the line) and -1 for the finish
+// (p0->p1 points past the last point, so the label sits just before it).
+function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor, label = null, travelSign = 1) {
   const dx = p1.x - p0.x, dy = p1.y - p0.y;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len;
+  const ux = dx / len, uy = dy / len;
   const halfW = Math.max(CONE_EDGE_WIDTH * 1.1, MIN_GATE_SCREEN_HALFW / scale);
   const lineWidth = Math.max(2, 3 * scale);
 
@@ -371,21 +393,41 @@ function drawGateLine(ctx, tx, scale, p0, p1, kind, solidColor) {
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
-    return;
+  } else {
+    const segs = 8;
+    for (let i = 0; i < segs; i++) {
+      const t0 = -halfW + (2 * halfW) * (i / segs);
+      const t1 = -halfW + (2 * halfW) * ((i + 1) / segs);
+      const a = tx({ x: p1.x + nx * t0, y: p1.y + ny * t0 });
+      const b = tx({ x: p1.x + nx * t1, y: p1.y + ny * t1 });
+      ctx.strokeStyle = i % 2 === 0 ? "#111111" : "#E8EAF6";
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
   }
 
-  const segs = 8;
-  for (let i = 0; i < segs; i++) {
-    const t0 = -halfW + (2 * halfW) * (i / segs);
-    const t1 = -halfW + (2 * halfW) * ((i + 1) / segs);
-    const a = tx({ x: p1.x + nx * t0, y: p1.y + ny * t0 });
-    const b = tx({ x: p1.x + nx * t1, y: p1.y + ny * t1 });
-    ctx.strokeStyle = i % 2 === 0 ? "#111111" : "#E8EAF6";
-    ctx.lineWidth = lineWidth;
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.stroke();
+  if (label) {
+    // Offset in already-scaled screen space, not world units: a world-unit
+    // offset shrinks along with everything else once scale drops (it came
+    // out ~5px at the recap map's own scale — small enough that the label
+    // merged into the gate line instead of reading as a separate element).
+    // tx() only scales/translates (no rotation), so the direction vector
+    // (ux,uy) points the same way in screen space; a flat pixel offset here
+    // stays legible regardless of course size or canvas scale.
+    const p1s = tx(p1);
+    const labelScreenOffset = 16;
+    const lp = { x: p1s.x + ux * travelSign * labelScreenOffset, y: p1s.y + uy * travelSign * labelScreenOffset };
+    ctx.font = "bold 9px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#0a0a14";
+    ctx.strokeText(label, lp.x, lp.y);
+    ctx.fillStyle = solidColor;
+    ctx.fillText(label, lp.x, lp.y);
   }
 }
 
