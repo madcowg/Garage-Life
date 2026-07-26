@@ -37,13 +37,16 @@ const MINI_W = 62, MINI_H = 74, MINI_PAD = 5, MINI_MARGIN = 6;
 // exhausted account credits. The Miata NA/NB now have accurate
 // PixelLab-generated PNGs (installed as race-rear.png) and render as
 // sprites. Drop cars from this set as their corrected PNGs arrive.
-const FORCE_PROCEDURAL = new Set(["integra", "corvette"]);
+const FORCE_PROCEDURAL = new Set(["integra", "corvette", "beaterVan"]);
 
 const CAR_PALETTES = {
   miataNA:  { body: "#D0233B", dark: "#7A0F22", glass: "#1B2233", tail: "#FF2D55", trim: "#2b0d14" },
   miataNB:  { body: "#C7CCD6", dark: "#7F8798", glass: "#1B2233", tail: "#FF2D55", trim: "#4a4f58" },
   integra:  { body: "#E7E9EE", dark: "#9AA0AC", glass: "#161B26", tail: "#FF2D55", amber: "#FFB300", trim: "#5b5f68" },
   corvette: { body: "#CE1F2A", dark: "#7A0F16", glass: "#12151D", tail: "#FF2D55", trim: "#120608" },
+  // Secondhand cargo-van paint job: faded, patchy, no two panels quite the
+  // same color — trim doubles as the duct-tape patch color.
+  beaterVan: { body: "#8C9A6B", dark: "#5B6644", glass: "#1B2233", tail: "#FF6B35", trim: "#B8B0A0" },
 };
 
 // The minimap's player dot matches the car's actual body color, same idea
@@ -53,6 +56,7 @@ function carDotColor(carId, variant) {
   if (carId === "miata") return variant === "NB" ? CAR_PALETTES.miataNB.body : CAR_PALETTES.miataNA.body;
   if (carId === "integra") return CAR_PALETTES.integra.body;
   if (carId === "corvette") return CAR_PALETTES.corvette.body;
+  if (carId === "beaterVan") return CAR_PALETTES.beaterVan.body;
   return "#00F5D4";
 }
 
@@ -512,6 +516,39 @@ function drawCorvetteRear(ctx, w, len, p) {
   });
 }
 
+// Boxy cargo-van rear: tall and flat (no fastback taper at all), a lifted
+// rear-door seam down the middle, small worn taillights, and a strip of
+// duct tape holding on a cracked rear window — the whole joke is that it's
+// visibly the cheapest possible shape on the roster.
+function drawVanRear(ctx, w, len, p) {
+  drawWheelsAndShadow(ctx, w, len);
+
+  ctx.fillStyle = p.body;
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.48, -len * 0.56);
+  ctx.lineTo(w * 0.48, -len * 0.56);
+  ctx.lineTo(w * 0.48, len * 0.32);
+  ctx.lineTo(-w * 0.48, len * 0.32);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = p.dark;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, -len * 0.5);
+  ctx.lineTo(0, len * 0.28);
+  ctx.stroke();
+
+  ctx.fillStyle = p.glass;
+  ctx.fillRect(-w * 0.34, -len * 0.48, w * 0.68, len * 0.22);
+  ctx.fillStyle = p.trim;
+  ctx.fillRect(-w * 0.1, -len * 0.4, w * 0.22, len * 0.08);
+
+  ctx.fillStyle = p.tail;
+  roundRect(ctx, -w * 0.44, -len * 0.02, w * 0.16, len * 0.14, 2);
+  roundRect(ctx, w * 0.28, -len * 0.02, w * 0.16, len * 0.14, 2);
+}
+
 function drawProceduralCar(ctx, carId, variant, cx, cy, lean) {
   ctx.save();
   ctx.translate(cx, cy);
@@ -523,6 +560,8 @@ function drawProceduralCar(ctx, carId, variant, cx, cy, lean) {
     drawIntegraRear(ctx, 38, 26, CAR_PALETTES.integra);
   } else if (carId === "corvette") {
     drawCorvetteRear(ctx, 44, 26, CAR_PALETTES.corvette);
+  } else if (carId === "beaterVan") {
+    drawVanRear(ctx, 36, 30, CAR_PALETTES.beaterVan);
   } else {
     // Defensive fallback for any future car with neither a sprite nor a
     // dedicated procedural shape yet — shouldn't trigger with the current roster.

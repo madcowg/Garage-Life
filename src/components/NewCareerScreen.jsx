@@ -11,8 +11,12 @@ export default function NewCareerScreen({ meta, onStart }) {
   const [car, setCar] = useState("miata");
   const [variant, setVariant] = useState("NA");
 
+  // Secret cars (tier: "secret") stay out of the "STILL LOCKED" grid below
+  // entirely — no placeholder, no hint — but once actually unlocked they
+  // belong in this same "available to pick" list right alongside the
+  // regular unlockable JDM roster.
   const unlockedExtraCars = Object.entries(CARS).filter(
-    ([id, c]) => c.tier === "unlockable" && meta.unlockedCars.includes(id)
+    ([id, c]) => (c.tier === "unlockable" || c.tier === "secret") && meta.unlockedCars.includes(id)
   );
 
   return (

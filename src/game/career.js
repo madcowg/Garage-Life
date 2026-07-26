@@ -5,7 +5,7 @@
 // no React/localStorage here, that's meta.js and the Career screen state.
 // ============================================================================
 
-import { MODS, STAGE1_TIRE_PRICE } from "./data.js";
+import { MODS, STAGE1_TIRE_PRICE, TIRE_CATALOG } from "./data.js";
 
 export const SEASON_LENGTH_MONTHS = 10;
 export const AP_PER_MONTH = 3;
@@ -92,8 +92,40 @@ export function createNewCareer(car, variant) {
     // the next time they'd apply, not re-grantable within the same career.
     dezFreeEntryUsed: false,
     waltFreeMaintainUsed: false,
+    // Cars actually owned THIS career (as opposed to meta.unlockedCars,
+    // which only makes a car selectable at the START of a future career).
+    // The active car (career.car) is always in here; a Junkyard car claim
+    // (App.jsx handleClaimJunkyardCar) is the only way today to add a
+    // second one — you don't drive it, but you can sell it (App.jsx
+    // handleSellCar). everOwnedMultipleCars/carsSoldCount back the two
+    // car-selling achievements (Ride or Die / Fire Sale).
+    ownedCars: [car],
+    everOwnedMultipleCars: false,
+    carsSoldCount: 0,
   };
 }
+
+// Sell rates for equipment you own but aren't using — a real depreciation
+// hit, not a refund. Stock tires never cost anything to begin with, so
+// their "sell" price is 10% of the reference Stage 1 Tire price rather
+// than 10% of $0; anything actually purchased (extreme_summer/slicks)
+// sells at 25% of what it cost.
+export const TIRE_SELL_RATE_STOCK = 0.10;
+export const TIRE_SELL_RATE_USED = 0.25;
+export function tireSellPrice(tireId) {
+  const tire = TIRE_CATALOG[tireId];
+  if (!tire) return 0;
+  if (tireId === "stock") return Math.round(STAGE1_TIRE_PRICE * TIRE_SELL_RATE_STOCK);
+  return Math.round(tire.price * TIRE_SELL_RATE_USED);
+}
+
+// Flat resale value for a spare car — well under JUNKYARD_CAR_CLAIM_PRICE
+// (real depreciation for flipping something you just paid to claim). Every
+// extra car today comes from that same claim price, so a single flat value
+// is enough; per-car pricing can follow if cars are ever ownable another way.
+export const CAR_SELL_PRICE = 150;
+// "Before the middle of the season" for the Fire Sale achievement.
+export const SEASON_MIDPOINT_MONTH = Math.ceil(SEASON_LENGTH_MONTHS / 2);
 
 // Deducts AP without checking for month rollover — used where the AP has
 // to be committed immediately (so an insufficient-AP action can be blocked

@@ -6,13 +6,15 @@ import {
   computeRacingCredDelta, computeRaceNpcDeltas, effectiveEntryFee, discountedTirePrice,
   NPC_STANDING_THRESHOLDS,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
+  tireSellPrice, CAR_SELL_PRICE, SEASON_MIDPOINT_MONTH,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
-import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS } from "./game/story";
-import { MODS, CARS } from "./game/data";
+import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS, ACHIEVEMENTS } from "./game/story";
+import { MODS, CARS, TIRE_CATALOG } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
 import { Shell, CashBadge } from "./components/shared";
+import AchievementToast from "./components/AchievementToast";
 import TrackCanvas from "./components/TrackCanvas";
 import CourseLog from "./components/CourseLog";
 import CardRaceScreen from "./components/CardRaceScreen";
@@ -98,6 +100,19 @@ export default function App() {
   const [seasonGrade, setSeasonGrade] = useState(null);
   const [storyQueue, setStoryQueue] = useState([]);
   const [storyReturnScreen, setStoryReturnScreen] = useState("careerHome");
+  const [achievementPopupQueue, setAchievementPopupQueue] = useState([]);
+
+  // Every meta transition goes through here instead of setMeta directly, so
+  // a newly-unlocked achievement (from ANY code path — story triggers,
+  // checkStandingAchievements, a car sale, whatever) always gets queued for
+  // the popup without every call site having to remember to do it itself.
+  const updateMeta = (nextMeta) => {
+    const before = meta.achievementsUnlocked ?? [];
+    const newlyUnlocked = (nextMeta.achievementsUnlocked ?? []).filter(id => !before.includes(id));
+    if (newlyUnlocked.length > 0) setAchievementPopupQueue(q => [...q, ...newlyUnlocked]);
+    setMeta(nextMeta);
+  };
+  const dismissAchievementPopup = () => setAchievementPopupQueue(q => q.slice(1));
 
   // Persist the in-progress career after every state change so "Continue
   // Career" on the title screen survives a closed tab. Meta (unlocks) has
@@ -116,6 +131,7 @@ export default function App() {
       installedMods: [], racedThisMonth: false, maintainedThisMonth: false, junkyardCarOffer: null,
       racingCred: 0, npcStanding: { rex: 0, dez: 0, marisol: 0, walt: 0 },
       dezFreeEntryUsed: false, waltFreeMaintainUsed: false,
+      ownedCars: [snap.career.car], everOwnedMultipleCars: false, carsSoldCount: 0,
       ...snap.career,
     });
     setSeasonEnded(snap.seasonEnded ?? false);
@@ -183,7 +199,11 @@ export default function App() {
   const finishSeason = (finalCareer, finalMeta, extraTriggers = []) => {
     const grade = computeSeasonGrade({ wins: finalCareer.wins, races: finalCareer.racesEntered, reputation: finalCareer.reputation });
     const seasonEndTrigger = SEASON_GRADE_STORY_TRIGGER[grade];
-    const metaWithSeasonEnd = applyTriggerUnlocks(finalMeta, resolveTriggerUnlocks(seasonEndTrigger));
+    let metaWithSeasonEnd = applyTriggerUnlocks(finalMeta, resolveTriggerUnlocks(seasonEndTrigger));
+    // Ride or Die: had a spare car available to sell all season and never did.
+    if (finalCareer.everOwnedMultipleCars && (finalCareer.carsSoldCount ?? 0) === 0) {
+      metaWithSeasonEnd = unlockAchievement(metaWithSeasonEnd, "ride_or_die");
+    }
     const summary = {
       seasonGrade: grade, finalCar: { id: finalCareer.car, variant: finalCareer.variant },
       totalCash: finalCareer.lifetimeCashEarned, totalReputation: finalCareer.reputation,
@@ -191,7 +211,7 @@ export default function App() {
       unlocksEarned: finalCareer.unlocksEarned, completedAt: Date.now(),
     };
     const archivedMeta = archiveCareer(metaWithSeasonEnd, summary);
-    setMeta(archivedMeta);
+    updateMeta(archivedMeta);
     setCareer(finalCareer);
     setSeasonGrade(grade);
     setSeasonEnded(true);
@@ -201,7 +221,7 @@ export default function App() {
   const startCareer = ({ car, variant }) => {
     const newCareer = createNewCareer(car, variant);
     const nextMeta = applyTriggerUnlocks(meta, resolveTriggerUnlocks("career_start", { carId: car }));
-    setMeta(nextMeta);
+    updateMeta(nextMeta);
     setCareer({ ...newCareer, storySeen: ["career_start"] });
     setSeasonEnded(false);
     setSeasonGrade(null);
@@ -238,7 +258,7 @@ export default function App() {
       dezFreeEntryUsed: dezCoversEntry ? true : working.dezFreeEntryUsed,
     };
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, paid, {}, meta);
-    setMeta(metaWithStory);
+    updateMeta(metaWithStory);
     setCareer(careerWithStory);
     setLoadout(l);
     proceedAfterStory(triggers, "race");
@@ -291,7 +311,7 @@ export default function App() {
     if (ended) {
       finishSeason(careerWithStory, metaWithStory, triggers);
     } else {
-      setMeta(metaWithStory);
+      updateMeta(metaWithStory);
       setCareer(careerWithStory);
       proceedAfterStory(triggers, "raceResult");
     }
@@ -314,7 +334,7 @@ export default function App() {
       if (ended) {
         finishSeason(careerWithStory, metaWithStory, triggers);
       } else {
-        setMeta(metaWithStory);
+        updateMeta(metaWithStory);
         setCareer(careerWithStory);
         proceedAfterStory(triggers, "actionResult");
       }
@@ -344,7 +364,7 @@ export default function App() {
     if (ended) {
       finishSeason(careerWithStory, metaWithStory, triggers);
     } else {
-      setMeta(metaWithStory);
+      updateMeta(metaWithStory);
       setCareer(careerWithStory);
       proceedAfterStory(triggers, "actionResult");
     }
@@ -374,7 +394,7 @@ export default function App() {
     if (ended) {
       finishSeason(careerWithStory, metaWithStory, triggers);
     } else {
-      setMeta(metaWithStory);
+      updateMeta(metaWithStory);
       setCareer(careerWithStory);
       proceedAfterStory(triggers, "actionResult");
     }
@@ -396,7 +416,7 @@ export default function App() {
       ...career, cash: career.cash - price, ownedTires: [...(career.ownedTires ?? ["stock"]), tireId],
       npcStanding: { ...career.npcStanding, rex: career.npcStanding.rex + 4 },
     };
-    setMeta(checkStandingAchievements(updated, meta));
+    updateMeta(checkStandingAchievements(updated, meta));
     setCareer(updated);
   };
 
@@ -408,7 +428,41 @@ export default function App() {
       ...career, installedMods: [...(career.installedMods ?? []), modId],
       npcStanding: { ...career.npcStanding, rex: career.npcStanding.rex + 4, walt: career.npcStanding.walt + 4 },
     };
-    setMeta(checkStandingAchievements(updated, meta));
+    updateMeta(checkStandingAchievements(updated, meta));
+    setCareer(updated);
+  };
+
+  // Selling equipment you own but aren't using — must always keep at least
+  // one tire, and can't sell a tire another owned tire still requires
+  // (slicks needs extreme_summer; selling the requirement out from under it
+  // would leave an inconsistent TIRE_CATALOG state).
+  const handleSellTire = (tireId) => {
+    const owned = career.ownedTires ?? ["stock"];
+    if (!owned.includes(tireId) || owned.length <= 1) return;
+    const stillDependent = Object.entries(TIRE_CATALOG).some(([id, t]) => t.requires === tireId && owned.includes(id));
+    if (stillDependent) return;
+    const price = tireSellPrice(tireId);
+    setCareer({ ...career, cash: career.cash + price, ownedTires: owned.filter(id => id !== tireId) });
+  };
+
+  // Selling a spare car (never the one you're actively driving — switching
+  // active cars mid-career isn't a thing yet). Selling before the season's
+  // halfway point is a "Fire Sale" — the achievement payoff also unlocks a
+  // secret car (Rex's one available beater once you've flipped your good one).
+  const handleSellCar = (carId) => {
+    const owned = career.ownedCars ?? [career.car];
+    if (carId === career.car || !owned.includes(carId) || owned.length <= 1) return;
+    const updated = {
+      ...career, cash: career.cash + CAR_SELL_PRICE,
+      ownedCars: owned.filter(id => id !== carId),
+      carsSoldCount: (career.carsSoldCount ?? 0) + 1,
+    };
+    let nextMeta = meta;
+    if (career.month < SEASON_MIDPOINT_MONTH) {
+      nextMeta = unlockAchievement(nextMeta, "fire_sale");
+      nextMeta = unlockCar(nextMeta, "beaterVan");
+    }
+    updateMeta(nextMeta);
     setCareer(updated);
   };
 
@@ -418,7 +472,7 @@ export default function App() {
     if (ended) {
       finishSeason(careerWithStory, metaWithStory, triggers);
     } else {
-      setMeta(metaWithStory);
+      updateMeta(metaWithStory);
       setCareer(careerWithStory);
       proceedAfterStory(triggers, "careerHome");
     }
@@ -486,7 +540,7 @@ export default function App() {
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, { newMods }, nextMeta);
     setActionResult({ title, icon: "🗑️", color, message, cashDelta });
     if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
-    else { setMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
+    else { updateMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
   };
 
   // Claiming the junkyard car offer is a straight cash transaction, no AP —
@@ -495,10 +549,12 @@ export default function App() {
     const offer = career.junkyardCarOffer;
     if (!offer || career.cash < JUNKYARD_CAR_CLAIM_PRICE) return;
     const nextMeta = unlockCar(meta, offer.carId);
-    setMeta(nextMeta);
+    updateMeta(nextMeta);
+    const owned = career.ownedCars ?? [career.car];
     setCareer({
       ...career, cash: career.cash - JUNKYARD_CAR_CLAIM_PRICE, junkyardCarOffer: null,
       unlocksEarned: [...career.unlocksEarned, offer.carId],
+      ownedCars: [...owned, offer.carId], everOwnedMultipleCars: true,
     });
   };
 
@@ -521,12 +577,19 @@ export default function App() {
       color: roll.event === "busted" ? C.red : C.gold, message: roll.message, cashDelta: roll.cash,
     });
     if (ended) finishSeason(careerWithStory, metaWithStory, triggers);
-    else { setMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
+    else { updateMeta(metaWithStory); setCareer(careerWithStory); proceedAfterStory(triggers, "actionResult"); }
   };
 
   // Cash stays on screen everywhere a career's in progress — race, shop,
   // codex, story beats, all of it — not just CareerHome.
-  const withCash = (el) => (career ? <>{el}<CashBadge cash={career.cash} /></> : el);
+  const activeAchievement = achievementPopupQueue[0] ? ACHIEVEMENTS.find(a => a.id === achievementPopupQueue[0]) : null;
+  const withCash = (el) => (
+    <>
+      {el}
+      {career && <CashBadge cash={career.cash} />}
+      {activeAchievement && <AchievementToast achievement={activeAchievement} onDismiss={dismissAchievementPopup} />}
+    </>
+  );
 
   if (screen === "story") {
     const seed = career ? `${career.car}-${career.month}-${career.wins}-${career.reputation}` : "";
@@ -559,7 +622,10 @@ export default function App() {
     <PreRaceSetup career={career} onStart={handleStartRace} onBack={() => setScreen("careerHome")} />
   );
   if (screen === "shop") return withCash(
-    <ShopScreen career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop} />
+    <ShopScreen
+      career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop}
+      onSellTire={handleSellTire} onSellCar={handleSellCar}
+    />
   );
   if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);
   if (screen === "raceResult") return withCash(
