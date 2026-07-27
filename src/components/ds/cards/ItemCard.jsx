@@ -18,7 +18,7 @@ export function ItemCard({ title, desc, price, wasPrice, owned = false, installe
         {icon && <img src={icon} alt="" style={{ width: 16, height: 16, imageRendering: "pixelated" }} />}
         <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700 }}>{title}</div>
       </div>
-      {desc && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", minHeight: 28, marginTop: 3, lineHeight: 1.45 }}>{desc}</div>}
+      {desc && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", minHeight: 28, marginTop: 3, lineHeight: 1.45, fontFamily: "var(--gl-font-body)" }}>{desc}</div>}
       {state === "locked" && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-dead)", marginTop: 4 }}>locked — {lockNote}</div>}
       {(state === "owned" || state === "installed") && (
         <div style={{ fontSize: "var(--gl-size-micro)", fontWeight: 700, letterSpacing: 1, color: "var(--gl-teal)", marginTop: 6, textTransform: "uppercase" }}>✓ {state}</div>

@@ -137,7 +137,7 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
           </Section>
         )}
 
-        <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5 }}>
+        <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
           The event is 4 timed runs on one course — best run counts. Your deck is your car: play one Line card
           per segment (plus an optional Utility). On-affinity cards get full effect.
         </div>

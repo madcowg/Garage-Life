@@ -58,7 +58,7 @@
 
   --gl-text-1:#E8EAF6;
   --gl-text-2:#ABA7DC;
-  --gl-text-3:#8480B8;
+  --gl-text-3:#9D99C6;
   --gl-text-dead:#5A5688;
   --gl-text-off:#3D3A66;
 
@@ -95,6 +95,7 @@
   --gl-font-display:"Press Start 2P","Courier New",monospace;
   --gl-font-mono:"IBM Plex Mono",ui-monospace,monospace;
   --gl-font-lcd:"DSEG7 Classic","IBM Plex Mono",monospace;
+  --gl-font-body:"Helvetica Neue",Helvetica,Arial,sans-serif;
 
   /* Typography scale */
   --gl-size-hero:22px;

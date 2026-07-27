@@ -15,7 +15,7 @@ export default function IntroScreen({ onContinue }) {
     <Shell>
         <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-teal)", letterSpacing: 3, marginBottom: 10 }}>CAPE MARLOW — ARRIVAL</div>
 
-        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)" }}>
+        <div style={{ background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)", fontFamily: "var(--gl-font-body)" }}>
           Cape Marlow's been running the same coast-road autocross points chase every summer for longer than
           anyone bothers to count. A beat-up shop two blocks off the highway, an airfield lined with orange
           cones and chalk, and a standings sheet that doesn't care who you were before you showed up.

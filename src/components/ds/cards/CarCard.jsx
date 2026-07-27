@@ -29,7 +29,7 @@ export function CarCard({ carId, variant, name, stats, desc, tone = "pink", sele
       <CarThumb carId={carId} variant={variant} silhouette={silhouette} />
       <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, marginTop: 6, lineHeight: 1.25, minHeight: 26 }}>{name}</div>
       {stats && <div style={{ fontSize: 9, color: `var(--gl-${tone})`, fontWeight: 700, letterSpacing: 0.5, marginTop: 2, lineHeight: 1.4 }}>{stats}</div>}
-      {desc && <div style={{ fontSize: 9, color: "var(--gl-text-3)", lineHeight: 1.4, marginTop: 4, minHeight: 26 }}>{desc}</div>}
+      {desc && <div style={{ fontSize: 9, color: "var(--gl-text-3)", lineHeight: 1.4, marginTop: 4, minHeight: 26, fontFamily: "var(--gl-font-body)" }}>{desc}</div>}
       {locked && lockNote && <div style={{ fontSize: 9, color: "var(--gl-text-dead)", marginTop: 4 }}>locked — {lockNote}</div>}
       {footer && <div style={{ marginTop: 6 }}>{footer}</div>}
     </div>

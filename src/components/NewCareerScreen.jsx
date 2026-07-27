@@ -88,7 +88,7 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
         </div>
       </Section>
 
-      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5 }}>
+      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
         Every career starts fresh — zero reputation, no wear damage — but anything you've
         unlocked from past careers is available from day one. Mods are chosen before each race, not here.
       </div>

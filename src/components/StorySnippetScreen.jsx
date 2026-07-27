@@ -27,6 +27,7 @@ export default function StorySnippetScreen({ text, onContinue }) {
       <div style={{
         background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)",
         padding: 16, marginBottom: 20, fontSize: "var(--gl-size-label)", lineHeight: 1.7, color: "var(--gl-text-3)", textAlign: "center",
+        fontFamily: "var(--gl-font-body)",
       }}>
         {text}
       </div>

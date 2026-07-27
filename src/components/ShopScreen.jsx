@@ -100,7 +100,7 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
         </Section>
       )}
 
-      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5 }}>
+      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
         Once a mod's installed it stays on the car for the rest of the career — no need to come back for it.
         Rex doesn't charge extra for the labor, just the AP to make the trip.
       </div>

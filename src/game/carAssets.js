@@ -1,5 +1,8 @@
 // ============================================================================
-// CAR SPRITE ASSETS — sourced from two provided packs:
+// CAR SPRITE ASSETS — the full roster (starter/unlockable/legend/secret) has
+// complete front+rear art; see docs/SPRITE_SPEC.md for the canonical style
+// spec, roster status table, and the convention for every other asset
+// category (NPCs, locations, mod/tire icons, achievement badges).
 //  - the JDM unlockable roster (flat cars/<id>-front.png / <id>-rear.png)
 //  - the USDM starter pack (nested cars/<id>/garage-*.png / race-*.png),
 //    which also has "garage" 3/4-view sprites for a future car-select/garage

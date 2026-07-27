@@ -39,11 +39,14 @@ function LockedCard() {
   );
 }
 
-function EntryCard({ title, body }) {
+function EntryCard({ title, body, quip, bodyStyle }) {
   return (
     <div style={{ background: "var(--gl-panel)", border: "1px solid var(--gl-teal)", borderRadius: "var(--gl-radius-panel)", padding: 12 }}>
       <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, color: "var(--gl-gold)" }}>{title}</div>
-      <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginTop: 4, lineHeight: 1.5 }}>{body}</div>
+      <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginTop: 4, lineHeight: 1.5, ...bodyStyle }}>{body}</div>
+      {quip && (
+        <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-pink)", marginTop: 6, lineHeight: 1.5, fontStyle: "italic" }}>{quip}</div>
+      )}
     </div>
   );
 }
@@ -98,7 +101,7 @@ export default function CodexScreen({ meta, career, onBack }) {
           {ACHIEVEMENTS.map(a => {
             const unlocked = unlockedAch.includes(a.id);
             return unlocked
-              ? <EntryCard key={a.id} title={a.title} body={a.desc} />
+              ? <EntryCard key={a.id} title={a.title} body={a.desc} quip={a.quip} />
               : <LockedCard key={a.id} />;
           })}
         </div>
@@ -108,12 +111,12 @@ export default function CodexScreen({ meta, career, onBack }) {
             const unlocked = unlockedCodex.includes(e.id);
             if (!unlocked) return <LockedCard key={e.id} />;
             const resolved = resolveCodexEntry(e);
-            return <EntryCard key={e.id} title={resolved.title} body={resolved.body} />;
+            return <EntryCard key={e.id} title={resolved.title} body={resolved.body} bodyStyle={{ fontFamily: "var(--gl-font-body)" }} />;
           })}
         </div>
       )}
 
-      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-dead)", marginTop: 20, lineHeight: 1.5 }}>
+      <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-dead)", marginTop: 20, lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
         Codex entries and achievements are permanent — once discovered in any career, they stay unlocked forever.
       </div>
     </Shell>

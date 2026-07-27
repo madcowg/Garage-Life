@@ -27,7 +27,7 @@ export function ChoiceBox({ title, desc, meta, tone = "teal", selected = false, 
         {marker && <span style={{ fontSize: 9, color: selected ? `var(--gl-${tone})` : "var(--gl-text-off)" }}>{selected ? "✓" : "·"}</span>}
         <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700 }}>{title}</div>
       </div>
-      {desc && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", minHeight: 26, marginTop: 3, lineHeight: 1.45 }}>{desc}</div>}
+      {desc && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", minHeight: 26, marginTop: 3, lineHeight: 1.45, fontFamily: "var(--gl-font-body)" }}>{desc}</div>}
       {locked && lockNote && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-dead)", marginTop: 4 }}>locked — {lockNote}</div>}
       {meta && <div style={{ fontSize: "var(--gl-size-micro)", fontWeight: 700, color: `var(--gl-${tone})`, marginTop: 6, letterSpacing: 1 }}>{meta}</div>}
       {children && <div style={{ marginTop: 6 }}>{children}</div>}
