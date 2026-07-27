@@ -11,7 +11,7 @@ const TABS = [
   { key: "car", label: "CARS" },
   { key: "location", label: "PLACES" },
   { key: "standing", label: "STANDING" },
-  { key: "achievements", label: "ACHIEVEMENTS" },
+  { key: "achievements", label: "COLLECTIONS" },
 ];
 
 const NPC_PERKS = {
@@ -54,7 +54,7 @@ function EntryCard({ title, body, quip, bodyStyle }) {
 // Meta-level browsable lore + milestones — reachable from the title screen
 // (no career needed) and from CareerHome. Locked entries stay silhouettes
 // until their story trigger fires (see game/story.js + App.jsx).
-export default function CodexScreen({ meta, career, onBack, initialTab = "npc" }) {
+export default function CodexScreen({ meta, career, onBack, initialTab = "npc", onEngageNpc, npcEngageResult }) {
   const [tab, setTab] = useState(initialTab);
   const unlockedCodex = meta.codexUnlocked ?? [];
   const unlockedAch = meta.achievementsUnlocked ?? [];
@@ -96,6 +96,38 @@ export default function CodexScreen({ meta, career, onBack, initialTab = "npc" }
             })}
           </div>
         )
+      ) : tab === "npc" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+          {Object.values(NPCS).map(npc => {
+            const codexId = `npc_${npc.id}`;
+            const unlocked = unlockedCodex.includes(codexId);
+            if (!unlocked) return <LockedCard key={npc.id} />;
+            const entry = CODEX[codexId];
+            const standing = career?.npcStanding?.[npc.id] ?? 0;
+            const tier = career ? npcStandingTier(standing) : null;
+            const noAp = !career || career.ap <= 0;
+            return (
+              <div key={npc.id} style={{ background: "var(--gl-panel)", border: "1px solid var(--gl-teal)", borderRadius: "var(--gl-radius-panel)", padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div>
+                  <div style={{ fontSize: "var(--gl-size-label)", fontWeight: 700, color: "var(--gl-gold)" }}>{entry.title}</div>
+                  <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", marginTop: 4, lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>{entry.body}</div>
+                </div>
+                {career && (
+                  <>
+                    <div style={{ fontSize: "var(--gl-size-micro)", fontWeight: 700, color: tier === "TRUSTED" ? "var(--gl-gold)" : tier === "FRIENDLY" ? "var(--gl-teal)" : "var(--gl-text-3)" }}>{tier} — {standing} standing</div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <Button tone="teal" size="sm" disabled={noAp} reason={noAp ? "no AP left this month" : undefined} onClick={() => onEngageNpc(npc.id, "friendly")}>Be friendly (−1 AP)</Button>
+                      <Button tone="red" size="sm" disabled={noAp} reason={noAp ? "no AP left this month" : undefined} onClick={() => onEngageNpc(npc.id, "antagonize")}>Antagonize (−1 AP)</Button>
+                    </div>
+                    {npcEngageResult?.npcId === npc.id && (
+                      <div style={{ fontSize: "var(--gl-size-micro)", color: npcEngageResult.mode === "friendly" ? "var(--gl-teal)" : "var(--gl-red)", fontStyle: "italic", lineHeight: 1.5 }}>{npcEngageResult.message}</div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : tab === "achievements" ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
           {ACHIEVEMENTS.map(a => {

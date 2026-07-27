@@ -4,12 +4,12 @@ import {
   resolveJunkyard, resolveStreetRace, JUNKYARD_CAR_CLAIM_PRICE, JUNKYARD_UPGRADE_PRICE,
   computeRaceReward, checkModUnlocks, checkCarUnlocks, computeSeasonGrade,
   computeRacingCredDelta, computeRaceNpcDeltas, effectiveEntryFee, discountedTirePrice,
-  NPC_STANDING_THRESHOLDS,
+  NPC_STANDING_THRESHOLDS, NPC_ENGAGE_STANDING_DELTA, NPC_ENGAGE_CRED_DELTA,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
   tireSellPrice, CAR_SELL_PRICE, SEASON_MIDPOINT_MONTH,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
-import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS, ACHIEVEMENTS } from "./game/story";
+import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS, ACHIEVEMENTS, NPC_ENGAGE_LINES } from "./game/story";
 import { MODS, CARS, TIRE_CATALOG } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
@@ -97,6 +97,13 @@ export default function App() {
   const [screen, setScreen] = useState("title");
   const [prevScreen, setPrevScreen] = useState("careerHome");
   const [codexTab, setCodexTab] = useState("npc");
+  // Tracks whether this Shop visit actually bought/installed anything — the
+  // AP charge on "Head out" (handleLeaveShop) only applies then, since it
+  // represents Rex's labor, not the trip itself. Reset every time Shop opens.
+  const [shopActedThisVisit, setShopActedThisVisit] = useState(false);
+  // Last Rolodex "engage" outcome, shown inline under that NPC's card —
+  // cleared whenever the player leaves the Codex screen.
+  const [npcEngageResult, setNpcEngageResult] = useState(null);
   const [loadout, setLoadout] = useState(null);
   const [raceResult, setRaceResult] = useState(null);
   const [actionResult, setActionResult] = useState(null);
@@ -428,12 +435,13 @@ export default function App() {
     }
   };
 
-  // Shop (Dead Reckoning Garage) — browsing/buying/installing is free;
-  // the AP is spent on "HEAD OUT" (handleLeaveShop), same commitment
-  // pattern as paying a race entry fee. Buying a tire is a plain cash
-  // purchase; installing a mod requires it be unlocked in meta first
-  // (Rex will sell it) and just adds it to this career's installedMods —
-  // no extra cash cost beyond what already unlocked it.
+  // Shop (Dead Reckoning Garage) — just browsing is free; the AP on "HEAD
+  // OUT" (handleLeaveShop) only gets charged if this visit actually bought
+  // or installed something (shopActedThisVisit), since it represents Rex's
+  // labor/the transaction, not the trip itself. Buying a tire is a plain
+  // cash purchase; installing a mod needs it unlocked in meta first (Rex
+  // will sell it) and now also costs its real cash price (MODS in data.js),
+  // charged on top of whatever lifetime-earned threshold already unlocked it.
   // Rex's standing rises with every transaction (business is business) and
   // discounts future tire prices in turn — see ShopScreen, which computes
   // the same discountedTirePrice() so the displayed price always matches
@@ -446,18 +454,20 @@ export default function App() {
     };
     updateMeta(checkStandingAchievements(updated, meta));
     setCareer(updated);
+    setShopActedThisVisit(true);
   };
 
   // Installing a mod bumps both Rex (business) and Walt (respects a
   // properly built car) — same transaction, two different reasons to care.
-  const handleInstallMod = (modId) => {
-    if (!meta.unlockedMods.includes(modId) || (career.installedMods ?? []).includes(modId)) return;
+  const handleInstallMod = (modId, price) => {
+    if (!meta.unlockedMods.includes(modId) || (career.installedMods ?? []).includes(modId) || career.cash < price) return;
     const updated = {
-      ...career, installedMods: [...(career.installedMods ?? []), modId],
+      ...career, cash: career.cash - price, installedMods: [...(career.installedMods ?? []), modId],
       npcStanding: { ...career.npcStanding, rex: career.npcStanding.rex + 4, walt: career.npcStanding.walt + 4 },
     };
     updateMeta(checkStandingAchievements(updated, meta));
     setCareer(updated);
+    setShopActedThisVisit(true);
   };
 
   // Selling equipment you own but aren't using — must always keep at least
@@ -494,7 +504,38 @@ export default function App() {
     setCareer(updated);
   };
 
+  // Rolodex "engage" — 1 AP to spend a beat with an already-met NPC,
+  // dating-sim-esque: friendly raises their standing and your Racing Cred,
+  // antagonize lowers both. Stays on the codex screen throughout (no
+  // screen transition), same reasoning as CodexScreen being a pure browsing
+  // screen elsewhere — a story trigger can still detour through the story
+  // screen first, same as every other action.
+  const handleEngageNpc = (npcId, mode) => {
+    if (!career || career.ap <= 0) return;
+    const delta = mode === "friendly" ? NPC_ENGAGE_STANDING_DELTA : -NPC_ENGAGE_STANDING_DELTA;
+    const credDelta = mode === "friendly" ? NPC_ENGAGE_CRED_DELTA : -NPC_ENGAGE_CRED_DELTA;
+    const updated = {
+      ...career,
+      npcStanding: { ...career.npcStanding, [npcId]: career.npcStanding[npcId] + delta },
+      racingCred: career.racingCred + credDelta,
+    };
+    const { career: advanced, seasonEnded: ended } = advanceAfterAction(updated);
+    const metaWithAch = checkStandingAchievements(advanced, meta);
+    const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, metaWithAch);
+    setNpcEngageResult({ npcId, mode, message: NPC_ENGAGE_LINES[npcId][mode] });
+    if (ended) {
+      finishSeason(careerWithStory, metaWithStory, triggers);
+    } else {
+      updateMeta(metaWithStory);
+      setCareer(careerWithStory);
+      proceedAfterStory(triggers, "codex");
+    }
+  };
+
   const handleLeaveShop = () => {
+    // Pure browsing — nothing bought or installed — costs nothing, same as
+    // Back on any other screen.
+    if (!shopActedThisVisit) { setScreen("careerHome"); return; }
     const { career: advanced, seasonEnded: ended } = advanceAfterAction(career);
     const { career: careerWithStory, meta: metaWithStory, triggers } = runStoryCheck(career, advanced, {}, meta);
     if (ended) {
@@ -644,7 +685,7 @@ export default function App() {
       onRace={() => setScreen("preRaceSetup")}
       onWork={handleWork}
       onMaintain={handleMaintain}
-      onShop={() => setScreen("shop")}
+      onShop={() => { setShopActedThisVisit(false); setScreen("shop"); }}
       onJunkyard={handleJunkyard}
       onStreetRace={handleStreetRace}
       onClaimJunkyardCar={handleClaimJunkyardCar}
@@ -659,6 +700,7 @@ export default function App() {
     <ShopScreen
       career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop}
       onSellTire={handleSellTire} onSellCar={handleSellCar} onBack={() => setScreen("careerHome")}
+      apCharged={shopActedThisVisit}
     />
   );
   if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);
@@ -672,6 +714,12 @@ export default function App() {
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
   if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
-  if (screen === "codex") return withCash(<CodexScreen meta={meta} career={career} initialTab={codexTab} onBack={() => setScreen(prevScreen)} />);
+  if (screen === "codex") return withCash(
+    <CodexScreen
+      meta={meta} career={career} initialTab={codexTab}
+      onBack={() => { setNpcEngageResult(null); setScreen(prevScreen); }}
+      onEngageNpc={handleEngageNpc} npcEngageResult={npcEngageResult}
+    />
+  );
   return null;
 }

@@ -140,6 +140,29 @@ export function resolveCodexEntry(entry) {
   return entry;
 }
 
+// Rolodex "engage" flavor lines (App.jsx handleEngageNpc) — one AP buys a
+// beat with an already-met NPC, nudging their standing and your racing cred
+// either up (friendly) or down (antagonize). Dating-sim-esque, but each NPC
+// reacts in their own established voice rather than a generic response.
+export const NPC_ENGAGE_LINES = {
+  rex: {
+    friendly: "You hang around the bay a while, actually listening when he explains why the last owner's alignment was garbage. Rex warms up half a degree — which, for Rex, is a lot.",
+    antagonize: "You mouth off about his prices in front of two other customers. Rex doesn't say much back. He doesn't have to — word gets around a shop fast.",
+  },
+  dez: {
+    friendly: "You end up leaning on the fence next to Dez's Miata for twenty minutes, trading notes on nothing important. Turns out that's most of how friendships at Cape Marlow actually happen.",
+    antagonize: "You take a cheap shot at the Miata being \"basically a lawnmower.\" Dez laughs it off in the moment. The paddock remembers who said it, though.",
+  },
+  marisol: {
+    friendly: "You ask Marisol a real question about her line through the sweeper instead of just nodding along. She notices — she always notices who's actually listening.",
+    antagonize: "You wave off her setup advice like you already know better. She shrugs and walks off — she's got better places to put her time than someone who won't listen.",
+  },
+  walt: {
+    friendly: "Walt tells the DNF story again, the one from two seasons back. You let him finish it this time instead of changing the subject. He appreciates that more than he says.",
+    antagonize: "You needle him about the DNFs, one time too many. Walt goes quiet, and so does everyone else who heard it.",
+  },
+};
+
 // quip: the snarky one-liner AchievementToast shows under the title — a
 // game-show-host jab at the player, not a description (desc already covers
 // that). Written deadpan/teasing, never actually mean.

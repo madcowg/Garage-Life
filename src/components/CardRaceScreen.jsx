@@ -59,6 +59,7 @@ export default function CardRaceScreen({ loadout, careerWear, month, onFinish })
             <RoadView
               track={track} activeSegIndex={activeSeg} carT={carT} carId={loadout.car} variant={loadout.variant} theme={theme}
               totalTime={snap.totalTime} targetTime={snap.targetTime}
+              suspensionMod={Boolean(loadout.mods?.stage1_suspension)}
             />
             <div style={{ height: 8 }} />
             <HUD

@@ -323,6 +323,12 @@ export function effectiveEntryFee(racingCred) {
 // thresholds via checkCarUnlocks below, Dez/Walt's one-time favors).
 // ----------------------------------------------------------------------
 export const NPC_STANDING_THRESHOLDS = { FRIENDLY: 20, TRUSTED: 50 };
+
+// Rolodex "engage" action (App.jsx handleEngageNpc, CodexScreen People tab) —
+// 1 AP to spend a beat with an already-met NPC, moving both their personal
+// standing and the scene-wide Racing Cred, same direction either way.
+export const NPC_ENGAGE_STANDING_DELTA = 4;
+export const NPC_ENGAGE_CRED_DELTA = 1;
 export function npcStandingTier(value) {
   if (value >= NPC_STANDING_THRESHOLDS.TRUSTED) return "TRUSTED";
   if (value >= NPC_STANDING_THRESHOLDS.FRIENDLY) return "FRIENDLY";

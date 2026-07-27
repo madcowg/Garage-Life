@@ -106,7 +106,7 @@ function contentBBox(img) {
   return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
 }
 
-export default function RoadView({ track, activeSegIndex, carT, carId = "miata", variant, theme = "default", totalTime = 0, targetTime = 0 }) {
+export default function RoadView({ track, activeSegIndex, carT, carId = "miata", variant, theme = "default", totalTime = 0, targetTime = 0, suspensionMod = false }) {
   const canvasRef = useRef(null);
   // Lazily-created offscreen canvas the minimap draws into each frame, then
   // gets composited onto the main canvas — keeps drawTrack()'s own
@@ -135,20 +135,21 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
     // tab/pane isn't actively compositing yet (rAF alone can be suspended
     // until the page is visible) — then hand off to rAF for the cosmetic
     // scroll/bob animation on top of this same static geometry.
+    const totalSegments = track.segMarkers.length;
     let tick = 0;
-    drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud);
+    drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud, suspensionMod, activeSegIndex, totalSegments);
 
     let running = true;
     let raf;
     const frame = () => {
       if (!running) return;
       tick += 1;
-      drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud);
+      drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud, suspensionMod, activeSegIndex, totalSegments);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => { running = false; cancelAnimationFrame(raf); };
-  }, [track, activeSegIndex, carT, carId, variant, theme, totalTime, targetTime]);
+  }, [track, activeSegIndex, carT, carId, variant, theme, totalTime, targetTime, suspensionMod]);
 
   return (
     <div style={{
@@ -165,25 +166,86 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
   );
 }
 
-function drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud) {
+function drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud, suspensionMod, activeSegIndex, totalSegments) {
   const W = INTERNAL_W, H = INTERNAL_H;
   ctx.clearRect(0, 0, W, H);
 
   drawSky(ctx, W, theme);
   drawGroundAndRoad(ctx, rows, tick);
+  drawTracksideScenery(ctx, rows, activeSegIndex, totalSegments);
   drawCones(ctx, rows, strip.cones);
-  drawCarSprite(ctx, W, H, strip.carLean, tick, carId, variant);
+  drawCarSprite(ctx, W, H, strip.carLean, tick, carId, variant, suspensionMod);
   drawHudOverlay(ctx, W, hud);
+}
+
+// Rough placeholder scenery — parked cars and the event trailer flank the
+// grid during the start segment, a timing-light gantry marks the finish
+// during the last one. Placed at a strip row so they scale/curve with the
+// same perspective the road itself uses. Flat-color silhouettes, same
+// "chunky, no gradients" treatment as the palm trees/cones, until real art
+// exists for them.
+function drawTracksideScenery(ctx, rows, activeSegIndex, totalSegments) {
+  if (rows.length === 0) return;
+  const W = INTERNAL_W;
+  if (activeSegIndex === 0) {
+    const row = rows[Math.min(rows.length - 1, Math.floor(rows.length * 0.55))];
+    const cx = W / 2 + row.xOffset;
+    drawParkedCar(ctx, cx - row.halfWidth - 10, row.y, row.persp);
+    drawParkedCar(ctx, cx - row.halfWidth - 20, row.y, row.persp);
+    drawTrailer(ctx, cx + row.halfWidth + 14, row.y, row.persp);
+  }
+  if (totalSegments > 0 && activeSegIndex === totalSegments - 1) {
+    const row = rows[rows.length - 1];
+    const cx = W / 2 + row.xOffset;
+    drawTimingGantry(ctx, cx, row.y, row.halfWidth, row.persp);
+  }
+}
+
+function drawParkedCar(ctx, x, y, persp) {
+  const scale = Math.max(0.18, persp);
+  const w = 15 * scale, h = 7 * scale;
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(x - w / 2, y - 1, w, 2);
+  ctx.fillStyle = "#3A3A52";
+  ctx.fillRect(x - w / 2, y - h, w, h);
+  ctx.fillStyle = "#1B2233";
+  ctx.fillRect(x - w * 0.3, y - h, w * 0.6, h * 0.55);
+}
+
+function drawTrailer(ctx, x, y, persp) {
+  const scale = Math.max(0.18, persp);
+  const w = 24 * scale, h = 11 * scale;
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(x - w / 2, y - 1, w, 2);
+  ctx.fillStyle = "#9A9AA8";
+  ctx.fillRect(x - w / 2, y - h, w, h);
+  ctx.fillStyle = "#6A6A78";
+  ctx.fillRect(x - w / 2, y - h, w, h * 0.22);
+  ctx.fillStyle = "#FF6B35";
+  ctx.fillRect(x - w / 2, y - h * 0.3, w * 0.18, h * 0.3);
+}
+
+function drawTimingGantry(ctx, cx, y, halfWidth, persp) {
+  const scale = Math.max(0.22, persp);
+  const postH = 28 * scale;
+  const barY = y - postH;
+  ctx.strokeStyle = "#C9C9D6";
+  ctx.lineWidth = Math.max(1, 2 * scale);
+  ctx.beginPath();
+  ctx.moveTo(cx - halfWidth, y); ctx.lineTo(cx - halfWidth, barY);
+  ctx.moveTo(cx + halfWidth, y); ctx.lineTo(cx + halfWidth, barY);
+  ctx.moveTo(cx - halfWidth, barY); ctx.lineTo(cx + halfWidth, barY);
+  ctx.stroke();
+  ctx.fillStyle = "#FFC93C";
+  const lampW = Math.max(2, 4 * scale);
+  ctx.fillRect(cx - halfWidth * 0.5 - lampW / 2, barY, lampW, lampW);
+  ctx.fillRect(cx + halfWidth * 0.5 - lampW / 2, barY, lampW, lampW);
 }
 
 // Translucent rounded panel used by every HUD element drawn on top of the
 // road view — same treatment for the minimap corner and the time pill so
 // they read as one consistent HUD, not two different UI styles bolted on.
-function drawHudPanel(ctx, x, y, w, h, r = 4) {
-  ctx.fillStyle = "rgba(11,10,30,0.62)";
-  roundRect(ctx, x, y, w, h, r);
-  ctx.strokeStyle = "rgba(22,242,214,0.35)";
-  ctx.lineWidth = 1;
+function drawHudPanel(ctx, x, y, w, h, r = 4, fill = "rgba(11,10,30,0.62)", border = "rgba(22,242,214,0.35)") {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -191,6 +253,10 @@ function drawHudPanel(ctx, x, y, w, h, r = 4) {
   ctx.arcTo(x, y + h, x, y, r);
   ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 1;
   ctx.stroke();
 }
 
@@ -210,12 +276,14 @@ function drawHudOverlay(ctx, W, hud) {
 
   const mctx = miniCanvas.getContext("2d");
   mctx.imageSmoothingEnabled = false;
+  // Clean schematic outline only — no cone dots. A tiny corner minimap reads
+  // as course shape + car position at a glance; cone clutter (boundary/gate/
+  // apex markers) belongs on the full post-race recap map, not here.
   drawTrack(mctx, track, {
-    width: MINI_W, height: MINI_H, pad: MINI_PAD, showCones: true, activeSegIndex, carT,
+    width: MINI_W, height: MINI_H, pad: MINI_PAD, showCones: false, activeSegIndex, carT,
     trackWidth: 2.5, trackAlpha: 1, finishStyle: "solid",
     palette: {
       bg: "rgba(13,13,26,0.001)", track: "#F2F2EC", active: "#FF6EC7", done: "#00594F",
-      cone: "#FF6B35", gateCone: "#FFD700", apexCone: "#FF2D55",
       car: carColor, carOutline: "#0a0a14", startLine: "#00C853", finishLine: "#FF2D55",
     },
   });
@@ -224,25 +292,31 @@ function drawHudOverlay(ctx, W, hud) {
   drawHudPanel(ctx, MINI_MARGIN, MINI_MARGIN, panelW, panelH);
   ctx.drawImage(miniCanvas, MINI_MARGIN + 3, MINI_MARGIN + 3);
 
-  // Elapsed / target time, top-center.
+  // Run timer, top-center — DSEG7 LCD plate per the design doc's instrument
+  // spec: dark tinted green well, darker green frame, digits glow the same
+  // hue. Target stays a small plain-mono readout underneath (two numeric
+  // colors max on screen at once — green owns the primary reading).
   const timeText = `${totalTime.toFixed(2)}s`;
   const targetText = `/ ${targetTime.toFixed(1)}s`;
-  ctx.font = "bold 11px monospace";
+  ctx.font = "italic 13px 'DSEG7 Classic', monospace";
   const timeW = ctx.measureText(timeText).width;
   ctx.font = "8px monospace";
   const targetW = ctx.measureText(targetText).width;
   const pillW = Math.max(timeW, targetW) + 20;
-  const pillH = 26;
+  const pillH = 28;
   const pillX = W / 2 - pillW / 2;
   const pillY = MINI_MARGIN;
-  drawHudPanel(ctx, pillX, pillY, pillW, pillH);
+  drawHudPanel(ctx, pillX, pillY, pillW, pillH, 4, "rgba(10,32,26,0.78)", "rgba(34,227,154,0.55)");
   ctx.textAlign = "center";
-  ctx.fillStyle = "#E8EAF6";
-  ctx.font = "bold 11px monospace";
-  ctx.fillText(timeText, W / 2, pillY + 12);
-  ctx.fillStyle = "#FFC93C";
+  ctx.shadowColor = "rgba(34,227,154,0.65)";
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = "#22E39A";
+  ctx.font = "italic 13px 'DSEG7 Classic', monospace";
+  ctx.fillText(timeText, W / 2, pillY + 15);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#9D8FBD";
   ctx.font = "8px monospace";
-  ctx.fillText(targetText, W / 2, pillY + 22);
+  ctx.fillText(targetText, W / 2, pillY + 25);
   ctx.textAlign = "left";
 }
 
@@ -360,9 +434,14 @@ function drawCones(ctx, rows, cones) {
 // draws its real PNG sprite once it's loaded; the hand-drawn shapes below
 // (drawMiataRear/drawIntegraRear/drawCorvetteRear/drawVanRear) only fire as
 // an automatic fallback — before the image finishes loading, or if it 404s.
-function drawCarSprite(ctx, W, H, carLean, tick, carId, variant) {
+// Stage 1 Suspension (anti-sway bars) cuts body roll roughly in half —
+// same "advantage on mistake rolls" upgrade, now visible in the corner too.
+const SUSPENSION_MOD_LEAN_SCALE = 0.5;
+
+function drawCarSprite(ctx, W, H, carLean, tick, carId, variant, suspensionMod = false) {
   const bob = Math.sin(tick * 0.12) * 1.2;
-  const lean = Math.max(-0.35, Math.min(0.35, carLean * 6));
+  const leanScale = suspensionMod ? SUSPENSION_MOD_LEAN_SCALE : 1;
+  const lean = Math.max(-0.35, Math.min(0.35, carLean * 6)) * leanScale;
   const cx = W / 2 - lean * 30;
 
   if (!FORCE_PROCEDURAL.has(carId)) {
@@ -385,7 +464,10 @@ function drawSpriteCar(ctx, img, cx, H, bob, lean) {
 
   ctx.save();
   ctx.translate(cx, baseY);
-  ctx.rotate(lean * 0.25);
+  // Body roll leans AWAY from the turn (cornering G-force, not steering
+  // angle) — canvas rotate() is clockwise-positive, so a positive (rightward)
+  // lean needs a negative rotation to tip the roofline left/outward.
+  ctx.rotate(-lean * 0.25);
 
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath();
@@ -550,7 +632,8 @@ function drawVanRear(ctx, w, len, p) {
 function drawProceduralCar(ctx, carId, variant, cx, cy, lean) {
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(lean * 0.4);
+  // Same outward-lean correction as the sprite path above.
+  ctx.rotate(-lean * 0.4);
 
   if (carId === "miata") {
     drawMiataRear(ctx, 34, 24, variant === "NB" ? CAR_PALETTES.miataNB : CAR_PALETTES.miataNA);

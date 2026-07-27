@@ -33,7 +33,7 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           status={`Month ${career.month} / ${SEASON_LENGTH_MONTHS} — ${career.ap} AP left`}
           nav={<>
             <RolodexNavButton tone="pink" label="ROLODEX" onClick={onViewCodex} />
-            <RolodexNavButton tone="gold" label="ACHIEVEMENTS" onClick={onViewAchievements} />
+            <RolodexNavButton tone="gold" label="COLLECTIONS" onClick={onViewAchievements} />
           </>}
         />
 

@@ -12,7 +12,7 @@ import { CarCard } from "./ds/cards/CarCard";
 // "unlocked" (meta, Rex will sell it to you) from "installed" (this
 // career's equipment, permanent once done) — see career.js installedMods.
 // Rex's standing (more business = better prices) discounts tires directly.
-export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onSellCar, onBack }) {
+export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onSellCar, onBack, apCharged }) {
   const car = CARS[career.car];
   const owned = career.ownedTires ?? ["stock"];
   const installed = career.installedMods ?? [];
@@ -69,17 +69,19 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
             // A Junkyard nat-19 can install a mod before its cash threshold
             // is met — installed always wins over the locked display.
             const unlocked = meta.unlockedMods.includes(m.id) || isInstalled;
+            const canAfford = career.cash >= m.price;
             return (
               <ItemCard
                 key={m.id}
                 title={m.label}
                 desc={m.desc}
+                price={m.price}
                 lockNote={`$${m.unlockThreshold} lifetime earned`}
                 installed={isInstalled}
                 locked={!unlocked}
-                affordable
-                actionLabel="Install (this visit)"
-                onAction={() => onInstallMod(m.id)}
+                affordable={canAfford}
+                actionLabel="Install"
+                onAction={() => canAfford && onInstallMod(m.id, m.price)}
               />
             );
           })}
@@ -102,10 +104,10 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
 
       <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
         Once a mod's installed it stays on the car for the rest of the career — no need to come back for it.
-        Rex doesn't charge extra for the labor, just the AP to make the trip.
+        {apCharged ? " Rex doesn't charge extra for the labor, just the AP to make the trip." : " Just browsing costs nothing — the AP only gets spent once Rex actually does the work."}
       </div>
 
-      <Button tone="pink" size="lg" block onClick={onLeave}>Head out (− 1 AP)</Button>
+      <Button tone="pink" size="lg" block onClick={onLeave}>{apCharged ? "Head out (− 1 AP)" : "Back"}</Button>
     </Shell>
   );
 }

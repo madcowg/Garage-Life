@@ -97,12 +97,20 @@ function coneLateralOffset(points, cone) {
 // roughly a third of the canvas width at the horizon, not thousands of
 // pixels (an earlier value of 60 here was an unvalidated placeholder that
 // sent far rows completely off-canvas).
-export function projectRows(rows, { width, height, horizonY, roadWidth, curveScale = 0.22, focal = 11 }) {
+export function projectRows(rows, { width, height, horizonY, roadWidth, curveScale = 0.22, focal = 11, referenceDepth = 46 }) {
   const n = rows.length;
   if (n === 0) return [];
   const projected = [];
   for (let i = 0; i < n; i++) {
-    const persp = focal / (focal + i); // 1 near, asymptotically ->0 far
+    // Normalize against the caller's reference lookahead (not this frame's
+    // actual row count) so the farthest visible row always lands at the
+    // horizon. Near a segment boundary the strip can run much shorter than
+    // the full lookahead (buildRoadStrip caps at the next segment's end) —
+    // without this, a short strip's last row landed well short of horizonY,
+    // leaving a visible gap of bare sky between the road and the horizon
+    // line instead of the road tapering all the way to it.
+    const effectiveI = n <= 1 ? referenceDepth : (i / (n - 1)) * referenceDepth;
+    const persp = focal / (focal + effectiveI); // 1 near, asymptotically ->0 far
     const y = horizonY + (height - horizonY) * persp;
     const halfWidth = Math.max(1, (roadWidth / 2) * persp);
     const rawOffset = rows[i].curve * curveScale * (1 - persp) * (width / 2);

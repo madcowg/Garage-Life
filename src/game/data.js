@@ -46,14 +46,16 @@ export const CARS = {
   beaterVan: { name: "The Titty Twister", hp: 1, handling: 3, grip: 2, trans: 2, blurb: "A rattling convertible-top cargo van, all the badges long gone. Rex swears it runs. Rex was right, annoyingly.", tier: "secret", sprite: "beaterVan" },
 };
 
-// Stage 1 mod progression (Season 1 design doc §7). Each unlocks permanently
-// once lifetime cash earned this career crosses its threshold (see
-// game/career.js), independent of current spendable balance.
+// Stage 1 mod progression (Season 1 design doc §7). unlockThreshold gates
+// whether Rex will sell it to you at all (lifetime cash earned this career
+// crosses it, independent of current spendable balance); price is the real
+// cash cost charged when you actually have him bolt it in (App.jsx
+// handleInstallMod), same commitment point as buying a tire.
 export const MODS = [
-  { id: "stage1_engine",     label: "Stage 1 Engine",     desc: "Filter + catback exhaust — mild power, no added risk", unlockThreshold: 100 },
-  { id: "stage1_brakes",     label: "Stage 1 Brakes",     desc: "Race pads + braided lines — advantage on brake rolls", unlockThreshold: 200 },
-  { id: "stage1_suspension", label: "Stage 1 Suspension", desc: "Anti-sway bars — advantage on mistake rolls", unlockThreshold: 300 },
-  { id: "stage1_safety",     label: "Stage 1 Safety",     desc: "Race seat + harness — +1 to every roll", unlockThreshold: 400 },
+  { id: "stage1_engine",     label: "Stage 1 Engine",     desc: "Filter + catback exhaust — mild power, no added risk", unlockThreshold: 100, price: 150 },
+  { id: "stage1_brakes",     label: "Stage 1 Brakes",     desc: "Race pads + braided lines — advantage on brake rolls", unlockThreshold: 200, price: 200 },
+  { id: "stage1_suspension", label: "Stage 1 Suspension", desc: "Anti-sway bars — advantage on mistake rolls, less body roll in corners", unlockThreshold: 300, price: 250 },
+  { id: "stage1_safety",     label: "Stage 1 Safety",     desc: "Race seat + harness — +1 to every roll", unlockThreshold: 400, price: 300 },
 ];
 
 // Reference price for Stage 1 Tires — available from day one, no unlock
