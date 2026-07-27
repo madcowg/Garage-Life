@@ -356,9 +356,10 @@ function drawCones(ctx, rows, cones) {
 }
 
 // Rear-3/4 car sprite, leaning into the upcoming curve and bobbing slightly
-// so the "running car" reads as alive rather than a static decal. Starters
-// (Miata/Integra/Corvette) always use the reference-informed procedural
-// shapes below; the unlockable JDM roster draws its real PNG sprite.
+// so the "running car" reads as alive rather than a static decal. Every car
+// draws its real PNG sprite once it's loaded; the hand-drawn shapes below
+// (drawMiataRear/drawIntegraRear/drawCorvetteRear/drawVanRear) only fire as
+// an automatic fallback — before the image finishes loading, or if it 404s.
 function drawCarSprite(ctx, W, H, carLean, tick, carId, variant) {
   const bob = Math.sin(tick * 0.12) * 1.2;
   const lean = Math.max(-0.35, Math.min(0.35, carLean * 6));

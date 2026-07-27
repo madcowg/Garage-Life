@@ -15,9 +15,10 @@ function spriteSrcFor(carId, variant) {
   return entry.front || entry.rear || entry.garageFront || entry.garageRear || null;
 }
 
-// Blocky placeholder silhouette for any car with no sprite art yet (a few of
-// the JDM unlockable roster's asset-pack entries are still missing) — so a
-// 404 reads as "art coming soon" instead of a broken-image icon.
+// Blocky placeholder silhouette for a car with no sprite art at all — the
+// full roster is covered today, but this stays as the fallback for whenever
+// a new car is added before its art lands, so a 404 reads as "art coming
+// soon" instead of a broken-image icon.
 function PlaceholderGlyph() {
   return (
     <svg viewBox="0 0 32 16" style={{ width: "38%", height: "38%", color: "var(--gl-text-dead)" }}>
