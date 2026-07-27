@@ -8,7 +8,11 @@ function spriteSrcFor(carId, variant) {
   const key = (variant && car.spriteVariants?.[variant]) || car.sprite;
   const entry = key && CAR_SPRITES[key];
   if (!entry) return null;
-  return entry.garageFront || entry.front || entry.garageRear || entry.rear || null;
+  // Prefer the flat "race" view over the USDM starters' "garage" 3/4 view —
+  // the garage crops carry a baked-in drop shadow (and, for a few, leftover
+  // sprite-sheet label text) that the rest of the roster's flat views don't
+  // have, which read as inconsistent bleed-through next to every other card.
+  return entry.front || entry.rear || entry.garageFront || entry.garageRear || null;
 }
 
 // Blocky placeholder silhouette for any car with no sprite art yet (a few of
