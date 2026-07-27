@@ -1,7 +1,7 @@
 import {
   CARD_TYPES, CONE_PENALTY_SECONDS, DEFAULT_HAND_SIZE, DEFAULT_WEAR, FLOW_TIME_BONUS,
   MAX_FLOW, OFF_AFFINITY_EFFECT_MULTIPLIER, OFF_AFFINITY_WEAR_MULTIPLIER,
-  SEGMENT_TAGS, SYSTEMS,
+  SEGMENT_TAGS, SYSTEMS, SYSTEM_WEAR_RATE,
 } from './constants.js';
 import { getCard } from './cards.js';
 import { buildCompetitiveDeck, buildHazardDeck } from './deckBuilder.js';
@@ -18,7 +18,12 @@ function discardInstance(state, instanceId) { const index = state.hand.findIndex
 function isOnAffinity(card, segment) { return card.affinity.includes('any') || card.affinity.some((tag) => segment.tags.includes(tag)); }
 function strainPenalty(count) { if (count <= 0) return 0; if (count === 1) return 0.2; if (count === 2) return 0.6; if (count === 3) return 1.2; return 1.2 + (count - 3) * 0.8; }
 function vehicleAdjustment(vehicle, segment) { const p = vehicle.handlingProfile ?? {}; let value = 0; if (segment.tags.includes(SEGMENT_TAGS.TRANSITION) || segment.tags.includes(SEGMENT_TAGS.PRECISION)) value -= segment.par * (p.transitionBonus ?? 0); if (segment.tags.includes(SEGMENT_TAGS.POWER)) value -= segment.par * (p.powerBonus ?? 0); return value; }
-function applyWear(wear, costs, multiplier = 1, modifiers = {}) { for (const [system, raw] of Object.entries(costs ?? {})) { let cost = raw * multiplier; if (system === SYSTEMS.TIRES) cost = cost * (modifiers.tireWearMultiplier ?? 1) + (modifiers.tireWearFlatAdd ?? 0); wear[system] = Math.max(0, wear[system] - cost); } }
+// Every card/hazard authors its wear cost per system for flavor (cards.js);
+// SYSTEM_WEAR_RATE scales those raw costs down here, in one place, so the
+// aggregate wear across a run matches autocross's real profile — hard on
+// tires (and, less so, brakes), mild on engine/transmission — regardless of
+// which card or hazard caused it.
+function applyWear(wear, costs, multiplier = 1, modifiers = {}) { for (const [system, raw] of Object.entries(costs ?? {})) { let cost = raw * multiplier * (SYSTEM_WEAR_RATE[system] ?? 1); if (system === SYSTEMS.TIRES) cost = cost * (modifiers.tireWearMultiplier ?? 1) + (modifiers.tireWearFlatAdd ?? 0); wear[system] = Math.max(0, wear[system] - cost); } }
 function matchingHazards(state, segment) { return state.hand.map((instance) => ({ instance, card: getCard(instance.cardId) })).filter(({ card }) => card.type === CARD_TYPES.HAZARD && card.firesOn?.some((tag) => segment.tags.includes(tag))); }
 function resolveHazard(state, segment) {
   const candidates = matchingHazards(state, segment);

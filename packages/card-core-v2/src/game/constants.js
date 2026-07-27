@@ -49,6 +49,22 @@ export const DEFAULT_WEAR = Object.freeze({
   transmission: 100,
 });
 
+// Autocross is short, low-speed, cone-course driving — hard on tires (and,
+// to a real but lesser degree, brakes) from constant transitions, mild on
+// the engine and drivetrain since there's no sustained high-RPM running or
+// drag-strip launches. Every card/hazard's wear cost is still authored per
+// system (cards.js) for its own flavor (a braking card costs brakes, a
+// launch card costs engine/transmission); this rate scales those raw costs
+// down so the *aggregate* wear across a run matches that real-world
+// expectation instead of each system just wearing at its raw authored
+// number. Tires stay the 1.0 baseline everything else is relative to.
+export const SYSTEM_WEAR_RATE = Object.freeze({
+  tires: 1,
+  brakes: 0.2,
+  engine: 0.1,
+  transmission: 0.05,
+});
+
 // Off-affinity multiplier and cone penalty were 0.55 / 2.0, tuned only
 // around the "built" (all mods + upgraded tires) win rate. That left a
 // stock/no-mods player — the entire early season, by construction — winning
