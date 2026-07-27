@@ -96,6 +96,7 @@ export default function App() {
   const [career, setCareer] = useState(null);
   const [screen, setScreen] = useState("title");
   const [prevScreen, setPrevScreen] = useState("careerHome");
+  const [codexTab, setCodexTab] = useState("npc");
   const [loadout, setLoadout] = useState(null);
   const [raceResult, setRaceResult] = useState(null);
   const [actionResult, setActionResult] = useState(null);
@@ -629,7 +630,7 @@ export default function App() {
       hasSave={Boolean(loadCareerSnapshot())}
       onNewGame={() => setScreen("intro")}
       onContinue={continueCareer}
-      onCodex={() => { setPrevScreen("title"); setScreen("codex"); }}
+      onCodex={() => { setPrevScreen("title"); setCodexTab("npc"); setScreen("codex"); }}
       scan={scanlines}
       onToggleScan={toggleScanlines}
     />
@@ -647,8 +648,8 @@ export default function App() {
       onJunkyard={handleJunkyard}
       onStreetRace={handleStreetRace}
       onClaimJunkyardCar={handleClaimJunkyardCar}
-      onViewLog={() => { setPrevScreen("careerHome"); setScreen("log"); }}
-      onViewCodex={() => { setPrevScreen("careerHome"); setScreen("codex"); }}
+      onViewCodex={() => { setPrevScreen("careerHome"); setCodexTab("npc"); setScreen("codex"); }}
+      onViewAchievements={() => { setPrevScreen("careerHome"); setCodexTab("achievements"); setScreen("codex"); }}
     />
   );
   if (screen === "preRaceSetup") return withCash(
@@ -671,6 +672,6 @@ export default function App() {
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
   if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
-  if (screen === "codex") return withCash(<CodexScreen meta={meta} career={career} onBack={() => setScreen(prevScreen)} />);
+  if (screen === "codex") return withCash(<CodexScreen meta={meta} career={career} initialTab={codexTab} onBack={() => setScreen(prevScreen)} />);
   return null;
 }

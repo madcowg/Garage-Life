@@ -55,7 +55,7 @@ function carDotColor(carId, variant) {
   if (carId === "integra") return CAR_PALETTES.integra.body;
   if (carId === "corvette") return CAR_PALETTES.corvette.body;
   if (carId === "beaterVan") return CAR_PALETTES.beaterVan.body;
-  return "#00F5D4";
+  return "#16F2D6";
 }
 
 // Module-level image cache — preloaded once, shared across every RoadView
@@ -152,8 +152,8 @@ export default function RoadView({ track, activeSegIndex, carT, carId = "miata",
 
   return (
     <div style={{
-      position: "relative", border: "3px solid #2A2A44", borderRadius: 4, overflow: "hidden",
-      boxShadow: "0 0 24px rgba(255,110,199,0.15)", background: "#0D0D1A",
+      position: "relative", border: "3px solid var(--gl-border)", borderRadius: 4, overflow: "hidden",
+      boxShadow: "0 0 24px rgba(255,92,200,0.15)", background: "var(--gl-panel-sunk)",
     }}>
       <canvas
         ref={canvasRef}
@@ -180,9 +180,9 @@ function drawFrame(ctx, rows, strip, tick, carId, variant, theme, hud) {
 // road view — same treatment for the minimap corner and the time pill so
 // they read as one consistent HUD, not two different UI styles bolted on.
 function drawHudPanel(ctx, x, y, w, h, r = 4) {
-  ctx.fillStyle = "rgba(10,10,20,0.62)";
+  ctx.fillStyle = "rgba(11,10,30,0.62)";
   roundRect(ctx, x, y, w, h, r);
-  ctx.strokeStyle = "rgba(0,245,212,0.35)";
+  ctx.strokeStyle = "rgba(22,242,214,0.35)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -240,7 +240,7 @@ function drawHudOverlay(ctx, W, hud) {
   ctx.fillStyle = "#E8EAF6";
   ctx.font = "bold 11px monospace";
   ctx.fillText(timeText, W / 2, pillY + 12);
-  ctx.fillStyle = "#FFD700";
+  ctx.fillStyle = "#FFC93C";
   ctx.font = "8px monospace";
   ctx.fillText(targetText, W / 2, pillY + 22);
   ctx.textAlign = "left";

@@ -3,6 +3,7 @@ import { MAINTAIN_COST, SELF_MAINTAIN_COST, SEASON_LENGTH_MONTHS, JUNKYARD_CAR_C
 import { Shell } from "./shared";
 import { ScreenHeader } from "./ds/shell/ScreenHeader";
 import { Button } from "./ds/controls/Button";
+import { RolodexNavButton } from "./ds/controls/RolodexNavButton";
 import { ActionRow } from "./ds/controls/ActionRow";
 import { StatTile } from "./ds/instruments/StatTile";
 import { WearMeter } from "./ds/instruments/WearMeter";
@@ -11,7 +12,7 @@ import { CarCard } from "./ds/cards/CarCard";
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
 // (App.jsx) owns all career state and resolution logic.
-export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onClaimJunkyardCar, onViewLog, onViewCodex }) {
+export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onClaimJunkyardCar, onViewCodex, onViewAchievements }) {
   const car = CARS[career.car];
   const emp = career.employment;
   const maintainCost = emp.status === "unemployed" ? SELF_MAINTAIN_COST : MAINTAIN_COST;
@@ -31,8 +32,8 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
           title={career.playerName ?? "My Garage Life"}
           status={`Month ${career.month} / ${SEASON_LENGTH_MONTHS} — ${career.ap} AP left`}
           nav={<>
-            <Button tone="pink" variant="outlined" size="sm" onClick={onViewCodex}>Achievements</Button>
-            <Button tone="gold" variant="outlined" size="sm" onClick={onViewLog}>Course log</Button>
+            <RolodexNavButton tone="pink" label="ROLODEX" onClick={onViewCodex} />
+            <RolodexNavButton tone="gold" label="ACHIEVEMENTS" onClick={onViewAchievements} />
           </>}
         />
 

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family:'DSEG7'; src:url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Italic.woff2') format('woff2'); font-display:swap; }
+  body { margin:0; background:#0B0A1E; }
+  a { color:#4FD4F5; text-decoration:none; }
+  a:hover { color:#FF2FA8; }
+</style>
+</helmet>
+
+<div style="background:#0B0A1E;color:#F2ECFF;font-family:'IBM Plex Mono',monospace;padding:56px 48px 96px;display:flex;flex-direction:column;gap:64px;width:1520px;box-sizing:border-box">
+
+  <header style="display:flex;flex-direction:column;gap:18px;border-bottom:2px solid #2A2450;padding-bottom:30px">
+    <div style="position:relative;width:560px;height:143px;overflow:hidden">
+      <img src="uploads/my%20garage%20life%20logo.png" alt="My Garage Life" style="position:absolute;left:-107px;top:-161px;width:747px;height:auto;display:block">
+    </div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:15px;line-height:1.6;color:#4FD4F5">DESIGN LANGUAGE v1</div>
+    <div style="font-size:14px;line-height:1.7;max-width:900px;color:#9d8fbd;text-wrap:pretty">The house style for <span style="color:#F2ECFF">madcowg/Garage-Life</span>. Everything below is grounded in the code that already ships &mdash; <span style="color:#F2ECFF">src/theme.js</span>, <span style="color:#F2ECFF">shared.jsx</span>, <span style="color:#F2ECFF">CardHand.jsx</span>, <span style="color:#F2ECFF">CareerHome.jsx</span> &mdash; retuned to the logo&rsquo;s palette and given a heading face. Token <em>names</em> don&rsquo;t change, so adopting this is mostly one edit to theme.js.</div>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">01 &middot; COLOR</div>
+    <div style="font-size:13px;color:#9d8fbd;margin-top:-10px;max-width:900px;text-wrap:pretty">Sampled from the logo, then extended into the neutral scale the UI already relies on. The shift from the current values is small but deliberate: warmer magenta, brighter cyan, and a navy-leaning background so the logo sits in its own world instead of on top of a different one.</div>
+
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px">
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#FF2FA8"></div>
+        <div style="font-size:12px;color:#F2ECFF">pink</div>
+        <div style="font-size:11px;color:#7E72A6">#FF2FA8<br><span style="color:#4a4270">was #FF6EC7</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Primary action, screen titles, player identity</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#4FD4F5"></div>
+        <div style="font-size:12px;color:#F2ECFF">teal</div>
+        <div style="font-size:11px;color:#7E72A6">#4FD4F5<br><span style="color:#4a4270">was #00F5D4</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Section labels, confirmed / owned state, Technique cards</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#8F7BF0"></div>
+        <div style="font-size:12px;color:#F2ECFF">violet <span style="color:#FF8A1F">new</span></div>
+        <div style="font-size:11px;color:#7E72A6">#8F7BF0</div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Informational / neutral emphasis. Fills the gap where screens reach for grey</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#FFC53D"></div>
+        <div style="font-size:12px;color:#F2ECFF">gold</div>
+        <div style="font-size:11px;color:#7E72A6">#FFC53D<br><span style="color:#4a4270">was #FFD700</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Money, purchase buttons, Utility cards</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#FF8A1F"></div>
+        <div style="font-size:12px;color:#F2ECFF">orange</div>
+        <div style="font-size:11px;color:#7E72A6">#FF8A1F<br><span style="color:#4a4270">was #FF6B35</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Caution &mdash; wear 25&ndash;50%, time lost, pending states. Straight off the cone</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#FF2D55"></div>
+        <div style="font-size:12px;color:#F2ECFF">red</div>
+        <div style="font-size:11px;color:#7E72A6">#FF2D55 <span style="color:#4a4270">unchanged</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Danger, destructive, Hazard cards, wear under 25%</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#22E39A"></div>
+        <div style="font-size:12px;color:#F2ECFF">green</div>
+        <div style="font-size:11px;color:#7E72A6">#22E39A<br><span style="color:#4a4270">was #00C853</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Time gained, healthy wear, employed</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#0B0A1E;border:1px solid #2A2450"></div>
+        <div style="font-size:12px;color:#F2ECFF">bg</div>
+        <div style="font-size:11px;color:#7E72A6">#0B0A1E<br><span style="color:#4a4270">was #0D0D1A</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Page. Also set on html/body in index.css</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#14122E;border:1px solid #2A2450"></div>
+        <div style="font-size:12px;color:#F2ECFF">panel</div>
+        <div style="font-size:11px;color:#7E72A6">#14122E<br><span style="color:#4a4270">was #12122A</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Raised surface: stat tiles, cards, inputs</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#0C0A1C;border:1px solid #2A2450"></div>
+        <div style="font-size:12px;color:#F2ECFF">panel2</div>
+        <div style="font-size:11px;color:#7E72A6">#0C0A1C<br><span style="color:#4a4270">was #0a0a14</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Recessed surface: HUD strip, action rows, locked items</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#2A2450"></div>
+        <div style="font-size:12px;color:#F2ECFF">border</div>
+        <div style="font-size:11px;color:#7E72A6">#2A2450<br><span style="color:#4a4270">was #242440</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Default 1px hairline on every surface</div>
+      </div>
+      <div style="background:#14122E;border:1px solid #2A2450;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;background:#F2ECFF"></div>
+        <div style="font-size:12px;color:#F2ECFF">white</div>
+        <div style="font-size:11px;color:#7E72A6">#F2ECFF<br><span style="color:#4a4270">was #E8EAF6</span></div>
+        <div style="font-size:11px;line-height:1.6;color:#9d8fbd">Body text. <span style="color:#F2ECFF">purple #0D0A2B</span> is its inverse &mdash; ink on bright buttons</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #4FD4F5;padding:18px 22px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:2px;color:#4FD4F5">TEXT ON DARK</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">Three levels, no more. <span style="color:#F2ECFF">#F2ECFF</span> primary &middot; <span style="color:#9D8FBD">#9D8FBD</span> secondary &middot; <span style="color:#7E72A6">#7E72A6</span> tertiary. Retire the bare <span style="color:#F2ECFF">#888 / #777 / #666 / #555</span> greys scattered through the screens &mdash; they read as dead pixels against a violet background.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF8A1F;padding:18px 22px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:2px;color:#FF8A1F">TINTED FILLS</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">Selected / owned states use a 12%-mixed tint of their accent, not an arbitrary hex: teal <span style="color:#F2ECFF">#122B33</span>, pink <span style="color:#F2ECFF">#2A1030</span>, gold <span style="color:#F2ECFF">#2A2010</span>, red <span style="color:#F2ECFF">#2A0D18</span>. Replaces the hardcoded <span style="color:#F2ECFF">#122b28</span> / <span style="color:#F2ECFF">#1c1c3a</span> / <span style="color:#F2ECFF">#2a1f0a</span>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">02 &middot; TYPE</div>
+    <div style="font-size:13px;color:#9d8fbd;margin-top:-10px;max-width:900px;text-wrap:pretty">Two faces. <span style="color:#F2ECFF">Press Start 2P</span> for headings only &mdash; it&rsquo;s the pixel voice, and it stops being charming the moment it&rsquo;s a paragraph. <span style="color:#F2ECFF">IBM Plex Mono</span> everywhere else, replacing the generic <span style="color:#F2ECFF">font-family: monospace</span> in index.css so the game looks the same on every machine.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:24px;display:flex;flex-direction:column;gap:20px">
+        <div style="font-size:11px;letter-spacing:2px;color:#4FD4F5">PRESS START 2P &mdash; HEADINGS</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div><div style="font-family:'Press Start 2P',monospace;font-size:18px;color:#FF2FA8;line-height:1.5">GARAGE LIFE</div><div style="font-size:11px;color:#7E72A6;margin-top:6px">display &middot; 18px &middot; screen title</div></div>
+          <div><div style="font-family:'Press Start 2P',monospace;font-size:12px;color:#F2ECFF;line-height:1.5">DEAD RECKONING</div><div style="font-size:11px;color:#7E72A6;margin-top:6px">h1 &middot; 12px &middot; location / panel title</div></div>
+          <div><div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#4FD4F5;line-height:1.6;letter-spacing:1px">THIS MONTH&rsquo;S ACTIONS</div><div style="font-size:11px;color:#7E72A6;margin-top:6px">h2 &middot; 8px &middot; section label (replaces the 9px mono labels)</div></div>
+        </div>
+        <div style="font-size:11px;line-height:1.7;color:#9d8fbd;border-top:1px solid #2A2450;padding-top:14px">Never below 8px, never for more than four words, never mid-sentence. Letter-spacing 0&ndash;1px only &mdash; the face is already wide.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:24px;display:flex;flex-direction:column;gap:20px">
+        <div style="font-size:11px;letter-spacing:2px;color:#4FD4F5">IBM PLEX MONO &mdash; EVERYTHING ELSE</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font-size:18px;font-weight:600;color:#FFC53D">$12,450</div><div style="font-size:11px;color:#7E72A6;margin-top:4px">stat &middot; 18px/600 &middot; numbers that matter</div></div>
+          <div><div style="font-size:13px;color:#F2ECFF">Once a mod&rsquo;s installed it stays on the car.</div><div style="font-size:11px;color:#7E72A6;margin-top:4px">body &middot; 13px/400</div></div>
+          <div><div style="font-size:11px;color:#9D8FBD">1 AP, $120 entry fee, Airfield autocross</div><div style="font-size:11px;color:#7E72A6;margin-top:4px">small &middot; 11px/400 &middot; costs, hints, descriptions</div></div>
+          <div><div style="font-size:9px;color:#7E72A6;letter-spacing:1.5px">ENGINE&nbsp;&nbsp;TIRES&nbsp;&nbsp;BRAKES&nbsp;&nbsp;TRANS</div><div style="font-size:11px;color:#7E72A6;margin-top:4px">micro &middot; 9px/1.5px tracking &middot; meter labels only</div></div>
+        </div>
+        <div style="font-size:11px;line-height:1.7;color:#9d8fbd;border-top:1px solid #2A2450;padding-top:14px">Sizes are pre-zoom. <span style="color:#F2ECFF">Shell</span> zooms the whole column 1&ndash;1.7&times; from viewport width, so these land larger on desktop. The old 6&ndash;8px card text is below the floor even after zoom on a phone &mdash; 9px is the new minimum.</div>
+      </div>
+    </div>
+    <div style="background:#0F0D24;border:1px solid #2A2450;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap">
+        <div style="font-size:11px;letter-spacing:2px;color:#4FD4F5">NUMERALS &mdash; THE DASH CLOCK</div>
+        <div style="font-size:12px;color:#9d8fbd">DSEG7 Classic Italic &mdash; a true seven-segment face, on a plate with dead segments behind</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#0A140F;border:1px solid #16281F;border-radius:3px;padding:12px 14px;position:relative;overflow:hidden">
+            <div style="position:absolute;left:14px;top:12px;font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#22E39A;opacity:0.13">88:88.88</div>
+            <div style="position:relative;font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#22E39A;text-shadow:0 0 10px rgba(34,227,154,0.55)">01:23.45</div>
+          </div>
+          <div style="font-size:11px;color:#7E72A6">run timer &middot; green plate</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#150E04;border:1px solid #2B1D0A;border-radius:3px;padding:12px 14px;position:relative;overflow:hidden">
+            <div style="position:absolute;left:14px;top:12px;display:flex;align-items:baseline;gap:5px"><span style="font-size:14px;visibility:hidden">$</span><span style="font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#FFB03A;opacity:0.13">888888</span></div>
+            <div style="position:relative;display:flex;align-items:baseline;gap:5px"><span style="font-size:14px;color:#FFB03A;opacity:0.8">$</span><span style="font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#FFB03A;text-shadow:0 0 10px rgba(255,176,58,0.5)">012450</span></div>
+          </div>
+          <div style="font-size:11px;color:#7E72A6">cash &middot; amber plate &middot; leading zeros fill the display</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#0A1018;border:1px solid #16222E;border-radius:3px;padding:12px 14px;position:relative;overflow:hidden">
+            <div style="position:absolute;left:14px;top:12px;font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#4FD4F5;opacity:0.13">-8.88</div>
+            <div style="position:relative;font-family:'DSEG7',monospace;font-size:28px;line-height:1.15;color:#4FD4F5;text-shadow:0 0 10px rgba(79,212,245,0.5)">-0.35</div>
+          </div>
+          <div style="font-size:11px;color:#7E72A6">deltas &middot; teal plate</div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd">Every number the player reads as an <em>instrument</em> &mdash; time, cash, deltas, wear, lap counts &mdash; renders on an LCD plate: dark tinted well, 1px darker frame, the dead segments showing at 13% behind the live value, and a bloom in the same hue. The face carries only <span style="color:#F2ECFF">0-9 - . :</span> &mdash; so <span style="color:#F2ECFF">$ + %</span> and any unit sit beside it in Plex Mono at 60% of the numeral size, never inside the display. Everything else stays Plex Mono. Two numeric colors max on screen at once.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">03 &middot; SURFACE &amp; SPACE</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">SPACING</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">4px base. Use 4 / 6 / 8 / 10 / 14 / 20 only. Panel padding 10 (dense) or 14 (comfortable); gap 8 between siblings, 16 between groups.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">RADIUS</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">4px on panels and buttons. 6px on game cards. 20px on the cash pill. Nothing else &mdash; a pixel game shouldn&rsquo;t look soft.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">BORDER</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">1px hairline is the default and carries state: border color <em>is</em> the status light. 2px reserved for game cards. Dashed = locked.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">GLOW</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">The only elevation. Resting <span style="color:#F2ECFF">0 0 6px rgba(accent,0.25)</span>, active <span style="color:#F2ECFF">0 0 14px rgba(accent,0.8)</span>. No drop shadows, no gradients except the card&rsquo;s vertical panel&rarr;panel2.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start">
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #8F7BF0;padding:18px 22px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:11px;letter-spacing:2px;color:#8F7BF0">CRT &mdash; THE WHOLE SCREEN, NOT JUST THE ART</div>
+        <div style="font-size:12.5px;line-height:1.8;color:#9d8fbd;text-wrap:pretty">The game is played on a CRT, so the tube is the outermost layer of the app &mdash; one fixed overlay above every screen, not a per-component effect. Three stacked passes, all <span style="color:#F2ECFF">pointer-events: none</span>, all mounted once in App.jsx above the router:</div>
+        <div style="font-size:12px;line-height:1.9;color:#9d8fbd"><span style="color:#F2ECFF">01 scanlines</span> &mdash; 2px pitch, <span style="color:#F2ECFF">multiply</span>, 22% black. The existing SCANLINE_OVERLAY, promoted to fixed.<br><span style="color:#F2ECFF">02 aperture grille</span> &mdash; 3px vertical RGB stripe, <span style="color:#F2ECFF">screen</span> blend at 4%. What separates a CRT from a venetian blind.<br><span style="color:#F2ECFF">03 vignette + glass</span> &mdash; radial darkening to 45% at the corners, plus a faint top-left sheen.</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd;border-top:1px solid #2A2450;padding-top:12px;text-wrap:pretty">One overlay for the whole screen &mdash; nothing else in the app draws scanlines. Delete every per-component SCANLINE_OVERLAY (TitleScreen, RoadView); three fixed divs mounted once cost one composite layer instead of one per screen. <span style="color:#F2ECFF">scanlinesEnabled()</span> gates all three at once.</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd;border-top:1px solid #2A2450;padding-top:12px;text-wrap:pretty"><span style="color:#F2ECFF">Legibility under the tube</span> &mdash; because it now covers text and cards too: 9px floor everywhere, neutral ramp lightened (<span style="color:#F2ECFF">#888</span> retired), rules text on its own solid plate, LCD numerals carry a bloom so the 22% line never eats a digit stroke, and no text sits directly on pixel art without a plate behind it. Sprites keep <span style="color:#F2ECFF">imageRendering: "pixelated"</span>.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="position:relative;height:150px;border:1px solid #2A2450;overflow:hidden;background:#0B0A1E">
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+            <div style="font-family:'Press Start 2P',monospace;font-size:15px;color:#FF2FA8">GARAGE LIFE</div>
+            <div style="font-size:11px;color:#4FD4F5;letter-spacing:2px">CRT ON</div>
+          </div>
+          <div style="position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0.22) 2px, rgba(0,0,0,0.22) 3px);mix-blend-mode:multiply"></div>
+          <div style="position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(to right, rgba(255,0,0,0.05) 0px, rgba(0,255,0,0.05) 1px, rgba(0,0,255,0.05) 2px, rgba(0,0,0,0) 3px);mix-blend-mode:screen"></div>
+          <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.45) 100%)"></div>
+        </div>
+        <div style="background:#0B0A1E;border:1px solid #2A2450;padding:16px 18px;font-size:11.5px;line-height:1.9;color:#9d8fbd;white-space:pre-wrap"><span style="color:#7E72A6">// theme.js — the three passes, all position:fixed
+</span>SCANLINES  repeating-linear-gradient(to bottom,
+           transparent 0 1px, rgba(0,0,0,.22) 2px 3px)
+           mixBlendMode: <span style="color:#22E39A">"multiply"</span>
+GRILLE     repeating-linear-gradient(to right,
+           rgba(255,0,0,.05) 0 1px, rgba(0,255,0,.05) 1px 2px,
+           rgba(0,0,255,.05) 2px 3px)
+           mixBlendMode: <span style="color:#22E39A">"screen"</span>
+VIGNETTE   radial-gradient(ellipse at 50% 45%,
+           transparent 45%, rgba(0,0,0,.45) 100%)</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">04 &middot; COMPONENTS</div>
+    <div style="font-size:13px;color:#9d8fbd;margin-top:-10px">Live specimens at final token values. Each maps to a file that already exists.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">SCREEN HEADER &mdash; CareerHome, ShopScreen</div>
+        <div style="background:#0B0A1E;padding:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-family:'Press Start 2P',monospace;font-size:16px;color:#FF2FA8;line-height:1.4">PLAYER NAME</div>
+            <div style="font-size:11px;color:#4FD4F5;letter-spacing:1.5px">MONTH 3 / 12 &mdash; 2 AP LEFT</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div style="position:relative;overflow:hidden;padding:7px 14px 11px;background:linear-gradient(180deg,#2A1440 0%,#1B0F2E 100%);color:#FF2FA8;border:1px solid #FF2FA8;border-radius:2px 2px 7px 7px;font-size:10px;letter-spacing:1.5px;box-shadow:0 3px 0 #58093A, inset 0 1px 0 rgba(255,47,168,0.28);text-shadow:0 0 8px rgba(255,47,168,0.45)">
+              <div style="position:relative;display:flex;gap:3px;margin-bottom:5px"><span style="width:14px;height:2px;background:#FF2FA8;opacity:0.55"></span><span style="width:14px;height:2px;background:#FF2FA8;opacity:0.3"></span></div>
+              <span style="position:relative">ROLODEX</span>
+              <span style="position:absolute;left:50%;bottom:0;width:18px;height:7px;margin-left:-9px;background:#0B0A1E;border-radius:9px 9px 0 0;border-top:1px solid #FF2FA8"></span>
+              <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span>
+            </div>
+            <div style="position:relative;overflow:hidden;padding:7px 14px 11px;background:linear-gradient(180deg,#2E2312 0%,#1E1708 100%);color:#FFC53D;border:1px solid #FFC53D;border-radius:2px 2px 7px 7px;font-size:10px;letter-spacing:1.5px;box-shadow:0 3px 0 #5A4008, inset 0 1px 0 rgba(255,197,61,0.28);text-shadow:0 0 8px rgba(255,197,61,0.4)">
+              <div style="position:relative;display:flex;gap:3px;margin-bottom:5px"><span style="width:14px;height:2px;background:#FFC53D;opacity:0.3"></span><span style="width:14px;height:2px;background:#FFC53D;opacity:0.55"></span></div>
+              <span style="position:relative">ACHIEVEMENTS</span>
+              <span style="position:absolute;left:50%;bottom:0;width:18px;height:7px;margin-left:-9px;background:#0B0A1E;border-radius:9px 9px 0 0;border-top:1px solid #FFC53D"></span>
+              <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd">Title in Press Start 2P, subtitle in teal mono. Secondary nav is always outline-on-panel, never filled &mdash; filled means &ldquo;this advances the game.&rdquo;</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">STAT TILES &mdash; CareerHome &middot; TINTED GLASS, KEYED TO THE CAR</div>
+        <div style="background:#0B0A1E;padding:16px;display:flex;gap:10px">
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(200,25,47,0.30) 0%,rgba(200,25,47,0.10) 55%,rgba(200,25,47,0.04) 100%);border:1px solid rgba(255,92,104,0.38);border-radius:4px;padding:12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)">
+            <div style="position:absolute;left:-30%;top:-90%;width:60%;height:200%;background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0) 100%);transform:rotate(18deg)"></div>
+            <div style="position:relative;font-size:9px;color:#C9B7D6;letter-spacing:1.5px">CASH</div>
+            <div style="position:relative;display:flex;align-items:baseline;gap:4px;margin-top:6px"><span style="font-size:11px;color:#FFB03A">$</span><span style="font-family:'DSEG7',monospace;font-size:17px;color:#FFB03A;text-shadow:0 0 8px rgba(255,176,58,0.5)">012450</span></div>
+          </div>
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(200,25,47,0.30) 0%,rgba(200,25,47,0.10) 55%,rgba(200,25,47,0.04) 100%);border:1px solid rgba(255,92,104,0.38);border-radius:4px;padding:12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)">
+            <div style="position:absolute;left:-30%;top:-90%;width:60%;height:200%;background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0) 100%);transform:rotate(18deg)"></div>
+            <div style="position:relative;font-size:9px;color:#C9B7D6;letter-spacing:1.5px">POINTS</div>
+            <div style="position:relative;font-family:'DSEG7',monospace;font-size:17px;color:#4FD4F5;margin-top:6px;text-shadow:0 0 8px rgba(79,212,245,0.5)">0340</div>
+          </div>
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(200,25,47,0.30) 0%,rgba(200,25,47,0.10) 55%,rgba(200,25,47,0.04) 100%);border:1px solid rgba(255,92,104,0.38);border-radius:4px;padding:12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)">
+            <div style="position:absolute;left:-30%;top:-90%;width:60%;height:200%;background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0) 100%);transform:rotate(18deg)"></div>
+            <div style="position:relative;font-size:9px;color:#C9B7D6;letter-spacing:1.5px">CRED</div>
+            <div style="position:relative;font-size:13px;font-weight:600;color:#F2ECFF;margin-top:6px">18 &mdash; Known</div>
+          </div>
+        </div>
+        <div style="background:#0B0A1E;padding:16px;display:flex;gap:10px">
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(21,122,90,0.32) 0%,rgba(21,122,90,0.10) 55%,rgba(21,122,90,0.04) 100%);border:1px solid rgba(79,214,160,0.38);border-radius:4px;padding:10px 12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)"><div style="font-size:9px;color:#C9B7D6;letter-spacing:1.5px">NB &mdash; EMERALD MICA</div><div style="font-family:'DSEG7',monospace;font-size:15px;color:#4FD4F5;margin-top:5px">0340</div></div>
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(224,164,28,0.30) 0%,rgba(224,164,28,0.09) 55%,rgba(224,164,28,0.03) 100%);border:1px solid rgba(255,224,102,0.36);border-radius:4px;padding:10px 12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)"><div style="font-size:9px;color:#C9B7D6;letter-spacing:1.5px">DC2 &mdash; PHOENIX YELLOW</div><div style="font-family:'DSEG7',monospace;font-size:15px;color:#4FD4F5;margin-top:5px">0340</div></div>
+          <div style="position:relative;overflow:hidden;flex:1;background:linear-gradient(160deg,rgba(47,99,200,0.32) 0%,rgba(47,99,200,0.10) 55%,rgba(47,99,200,0.04) 100%);border:1px solid rgba(122,182,255,0.38);border-radius:4px;padding:10px 12px;backdrop-filter:blur(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -12px 20px rgba(0,0,0,0.25)"><div style="font-size:9px;color:#C9B7D6;letter-spacing:1.5px">C6 &mdash; JETSTREAM BLUE</div><div style="font-family:'DSEG7',monospace;font-size:15px;color:#4FD4F5;margin-top:5px">0340</div></div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;text-wrap:pretty">Micro label, big value. The tile is tinted glass over the page: the car&rsquo;s ramp index 2 at 30% &rarr; 4% down the face, a 1px border of ramp index 3 at 38%, an inset top highlight, an inner bottom shade, one diagonal sheen, and <span style="color:#F2ECFF">backdrop-filter: blur(3px)</span>. Swap the car, the whole HUD re-tints. Value colors do <em>not</em> re-tint &mdash; money stays gold, instruments stay teal &mdash; so the glass never costs you a reading.</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">ACTION ROW &mdash; CareerHome</div>
+        <div style="background:#0B0A1E;padding:16px;display:grid;grid-template-columns:max-content;gap:10px;justify-content:start">
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#2A1440 0%,#1B0F2E 100%);border:1px solid #FF2FA8;border-left:4px solid #FF2FA8;border-radius:4px;box-shadow:0 4px 0 #58093A, inset 0 1px 0 rgba(255,47,168,0.22);display:flex;align-items:baseline;gap:10px"><span style="position:relative;font-size:14px;font-weight:600;color:#F2ECFF;letter-spacing:2px">RACE</span><span style="position:relative;font-size:12.5px;color:#C9B7D6;white-space:nowrap">1 AP &middot; $120 entry &middot; Airfield autocross</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#123A2C 0%,#0C2620 100%);border:1px solid #22E39A;border-left:4px solid #22E39A;border-radius:4px;box-shadow:0 4px 0 #08512F, inset 0 1px 0 rgba(34,227,154,0.22);display:flex;align-items:baseline;gap:10px"><span style="position:relative;font-size:14px;font-weight:600;color:#F2ECFF;letter-spacing:2px">MAINTAIN</span><span style="position:relative;font-size:12.5px;color:#C9B7D6;white-space:nowrap">1 AP &middot; $80 &middot; full service</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#131029 0%,#0C0A1C 100%);border:1px solid #2A2450;border-left:4px solid #2A2450;border-radius:4px;box-shadow:0 2px 0 #07060F, inset 0 1px 0 rgba(242,236,255,0.06);opacity:0.6;display:flex;align-items:baseline;gap:10px"><span style="font-size:14px;font-weight:600;color:#8B80AE;letter-spacing:2px">WORK</span><span style="font-size:12.5px;color:#8B80AE;white-space:nowrap">already worked this month</span></div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;text-wrap:pretty">Same molded face as every other control, at button depth (4px) with a 4px accent spine down the left so a column of them reads as a rack of switches. One AP action per row, cost always in the same sentence position. Disabled loses the spine color, drops to 2px depth and 0.6, and states <em>why</em>.</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">BUTTONS &mdash; ONE CHASSIS, FOUR ROLES</div>
+        <div style="background:#0B0A1E;padding:20px 16px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div style="position:relative;overflow:hidden;padding:12px 22px;background:linear-gradient(180deg,#FF6FC4 0%,#FF2FA8 45%,#D41A82 100%);color:#0D0A2B;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:2px;box-shadow:0 4px 0 #7A0E4A, inset 0 1px 0 rgba(255,255,255,0.55)"><span style="position:relative">HEAD OUT &rarr;</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.14) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+            <div style="position:relative;overflow:hidden;padding:12px 22px;background:linear-gradient(180deg,#FFDE87 0%,#FFC53D 45%,#D19412 100%);color:#0D0A2B;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:2px;box-shadow:0 4px 0 #7A560A, inset 0 1px 0 rgba(255,255,255,0.6)"><span style="position:relative">BUY $340</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.14) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+            <div style="position:relative;overflow:hidden;padding:12px 22px;background:linear-gradient(180deg,#1D1942 0%,#14122E 100%);color:#4FD4F5;border:1px solid #4FD4F5;border-radius:4px;font-size:12px;letter-spacing:2px;box-shadow:0 4px 0 #0A2632, inset 0 1px 0 rgba(79,212,245,0.25);text-shadow:0 0 8px rgba(79,212,245,0.45)"><span style="position:relative">SETTINGS</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div style="position:relative;overflow:hidden;padding:12px 22px;background:linear-gradient(180deg,#3A1220 0%,#2A0D18 100%);color:#FF2D55;border:1px solid #FF2D55;border-radius:4px;font-size:12px;letter-spacing:2px;box-shadow:0 4px 0 #4A0714, inset 0 1px 0 rgba(255,45,85,0.22)"><span style="position:relative">ERASE SAVE DATA</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.18) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+            <div style="padding:12px 22px;background:#14122E;color:#5B5280;border:1px solid #2A2450;border-radius:4px;font-size:12px;letter-spacing:2px;box-shadow:0 2px 0 #0A0918">CAN&rsquo;T AFFORD</div>
+            <div style="position:relative;overflow:hidden;padding:12px 22px;margin-top:4px;background:linear-gradient(180deg,#D41A82 0%,#FF2FA8 100%);color:#0D0A2B;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:2px;box-shadow:0 0 0 #7A0E4A, inset 0 2px 4px rgba(0,0,0,0.4)"><span style="position:relative">PRESSED</span><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.14) 0 1px,rgba(0,0,0,0) 1px 3px)"></span></div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd;text-wrap:pretty">Every button is the same object: vertical gradient (light top &rarr; base &rarr; 20% darker bottom), 1px inset top highlight, a hard <span style="color:#F2ECFF">4px</span> bottom edge in the accent&rsquo;s shadow tone, and a 1-in-3px scanline texture baked into the face so it reads as molded plastic under the CRT. Pressed drops the edge to 0 and shifts down 4px &mdash; the button physically travels. Roles: <span style="color:#FF2FA8">pink advances</span>, <span style="color:#FFC53D">gold spends</span>, <span style="color:#4FD4F5">teal navigates</span>, <span style="color:#FF2D55">red destroys</span> (always two-step). Ink on filled is <span style="color:#F2ECFF">#0D0A2B</span>; label always uppercase, 2px tracking, 40px min height on touch.</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">WEAR METER &mdash; HUD, CareerHome</div>
+        <div style="background:#0B0A1E;padding:18px 16px;display:flex;gap:18px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:11px;color:#F2ECFF;letter-spacing:2px;font-weight:600">ENGINE</div>
+            <div style="display:flex;gap:2px;background:#0A0817;border:1px solid #1A1738;border-radius:2px;padding:3px">
+              <span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span><span style="flex:1;height:9px;background:#4FD4F5;box-shadow:0 0 6px rgba(79,212,245,0.7)"></span>
+            </div>
+            <div style="font-family:'DSEG7',monospace;font-size:13px;color:#4FD4F5;text-shadow:0 0 8px rgba(79,212,245,0.5)">10</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:11px;color:#F2ECFF;letter-spacing:2px;font-weight:600">TIRES</div>
+            <div style="display:flex;gap:2px;background:#0A0817;border:1px solid #1A1738;border-radius:2px;padding:3px">
+              <span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#FFC53D;box-shadow:0 0 6px rgba(255,197,61,0.6)"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span>
+            </div>
+            <div style="font-family:'DSEG7',monospace;font-size:13px;color:#FFC53D;text-shadow:0 0 8px rgba(255,197,61,0.5)">06</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:11px;color:#F2ECFF;letter-spacing:2px;font-weight:600">BRAKES</div>
+            <div style="display:flex;gap:2px;background:#0A0817;border:1px solid #1A1738;border-radius:2px;padding:3px">
+              <span style="flex:1;height:9px;background:#FF2D55;box-shadow:0 0 6px rgba(255,45,85,0.65)"></span><span style="flex:1;height:9px;background:#FF2D55;box-shadow:0 0 6px rgba(255,45,85,0.65)"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span>
+            </div>
+            <div style="font-family:'DSEG7',monospace;font-size:13px;color:#FF2D55;text-shadow:0 0 8px rgba(255,45,85,0.5)">02</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:11px;color:#F2ECFF;letter-spacing:2px;font-weight:600">TRANS</div>
+            <div style="display:flex;gap:2px;background:#0A0817;border:1px solid #1A1738;border-radius:2px;padding:3px">
+              <span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span><span style="flex:1;height:9px;background:#161230"></span>
+            </div>
+            <div style="font-family:'DSEG7',monospace;font-size:13px;color:#5B5280">--</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:11px;color:#9d8fbd">
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:8px;background:#4FD4F5"></span>10 &middot; fresh</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:8px;background:#22E39A"></span>9&ndash;7 &middot; good</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:8px;background:#FFC53D"></span>6&ndash;4 &middot; worn</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:8px;background:#FF2D55"></span>3&ndash;1 &middot; critical</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:8px;background:#5B5280"></span>0 &middot; failed</span>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;text-wrap:pretty">Ten discrete blips in a recessed well, lit ones glowing in the band color, dead ones at <span style="color:#F2ECFF">#161230</span> &mdash; the whole bar changes color at once, so condition is readable at a glance without counting. Label is 11px/600 white at 2px tracking; the count repeats in DSEG7 under the bar. An unmeasurable system shows all blips dead and <span style="color:#F2ECFF">--</span> on the display &mdash; the missing gauge is a game mechanic, so it gets a real empty state.</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">CHOICE BOXES &mdash; same chassis as the buttons</div>
+        <div style="background:#0B0A1E;padding:16px;display:grid;grid-template-columns:max-content;gap:10px;justify-content:start">
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#1D1942 0%,#14122E 100%);border:1px solid #2A2450;border-left:4px solid #2A2450;border-radius:4px;box-shadow:0 3px 0 #080714, inset 0 1px 0 rgba(242,236,255,0.10);display:flex;align-items:center;gap:12px">
+            <span style="position:relative;width:14px;height:14px;border:1px solid #5B5280;border-radius:2px;flex-shrink:0"></span>
+            <span style="position:relative;font-size:14px;font-weight:600;color:#F2ECFF;letter-spacing:2px">CRT SCANLINES</span>
+            <span style="position:relative;margin-left:auto;font-size:12.5px;color:#C9B7D6;white-space:nowrap">off</span>
+            <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.16) 0 1px,rgba(0,0,0,0) 1px 3px)"></span>
+          </div>
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#16303A 0%,#102630 100%);border:1px solid #4FD4F5;border-left:4px solid #4FD4F5;border-radius:4px;box-shadow:0 3px 0 #08202A, inset 0 1px 0 rgba(79,212,245,0.28);display:flex;align-items:center;gap:12px">
+            <span style="position:relative;width:14px;height:14px;border:1px solid #4FD4F5;background:#4FD4F5;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#0D0A2B;font-size:10px;line-height:1">&#10003;</span>
+            <span style="position:relative;font-size:14px;font-weight:600;color:#F2ECFF;letter-spacing:2px">200TW STREET TIRE</span>
+            <span style="position:relative;margin-left:auto;font-size:12.5px;color:#4FD4F5;white-space:nowrap">selected</span>
+            <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.16) 0 1px,rgba(0,0,0,0) 1px 3px)"></span>
+          </div>
+          <div style="position:relative;overflow:hidden;padding:12px 18px;background:linear-gradient(180deg,#120F26 0%,#0C0A1C 100%);border:1px dashed #2A2450;border-left:4px solid #2A2450;border-radius:4px;box-shadow:0 2px 0 #07060F;display:flex;align-items:center;gap:12px;opacity:0.6">
+            <span style="width:14px;height:14px;border:1px solid #3D3663;border-radius:2px;flex-shrink:0"></span>
+            <span style="font-size:14px;font-weight:600;color:#8B80AE;letter-spacing:2px">R-COMP</span>
+            <span style="margin-left:auto;font-size:12.5px;color:#8B80AE;white-space:nowrap">locked &mdash; $5,000 earned</span>
+          </div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;text-wrap:pretty">Radios, checkboxes, menu rows, tire and mod pickers &mdash; the action row&rsquo;s twin: same molded face and accent spine, label 14px/600 at 2px tracking, status in 12.5px on the right, all rows sized by the widest in the group. Only the depth differs (3px vs the button&rsquo;s 4px) so a choice reads as seated, not floating. Selected takes the accent&rsquo;s tint fill, spine and marker; locked goes recessed, dashed, and states its condition.</div>
+      </div>
+
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">ITEM CARD STATES &mdash; ShopScreen</div>
+        <div style="background:#0B0A1E;padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start">
+          <div style="position:relative;overflow:hidden;background:linear-gradient(180deg,#1D1942 0%,#14122E 100%);border:1px solid #2A2450;border-radius:4px;box-shadow:0 4px 0 #080714, inset 0 1px 0 rgba(242,236,255,0.10);display:flex;flex-direction:column">
+            <div style="position:relative;padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:13px;font-weight:600;color:#F2ECFF;letter-spacing:1.5px">200TW</div>
+              <div style="font-size:11.5px;color:#C9B7D6;line-height:1.5;height:34px">Sticky street tire</div>
+              <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:10px;color:#FFB03A">$</span><span style="font-family:'DSEG7',monospace;font-size:14px;color:#FFB03A;text-shadow:0 0 8px rgba(255,176,58,0.5)">0340</span></div>
+            </div>
+            <div style="position:relative;margin:0 10px 10px;padding:8px;background:linear-gradient(180deg,#FFDE87 0%,#FFC53D 45%,#D19412 100%);color:#0D0A2B;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:2px;text-align:center;box-shadow:0 3px 0 #7A560A, inset 0 1px 0 rgba(255,255,255,0.6)">BUY</div>
+            <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.16) 0 1px,rgba(0,0,0,0) 1px 3px);pointer-events:none"></span>
+          </div>
+          <div style="position:relative;overflow:hidden;background:linear-gradient(180deg,#16303A 0%,#102630 100%);border:1px solid #4FD4F5;border-radius:4px;box-shadow:0 4px 0 #08202A, inset 0 1px 0 rgba(79,212,245,0.28);display:flex;flex-direction:column">
+            <div style="position:relative;padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:13px;font-weight:600;color:#F2ECFF;letter-spacing:1.5px">STOCK</div>
+              <div style="font-size:11.5px;color:#C9B7D6;line-height:1.5;height:34px">What it came on</div>
+              <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:10px;color:#7E9AA6">$</span><span style="font-family:'DSEG7',monospace;font-size:14px;color:#7E9AA6">0000</span></div>
+            </div>
+            <div style="position:relative;margin:0 10px 10px;padding:8px;background:#0C1E26;border:1px solid #4FD4F5;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:2px;text-align:center;color:#4FD4F5">&#10003; OWNED</div>
+            <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,0.16) 0 1px,rgba(0,0,0,0) 1px 3px);pointer-events:none"></span>
+          </div>
+          <div style="position:relative;overflow:hidden;background:linear-gradient(180deg,#120F26 0%,#0C0A1C 100%);border:1px dashed #2A2450;border-radius:4px;box-shadow:0 2px 0 #07060F;opacity:0.6;display:flex;flex-direction:column">
+            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:13px;font-weight:600;color:#8B80AE;letter-spacing:1.5px">R-COMP</div>
+              <div style="font-size:11.5px;color:#8B80AE;line-height:1.5;height:34px">Full slick. Autocross only.</div>
+              <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:10px;color:#5B5280">$</span><span style="font-family:'DSEG7',monospace;font-size:14px;color:#5B5280">----</span></div>
+            </div>
+            <div style="margin:0 10px 10px;padding:8px;background:#0A0817;border:1px dashed #2A2450;border-radius:3px;font-size:10px;letter-spacing:1px;text-align:center;color:#8B80AE">LOCKED &mdash; $5,000 EARNED</div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;text-wrap:pretty">Same molded chassis as buttons and choice boxes, one grammar across three states: name 13px/600, a fixed-height description so the price and the action button line up across the row, price on the LCD, and the action itself as a real button in the card&rsquo;s footer. Owned swaps the button for a flat confirmation plate; locked goes recessed and dashed, prices out to <span style="color:#F2ECFF">----</span>, and states its condition.</div>
+      </div>
+    </div>
+
+    <div style="background:#0F0D24;border:1px solid #2A2450;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">GAME CARD &mdash; CardHand</div>
+        <div style="font-size:12px;color:#9d8fbd">116&times;164 &middot; card stock is its own surface, not the panel color</div>
+      </div>
+
+      <div style="background:#0B0A1E;border:1px solid #2A2450;padding:28px 24px;display:flex;gap:18px;justify-content:center;align-items:flex-end;flex-wrap:wrap">
+        <div style="width:116px;height:164px;background:linear-gradient(175deg,#241F4E 0%,#1A1640 55%,#151132 100%);border:2px solid #4FD4F5;border-radius:6px;box-sizing:border-box;box-shadow:0 0 16px rgba(79,212,245,0.55), 0 6px 0 rgba(0,0,0,0.45);transform:translateY(-8px);display:flex;flex-direction:column;overflow:hidden">
+          <div style="background:#4FD4F5;color:#0D0A2B;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:4px 7px;display:flex;justify-content:space-between;align-items:center"><span>TECHNIQUE</span><span>&#9679;&#9679;</span></div>
+          <div style="padding:7px;display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="font-size:11px;font-weight:600;line-height:1.25;color:#F2ECFF">Late Apex</div>
+            <div style="display:flex;gap:3px"><span style="font-size:9px;background:#122B33;color:#4FD4F5;padding:1px 4px;border-radius:2px">TIGHT</span><span style="font-size:9px;background:#122B33;color:#4FD4F5;padding:1px 4px;border-radius:2px">FLOW</span></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-top:auto;height:26px"><span style="font-family:'DSEG7',monospace;font-size:15px;color:#22E39A;line-height:1.2;text-shadow:0 0 8px rgba(34,227,154,0.5)">-0.35</span><span style="font-size:8px;color:#FF8A1F;line-height:1.2;text-align:right;white-space:nowrap">TI&nbsp;2</span></div>
+          </div>
+          <div style="background:#100E26;border-top:1px solid #2A2450;padding:5px 7px;font-size:9px;line-height:1.35;color:#9D8FBD;height:48px;line-height:12px;overflow:hidden;box-sizing:border-box">Best on tight, flowing segments.</div>
+        </div>
+
+        <div style="width:116px;height:164px;background:linear-gradient(175deg,#241F4E 0%,#1A1640 55%,#151132 100%);border:2px solid #FF2FA8;border-radius:6px;box-sizing:border-box;box-shadow:0 6px 0 rgba(0,0,0,0.45);display:flex;flex-direction:column;overflow:hidden">
+          <div style="background:#FF2FA8;color:#0D0A2B;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:4px 7px;display:flex;justify-content:space-between;align-items:center"><span>AGGRESSION</span><span>&#9679;&#9679;&#9679;</span></div>
+          <div style="padding:7px;display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="font-size:11px;font-weight:600;line-height:1.25;color:#F2ECFF">Send It</div>
+            <div style="display:flex;gap:3px"><span style="font-size:9px;background:#2A1030;color:#FF2FA8;padding:1px 4px;border-radius:2px">POWER</span></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-top:auto;height:26px"><span style="font-family:'DSEG7',monospace;font-size:15px;color:#22E39A;line-height:1.2;text-shadow:0 0 8px rgba(34,227,154,0.5)">-0.60</span><span style="font-size:8px;color:#FF8A1F;line-height:1.2;text-align:right;white-space:nowrap">TI&nbsp;4<br>BR&nbsp;3</span></div>
+          </div>
+          <div style="background:#100E26;border-top:1px solid #2A2450;padding:5px 7px;font-size:9px;line-height:1.35;color:#9D8FBD;height:48px;line-height:12px;overflow:hidden;box-sizing:border-box">Costs grip. Nothing is free.</div>
+        </div>
+
+        <div style="width:116px;height:164px;background:linear-gradient(175deg,#241F4E 0%,#1A1640 55%,#151132 100%);border:2px solid #FFC53D;border-radius:6px;box-sizing:border-box;box-shadow:0 6px 0 rgba(0,0,0,0.45);display:flex;flex-direction:column;overflow:hidden">
+          <div style="background:#FFC53D;color:#0D0A2B;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:4px 7px;display:flex;justify-content:space-between;align-items:center"><span>UTILITY</span><span>&#9679;</span></div>
+          <div style="padding:7px;display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="font-size:11px;font-weight:600;line-height:1.25;color:#F2ECFF">Tire Scrub</div>
+            <div style="display:flex;gap:3px"><span style="font-size:9px;background:#2A2010;color:#FFC53D;padding:1px 4px;border-radius:2px">ANY</span></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-top:auto;height:26px"><span style="display:flex;align-items:baseline;gap:2px"><span style="font-size:10px;color:#4FD4F5">+</span><span style="font-family:'DSEG7',monospace;font-size:15px;color:#4FD4F5;line-height:1.2;text-shadow:0 0 8px rgba(79,212,245,0.5)">12</span><span style="font-size:10px;color:#4FD4F5">%</span></span><span style="font-size:9px;color:#9D8FBD">GRIP</span></div>
+          </div>
+          <div style="background:#100E26;border-top:1px solid #2A2450;padding:5px 7px;font-size:9px;line-height:1.35;color:#9D8FBD;height:48px;line-height:12px;overflow:hidden;box-sizing:border-box">One per run. Play before the first segment.</div>
+        </div>
+
+        <div style="width:116px;height:164px;background:linear-gradient(175deg,#241F4E 0%,#1A1640 55%,#151132 100%);border:2px solid #FF2D55;border-radius:6px;box-sizing:border-box;box-shadow:0 6px 0 rgba(0,0,0,0.45);display:flex;flex-direction:column;overflow:hidden;opacity:0.5">
+          <div style="background:#FF2D55;color:#0D0A2B;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:4px 7px;display:flex;justify-content:space-between;align-items:center"><span>HAZARD</span><span>&#9679;&#9679;</span></div>
+          <div style="padding:7px;display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="font-size:11px;font-weight:600;line-height:1.25;color:#F2ECFF">Cone Down</div>
+            <div style="display:flex;gap:3px"><span style="font-size:9px;background:#2A0D18;color:#FF2D55;padding:1px 4px;border-radius:2px">PENALTY</span></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-top:auto;height:26px"><span style="display:flex;align-items:baseline;gap:2px"><span style="font-size:10px;color:#FF8A1F">+</span><span style="font-family:'DSEG7',monospace;font-size:15px;color:#FF8A1F;line-height:1.2;text-shadow:0 0 8px rgba(255,138,31,0.5)">2.00</span></span></div>
+          </div>
+          <div style="background:#100E26;border-top:1px solid #2A2450;padding:5px 7px;font-size:9px;line-height:1.35;color:#9D8FBD;height:48px;line-height:12px;overflow:hidden;box-sizing:border-box">Unplayable. Clogs the hand until discarded.</div>
+        </div>
+
+        <div style="width:116px;height:164px;background:linear-gradient(175deg,#241F4E 0%,#1A1640 55%,#151132 100%);border:2px solid #8F7BF0;border-radius:6px;box-sizing:border-box;box-shadow:0 6px 0 rgba(0,0,0,0.45);display:flex;flex-direction:column;overflow:hidden">
+          <div style="background:#8F7BF0;color:#0D0A2B;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:4px 7px;display:flex;justify-content:space-between;align-items:center"><span>UNSETTLED</span><span>&#9679;</span></div>
+          <div style="padding:7px;display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="font-size:11px;font-weight:600;line-height:1.25;color:#F2ECFF">Rattled</div>
+            <div style="display:flex;gap:3px"><span style="font-size:9px;background:#1E1A3E;color:#8F7BF0;padding:1px 4px;border-radius:2px">STRAIN</span></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-top:auto;height:26px"><span style="display:flex;align-items:baseline;gap:2px"><span style="font-size:10px;color:#FF8A1F">+</span><span style="font-family:'DSEG7',monospace;font-size:15px;color:#FF8A1F;line-height:1.2;text-shadow:0 0 8px rgba(255,138,31,0.5)">0.20</span></span></div>
+          </div>
+          <div style="background:#100E26;border-top:1px solid #2A2450;padding:5px 7px;font-size:9px;line-height:1.35;color:#9D8FBD;height:48px;line-height:12px;overflow:hidden;box-sizing:border-box">Shuffled in when you push too hard.</div>
+        </div>
+
+        <div style="width:92px;height:130px;border-radius:6px;border:2px solid #FF2FA8;background:linear-gradient(175deg,#241F4E 0%,#151132 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 6px 0 rgba(0,0,0,0.45);padding:8px;box-sizing:border-box">
+          <img src="sprites/miataNa-front-96x64.png" alt="" style="width:76px;height:auto;image-rendering:pixelated">
+          <div style="width:56px;height:3px;background:repeating-linear-gradient(to right,#4FD4F5 0 3px,#0D0A2B 3px 6px)"></div>
+          <div style="font-size:9px;color:#9D8FBD;letter-spacing:1px">MIATA NA</div>
+          <div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:10px;color:#4FD4F5">&times;</span><span style="font-family:'DSEG7',monospace;font-size:14px;color:#4FD4F5;text-shadow:0 0 8px rgba(79,212,245,0.5)">14</span></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">SUBSTANCE</div>
+          <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">Card stock is its own surface &mdash; a lifted slate-violet <span style="color:#F2ECFF">#241F4E &rarr; #151132</span>, brighter than the <span style="color:#F2ECFF">#0B0A1E</span> table under it. A 6px hard black bottom edge gives it thickness; no soft shadows.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">LEGIBILITY</div>
+          <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">Nothing under 9px, and rules text sits on a recessed <span style="color:#F2ECFF">#100E26</span> strip so it never fights the art. Type name is ink-on-color in the header band &mdash; readable even at hand scale under scanlines.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">BALANCE</div>
+          <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">Four fixed bands top to bottom: header, name + affinity, effect, rules. The effect row is a fixed 26px band pinned with <span style="color:#F2ECFF">margin-top:auto</span>, and the rules footer a fixed 48px at <span style="color:#F2ECFF">line-height:12px</span> &mdash; exactly four lines &mdash; so every number in the hand shares a baseline regardless of name length or how far the rules text wraps.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">COHESION</div>
+          <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">One frame, five types. Only the accent changes &mdash; header fill, border, affinity chips. Cost pips sit top-right in every type. Unsettled takes violet; grey <span style="color:#F2ECFF">#666</span> is gone from the deck.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;border-top:1px solid #2A2450;padding-top:18px">
+        <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd"><span style="color:#F2ECFF">Highlighted &mdash; the only glow in the hand.</span> Lifts 8px, <span style="color:#F2ECFF">0 0 16px accent/0.55</span>, matched affinity chip inverts to solid. Exactly one card can be in this state at a time.</div>
+        <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd"><span style="color:#F2ECFF">Resting</span> &mdash; flat in the row, no glow, no lift. Only the 6px black bottom edge. The hand should read as a row of physical cards, with one lit.</div>
+        <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd"><span style="color:#F2ECFF">Unplayable</span> &mdash; opacity 0.5, no cursor. <span style="color:#F2ECFF">Deck pile</span> shows the current car&rsquo;s front sprite over a checker stripe, count in LCD &mdash; the car is the deck.</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:20px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:11px;letter-spacing:2px;color:#7E72A6">SPRITES &mdash; carAssets.js, RoadView</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:11px;color:#4FD4F5;letter-spacing:1px">CANVAS &amp; VIEWS</div>
+            <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">96&times;64 front / rear, 112&times;64 for the 3/4 views. Registration at the contact-shadow center, tires on y&nbsp;=&nbsp;56. Full rules on the <a href="Car%20Sprite%20Production%20Sheet.dc.html">Car Sprite Production Sheet</a>.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:11px;color:#4FD4F5;letter-spacing:1px">FILE CONVENTION</div>
+            <div style="font-size:11.5px;line-height:1.75;color:#9d8fbd">Keep the nested USDM shape and extend it, rather than the flat JDM one:<br><span style="color:#F2ECFF">cars/&lt;carId&gt;/garage-q34l.png</span></div>
+          </div>
+        </div>
+        <div style="background:#0B0A1E;border:1px solid #2A2450;padding:16px;font-size:11.5px;line-height:2;color:#9d8fbd">
+          <div style="color:#4FD4F5">public/garage-life-assets/cars/&lt;carId&gt;/</div>
+          <div><span style="color:#F2ECFF">race-front.png &middot; race-rear.png</span> &nbsp;&mdash; RoadView, 96&times;64</div>
+          <div><span style="color:#F2ECFF">garage-front.png &middot; garage-rear.png</span> &nbsp;&mdash; garage / car select</div>
+          <div><span style="color:#F2ECFF">garage-q34l.png &middot; garage-q34r.png</span> &nbsp;&mdash; new, 112&times;64</div>
+          <div><span style="color:#F2ECFF">&lt;any&gt;.lights.png</span> &nbsp;&mdash; emissive overlay, additive blend</div>
+          <div><span style="color:#F2ECFF">race-rear.roll&lt;N2|N1|P1|P2&gt;.png</span> &nbsp;&mdash; body roll, autocross</div>
+          <div style="height:8px"></div>
+          <div style="color:#7E72A6">carIds in play: mazdaMiataNa &middot; mazdaMiataNb &middot; acuraIntegraDc2Gsr &middot; chevroletCorvetteC6 &mdash; plus the eight flat JDM entries, which should migrate into this nested shape as they get 3/4 views.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">05 &middot; VOICE</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #4FD4F5;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">LABELS SHOUT, PROSE DOESN&rsquo;T</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">UI labels are uppercase and terse: RACE, MAINTAIN, OWNED. Explanatory text is sentence case and sounds like a person in a garage &mdash; &ldquo;Rex doesn&rsquo;t charge extra for the labor, just the AP to make the trip.&rdquo; Never mix the two registers in one line.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FFC53D;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#FFC53D">COST IS ALWAYS VISIBLE</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">Every action states its price before it&rsquo;s taken, in the same shape: <span style="color:#F2ECFF">&mdash; 1 AP, $80, full service</span>. AP first, cash second, outcome third. A disabled action says what would unblock it.</div>
+      </div>
+      <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF8A1F;padding:18px 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:1.5px;color:#FF8A1F">ICONS</div>
+        <div style="font-size:12px;line-height:1.8;color:#9d8fbd">The screens currently mix emoji with pixel art, and emoji render differently on every platform &mdash; which breaks the 16-bit illusion hardest on Windows. Migrate them to <span style="color:#F2ECFF">public/icons.svg</span> symbols at 16&times;16, keeping the same meanings.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:22px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">06 &middot; ADOPTING IT</div>
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:start">
+      <div style="background:#0B0A1E;border:1px solid #2A2450;padding:22px 26px;font-size:12px;line-height:1.9;color:#9d8fbd;white-space:pre-wrap">
+<span style="color:#7E72A6">// src/theme.js — drop-in replacement for C
+</span><span style="color:#8F7BF0">export const</span> C = {
+  pink: <span style="color:#22E39A">"#FF2FA8"</span>, teal: <span style="color:#22E39A">"#4FD4F5"</span>, violet: <span style="color:#22E39A">"#8F7BF0"</span>,
+  purple: <span style="color:#22E39A">"#0D0A2B"</span>, white: <span style="color:#22E39A">"#F2ECFF"</span>,
+  orange: <span style="color:#22E39A">"#FF8A1F"</span>, red: <span style="color:#22E39A">"#FF2D55"</span>,
+  gold: <span style="color:#22E39A">"#FFC53D"</span>, green: <span style="color:#22E39A">"#22E39A"</span>,
+  bg: <span style="color:#22E39A">"#0B0A1E"</span>, panel: <span style="color:#22E39A">"#14122E"</span>,
+  panel2: <span style="color:#22E39A">"#0C0A1C"</span>, border: <span style="color:#22E39A">"#2A2450"</span>,
+  <span style="color:#7E72A6">// text ramp — replaces #888 / #777 / #666</span>
+  text2: <span style="color:#22E39A">"#9D8FBD"</span>, text3: <span style="color:#22E39A">"#7E72A6"</span>, disabled: <span style="color:#22E39A">"#5B5280"</span>,
+  <span style="color:#7E72A6">// tinted fills for selected / owned</span>
+  tintTeal: <span style="color:#22E39A">"#122B33"</span>, tintPink: <span style="color:#22E39A">"#2A1030"</span>,
+  tintGold: <span style="color:#22E39A">"#2A2010"</span>, tintRed: <span style="color:#22E39A">"#2A0D18"</span>,
+  track: <span style="color:#22E39A">"#1A1738"</span>,
+};
+
+<span style="color:#8F7BF0">export const</span> FONT = {
+  head: <span style="color:#22E39A">"'Press Start 2P', monospace"</span>,
+  body: <span style="color:#22E39A">"'IBM Plex Mono', monospace"</span>,
+  lcd:  <span style="color:#22E39A">"'DSEG7', monospace"</span>,  <span style="color:#7E72A6">// DSEG7 Classic Italic, self-hosted woff2</span>
+};
+
+<span style="color:#7E72A6">// every instrument number: time, cash, deltas, wear
+// glyphs are 0-9 - . : only — $ + % go beside it in FONT.body</span>
+<span style="color:#8F7BF0">export const</span> lcd = (hue) =&gt; ({
+  fontFamily: FONT.lcd, color: hue, textShadow: <span style="color:#22E39A">`0 0 8px ${hue}80`</span>,
+});
+
+<span style="color:#7E72A6">// stat tiles — glass tinted by the current car's ramp
+// base = ramp[2], edge = ramp[3] from CAR_RAMPS[career.car]</span>
+<span style="color:#8F7BF0">export const</span> glass = (base, edge) =&gt; ({
+  background: <span style="color:#22E39A">`linear-gradient(160deg, ${base}4D, ${base}1A 55%, ${base}0A)`</span>,
+  border: <span style="color:#22E39A">`1px solid ${edge}61`</span>, borderRadius: <span style="color:#22E39A">4</span>,
+  backdropFilter: <span style="color:#22E39A">"blur(3px)"</span>,
+  boxShadow: <span style="color:#22E39A">"inset 0 1px 0 #FFFFFF29, inset 0 -12px 20px #00000040"</span>,
+});
+
+<span style="color:#7E72A6">// molded face — buttons AND every choice box</span>
+<span style="color:#8F7BF0">export const</span> molded = (top, base, edge, depth = <span style="color:#22E39A">4</span>) =&gt; ({
+  background: <span style="color:#22E39A">`linear-gradient(180deg, ${top}, ${base})`</span>,
+  boxShadow: <span style="color:#22E39A">`0 ${depth}px 0 ${edge}, inset 0 1px 0 #FFFFFF3D`</span>,
+  borderRadius: <span style="color:#22E39A">4</span>, letterSpacing: <span style="color:#22E39A">2</span>, textTransform: <span style="color:#22E39A">"uppercase"</span>,
+});  <span style="color:#7E72A6">// depth 4 = button, 3 = choice box; + the 1-in-3px scanline face</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#0F0D24;border:1px solid #2A2450;padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#4FD4F5">ORDER OF WORK</div>
+          <div style="font-size:12px;line-height:1.9;color:#9d8fbd"><span style="color:#F2ECFF">1.</span> theme.js &mdash; swap C, add FONT / text ramp / tints.<br><span style="color:#F2ECFF">2.</span> index.css &mdash; load both fonts, set body to FONT.body, bg to #0B0A1E.<br><span style="color:#F2ECFF">3.</span> shared.jsx &mdash; add <span style="color:#F2ECFF">Heading</span> and <span style="color:#F2ECFF">Panel</span> next to Shell / Section; Section&rsquo;s label switches to FONT.head at 8px.<br><span style="color:#F2ECFF">4.</span> Sweep the hardcoded hexes: <span style="color:#F2ECFF">#888 #777 #666 #555 #444 #222 #12122A #0a0a14 #1a1a2e #122b28 #1c1c3a #2a1f0a</span> &rarr; tokens.<br><span style="color:#F2ECFF">5.</span> HUD.jsx has its own private <span style="color:#F2ECFF">const C</span> &mdash; delete it, import from theme.<br><span style="color:#F2ECFF">6.</span> Raise the 6&ndash;8px card text to 9&ndash;11px.</div>
+        </div>
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF2FA8;padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#FF2FA8">TOUCHES EVERY SCREEN</div>
+          <div style="font-size:12px;line-height:1.8;color:#9d8fbd">TitleScreen, CareerHome, ShopScreen, PreRaceSetup, CardRaceScreen, CardHand, HUD, CodexScreen, CourseLog, DiceWidget, NewCareerScreen, SeasonSummaryScreen, StorySnippetScreen, ActionResultScreen, RoadView.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:26px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:#FF2FA8;letter-spacing:1px">07 &middot; ART LIBRARY</div>
+    <div style="font-size:13px;color:#9d8fbd;margin-top:-14px;max-width:1000px;text-wrap:pretty">Three delivered packs, triaged. <span style="color:#22E39A">Approved</span> ships as-is. <span style="color:#FFC53D">Rework</span> is on-concept but wrong size, wrong palette, or has text baked into a bitmap that has to be live. <span style="color:#FF2D55">Disregard</span> breaks the pixel contract &mdash; regenerate rather than patch. Everything approved renders with <span style="color:#F2ECFF">image-rendering: pixelated</span> at integer scale only (1&times;, 2&times;, 3&times; &mdash; never 1.5&times;).</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#22E39A">APPROVED &middot; ENVIRONMENTS</span><span style="font-size:12px;color:#7E72A6">240&times;144 &middot; race backdrop, garage backdrop, event card art</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,240px);gap:16px">
+        <div style="display:flex;flex-direction:column;gap:8px"><img src="uploads/garage-life-react-assets/public/garage-life-assets/environments/coastal-highway.png" alt="" style="width:240px;image-rendering:pixelated;border:1px solid #2A2450"><div style="font-size:11px;color:#C9B7D6">environments.coastalHighway</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><img src="uploads/garage-life-react-assets/public/garage-life-assets/environments/mountain-pass.png" alt="" style="width:240px;image-rendering:pixelated;border:1px solid #2A2450"><div style="font-size:11px;color:#C9B7D6">environments.mountainPass</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><img src="uploads/garage-life-react-assets/public/garage-life-assets/environments/city-expressway.png" alt="" style="width:240px;image-rendering:pixelated;border:1px solid #2A2450"><div style="font-size:11px;color:#C9B7D6">environments.cityExpressway</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><img src="uploads/garage-life-react-assets/public/garage-life-assets/environments/dockyard-night.png" alt="" style="width:240px;image-rendering:pixelated;border:1px solid #2A2450"><div style="font-size:11px;color:#C9B7D6">environments.dockyardNight</div></div>
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px;text-wrap:pretty">Four locations that hold the palette: magenta-to-violet sky, warm horizon, cool road. These are the autocross venue art. Scanlines already cover them via the global overlay &mdash; do not bake a second set in. Any UI over a backdrop needs a plate; never set text straight on the sky.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#22E39A">APPROVED &middot; PARTS &amp; SHOP</span><span style="font-size:12px;color:#7E72A6">48&times;48 icons, 128&times;128 hero part &mdash; Dead Reckoning Garage</span></div>
+      <div style="display:flex;gap:20px;align-items:flex-end;flex-wrap:wrap">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/shop/shop-engine.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/shop/shop-turbo.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/shop/shop-wheel.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/shop/shop-brake.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/shop/shop-hammer.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/submenu/coilovers.png" alt="" style="width:128px;image-rendering:pixelated">
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px">Drop these into the item card&rsquo;s left slot at 2&times; (96px) &mdash; engine, turbo, wheel, brake, labor, coilovers. They carry their own rim light, so they need no border and no tint; put them on the card&rsquo;s molded face directly.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#FFC53D">REWORK &middot; STATUS ICONS</span><span style="font-size:12px;color:#7E72A6">40&times;40 &mdash; right idea, not yet a set</span></div>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:#0B0A1E;border:1px solid #2A2450;padding:16px">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-wrench.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-check-engine.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-oil.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="assets/status-temperature.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-battery.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-fuel.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-tire.png" alt="" style="width:40px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/status/status-warning.png" alt="" style="width:40px;image-rendering:pixelated">
+        <div style="margin-left:12px;display:flex;gap:14px;align-items:center">
+          <img src="assets/symbol-palm.png" alt="" style="width:33px;image-rendering:pixelated">
+          <img src="uploads/garage-life-react-assets/public/garage-life-assets/symbols/symbol-sunset.png" alt="" style="width:44px;image-rendering:pixelated">
+          <img src="uploads/garage-life-react-assets/public/garage-life-assets/symbols/symbol-mountain.png" alt="" style="width:44px;image-rendering:pixelated">
+          <img src="uploads/garage-life-react-assets/public/garage-life-assets/symbols/symbol-anchor.png" alt="" style="width:44px;image-rendering:pixelated">
+          <img src="uploads/garage-life-react-assets/public/garage-life-assets/symbols/symbol-city.png" alt="" style="width:54px;image-rendering:pixelated">
+        </div>
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px;text-wrap:pretty">The right eight glyphs &mdash; wrench, check-engine, oil, temp, battery, fuel, tire, warning &mdash; but not yet a set. Measured on the delivered PNGs: <span style="color:#F2ECFF">244&ndash;569 unique colors</span> each (a 16-bit icon should be under 12), content boxes ranging <span style="color:#F2ECFF">32&times;32 down to 34&times;17</span> inside the same 40&times;40 canvas so they read at wildly different weights in a row, photographic shading and per-icon hues with no shared light, and slice bleed from the neighbouring icon on the contact sheet &mdash; <span style="color:#F2ECFF">temperature</span> carried two stray red fragments at x2&ndash;5 (cleaned and re-centred here as <span style="color:#F2ECFF">assets/status-temperature.png</span>; the glyph was also sitting at x19&ndash;35, hard right in its own canvas), and <span style="color:#F2ECFF">oil</span> still has 4 pixels on the edge. The five location symbols have the same problem at three different widths (33 / 44 / 54).</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px">
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FFC53D;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#FFC53D">THE SPEC</div>
+          <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd">40&times;40 transparent canvas, glyph drawn to a <span style="color:#F2ECFF">32&times;32 optical box</span> centred with 4px clear on every side &mdash; and optically balanced, so a wide glyph like the wrench sits inside the same visual weight as a tall one like the fuel pump. <span style="color:#F2ECFF">Max 6 colors:</span> one hue at three steps, the <span style="color:#F2ECFF">#1A0E2B</span> outline, and one #F2ECFF highlight pixel cluster. Key light upper-left, matching the cars. No gradients, no antialiasing, nothing outside the 4px margin.</div>
+        </div>
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FFC53D;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;letter-spacing:1.5px;color:#FFC53D">HUE BY MEANING</div>
+          <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd">Icons don&rsquo;t carry their real-world color, they carry their <em>state</em> color, so a row of them reads as one system: <span style="color:#4FD4F5">teal</span> informational (wrench, tire, battery), <span style="color:#FF8A1F">orange</span> caution (oil, temp, fuel), <span style="color:#FF2D55">red</span> fault (check-engine, warning). Same glyph, same hue, every screen. Regenerate all thirteen in one pass on a single sheet with the palette locked &mdash; do not patch them individually.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#FFC53D">REWORK &middot; ACTION CARD ART</span><span style="font-size:12px;color:#7E72A6">96&times;120 delivered as finished cards &mdash; we only want the art</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-accel.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-line.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-brake.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-turbo.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-weight.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-grip.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-nitro.png" alt="" style="width:96px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cards/card-repair.png" alt="" style="width:96px;image-rendering:pixelated">
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px;text-wrap:pretty">The illustrations are exactly right; the frames aren&rsquo;t ours &mdash; they bake the type name, the title, the cost pip and the rules line into the bitmap, which can&rsquo;t be localized, recolored by type, or updated when a card is rebalanced. <span style="color:#F2ECFF">Cut the object out to a transparent 72&times;56 art slot</span> and let the card component in &sect;04 draw the frame. Their type colors already match ours: accel green, line violet, brake red, turbo teal, weight gold, grip teal, nitro pink, repair grey.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#FFC53D">REWORK &middot; BAKED HUD BITMAPS</span><span style="font-size:12px;color:#7E72A6">position badges, lap counters, timer, leaderboard, status panel</span></div>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:#0B0A1E;border:1px solid #2A2450;padding:16px">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/positions/position-1st.png" alt="" style="width:63px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/hud/laps/lap-2-of-3.png" alt="" style="width:48px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/battle/leaderboard.png" alt="" style="width:120px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/battle/vehicle-status-panel.png" alt="" style="width:172px;image-rendering:pixelated">
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px;text-wrap:pretty">Every one of these is live data drawn as a picture &mdash; a PNG per lap count doesn&rsquo;t scale past three laps, and the status panel&rsquo;s bars are the wear meter we already built. Keep them as visual reference and rebuild in the DOM: positions and laps in Press Start 2P, timer in DSEG7, condition on the 10-blip meter. The three chrome gauges are cut entirely &mdash; photographic chrome, off-palette, and autocross runs on time, not RPM.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#FF2D55">DISREGARD</span><span style="font-size:12px;color:#7E72A6">off-contract &mdash; regenerate rather than patch</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF2D55;padding:16px 18px;display:flex;flex-direction:column;gap:8px"><div style="font-size:12px;color:#F2ECFF;letter-spacing:1px">environments.airportRunway &middot; neonDowntown</div><div style="font-size:11.5px;line-height:1.7;color:#9d8fbd">Photographic renders, not pixel art &mdash; smooth gradients, thousands of colors, no consistent pixel grid. They break the illusion the moment they sit next to coastalHighway.</div></div>
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF2D55;padding:16px 18px;display:flex;flex-direction:column;gap:8px"><div style="font-size:12px;color:#F2ECFF;letter-spacing:1px">car-roster-expansion pack</div><div style="font-size:11.5px;line-height:1.7;color:#9d8fbd">A second, chunkier sprite style at a different scale and a different light direction than the 96&times;64 roster. Two car styles in one garage is the most visible inconsistency a player can find. The corrected USDM v0.4.1 set is canonical.</div></div>
+        <div style="background:#0F0D24;border:1px solid #2A2450;border-left:3px solid #FF2D55;padding:16px 18px;display:flex;flex-direction:column;gap:8px"><div style="font-size:12px;color:#F2ECFF;letter-spacing:1px">frames.* &middot; screens.*</div><div style="font-size:11.5px;line-height:1.7;color:#9d8fbd">The four window frames are superseded by the molded chassis &mdash; a bitmap frame can&rsquo;t stretch to content. The five screen comps are art direction, not assets: read them for layout, build the screens in the DOM.</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#22E39A">CANONICAL ROSTER</span><span style="font-size:12px;color:#7E72A6">96&times;64 transparent PNG &mdash; the 8 JDM unlockables</span></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;background:#0B0A1E;border:1px solid #2A2450;padding:18px">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/nissan180sx-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/mazdaRx7Fd-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/nissanSkylineR34-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/hondaS2000-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/toyotaSupraMk4-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/hondaCivicSir-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/mitsubishiEvo6-front.png" alt="" style="width:144px;image-rendering:pixelated">
+        <img src="uploads/garage-life-react-assets/public/garage-life-assets/cars/subaruImprezaWrx-front.png" alt="" style="width:144px;image-rendering:pixelated">
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#9d8fbd;max-width:1000px;text-wrap:pretty">Note the two conventions in flight: the JDM eight are flat <span style="color:#F2ECFF">cars/&lt;id&gt;-front.png</span> with a 3/4 view, the USDM four are nested <span style="color:#F2ECFF">cars/&lt;id&gt;/garage-front.png</span> with a true front. Standardize on the nested shape from &sect;04, and treat the JDM &ldquo;front&rdquo; files as <span style="color:#F2ECFF">garage-q34l</span> when they migrate &mdash; they are 3/4 views, not fronts, and the deck pile and garage screen assume the label is honest.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:11px;letter-spacing:2px;color:#22E39A">CONFORMED &middot; MIATA REARS</span><span style="font-size:12px;color:#7E72A6">generated at 104&sup2; / 96&sup2;, conformed to the 96&times;64 spec &mdash; pixel grid intact, no resampling</span></div>
+      <div style="display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;background:#0B0A1E;border:1px solid #2A2450;padding:18px">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+          <img src="assets/cars/mazdaMiataNa-race-rear.png" alt="" style="width:192px;image-rendering:pixelated">
+          <div style="font-size:11px;color:#4FD4F5">mazdaMiataNa/race-rear.png</div>
+          <div style="font-size:11px;color:#7E72A6">85&times;56 content &middot; 1:1</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+          <img src="assets/cars/mazdaMiataNb-race-rear.png" alt="" style="width:192px;image-rendering:pixelated">
+          <div style="font-size:11px;color:#4FD4F5">mazdaMiataNb/race-rear.png</div>
+          <div style="font-size:11px;color:#7E72A6">77&times;48 content &middot; 1:1</div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.8;color:#9d8fbd;max-width:420px;text-wrap:pretty">Both were 4&ndash;6px too tall for the canvas, entirely because of a soft baked ground shadow. Trimming those rows (6 on the NA, 11 on the NB) let the art drop in at <span style="color:#F2ECFF">1:1</span> &mdash; any fractional scale would have merged source pixels into uneven blocks, which is the one thing the 16-bit look can&rsquo;t survive. Re-centred on x=48, tires on y=56, and the spec&rsquo;s two-tone ellipse baked in at <span style="color:#F2ECFF">#1E0D33 / #2B1449</span>, rasterised per-pixel with a checkerboard-dithered edge &mdash; a canvas path fill would have antialiased it into ~30 alpha steps, so the ellipse is written by hand, zero partial-alpha pixels in either file.<br><br><span style="color:#FFC53D">One mismatch:</span> the NB came back silver. Spec colour is Emerald Mica &mdash; it needs regenerating on the emerald ramp, or the palette-swap ramp has to treat silver as its base.</div>
+      </div>
+    </div>
+  </section>
+
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:9998;background-image:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0.22) 2px, rgba(0,0,0,0.22) 3px);mix-blend-mode:multiply"></div>
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:9998;background-image:repeating-linear-gradient(to right, rgba(255,0,0,0.05) 0px, rgba(0,255,0,0.05) 1px, rgba(0,0,255,0.05) 2px, rgba(0,0,0,0) 3px);mix-blend-mode:screen"></div>
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:9999;background:radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.4) 100%)"></div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -54,8 +54,8 @@ function EntryCard({ title, body, quip, bodyStyle }) {
 // Meta-level browsable lore + milestones — reachable from the title screen
 // (no career needed) and from CareerHome. Locked entries stay silhouettes
 // until their story trigger fires (see game/story.js + App.jsx).
-export default function CodexScreen({ meta, career, onBack }) {
-  const [tab, setTab] = useState("npc");
+export default function CodexScreen({ meta, career, onBack, initialTab = "npc" }) {
+  const [tab, setTab] = useState(initialTab);
   const unlockedCodex = meta.codexUnlocked ?? [];
   const unlockedAch = meta.achievementsUnlocked ?? [];
 
@@ -63,7 +63,7 @@ export default function CodexScreen({ meta, career, onBack }) {
 
   return (
     <Shell>
-      <ScreenHeader title="Achievements" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
+      <ScreenHeader title={TABS.find(t => t.key === tab)?.label ?? "Rolodex"} nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {TABS.map(t => (
