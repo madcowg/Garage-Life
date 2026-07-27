@@ -12,7 +12,7 @@ import { CarCard } from "./ds/cards/CarCard";
 // "unlocked" (meta, Rex will sell it to you) from "installed" (this
 // career's equipment, permanent once done) — see career.js installedMods.
 // Rex's standing (more business = better prices) discounts tires directly.
-export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onSellCar }) {
+export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onSellCar, onBack }) {
   const car = CARS[career.car];
   const owned = career.ownedTires ?? ["stock"];
   const installed = career.installedMods ?? [];
@@ -26,7 +26,10 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
       <ScreenHeader
         title="Dead Reckoning Garage"
         status={`${car.name} — cash $${career.cash}`}
-        nav={<div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)" }}>Rex: <span style={{ color: "var(--gl-gold)", fontWeight: 700 }}>{rexTier}</span></div>}
+        nav={<>
+          <Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>
+          <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", alignSelf: "center" }}>Rex: <span style={{ color: "var(--gl-gold)", fontWeight: 700 }}>{rexTier}</span></div>
+        </>}
       />
 
       <Section title="TIRES">

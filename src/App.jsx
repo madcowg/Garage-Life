@@ -657,7 +657,7 @@ export default function App() {
   if (screen === "shop") return withCash(
     <ShopScreen
       career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop}
-      onSellTire={handleSellTire} onSellCar={handleSellCar}
+      onSellTire={handleSellTire} onSellCar={handleSellCar} onBack={() => setScreen("careerHome")}
     />
   );
   if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);

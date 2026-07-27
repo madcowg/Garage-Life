@@ -5,6 +5,7 @@ import { Section, Shell } from "./shared";
 import { ScreenHeader } from "./ds/shell/ScreenHeader";
 import { Button } from "./ds/controls/Button";
 import { CarCard } from "./ds/cards/CarCard";
+import { CarStatLine } from "./ds/instruments/StatIcon";
 
 function cashLabel(id) {
   const delta = STARTER_CASH_DELTA[id] ?? 0;
@@ -61,7 +62,7 @@ export default function NewCareerScreen({ meta, onStart, playerName }) {
                 tone="pink" marker selected={isSelected}
                 onClick={() => { setCar(pick.id); if (pick.variant) setVariant(pick.variant); }}
                 name={pick.name} desc={c.blurb}
-                stats={`HP ${c.hp} · HDL ${c.handling} · GRIP ${c.grip} · TRN ${c.trans}`}
+                stats={<CarStatLine hp={c.hp} handling={c.handling} grip={c.grip} trans={c.trans} />}
                 footer={<div style={{ fontSize: 9, color: "var(--gl-text-3)" }}>{cashLabel(pick.id)}</div>}
               />
             );
