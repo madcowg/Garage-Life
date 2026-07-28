@@ -1,10 +1,9 @@
 import { CARS, MODS, TIRE_CATALOG } from "../game/data";
-import { discountedTirePrice, npcStandingTier, tireSellPrice, CAR_SELL_PRICE } from "../game/career";
+import { discountedTirePrice, npcStandingTier, tireSellPrice } from "../game/career";
 import { Shell, Section } from "./shared";
 import { ScreenHeader } from "./ds/shell/ScreenHeader";
 import { Button } from "./ds/controls/Button";
 import { ItemCard } from "./ds/cards/ItemCard";
-import { CarCard } from "./ds/cards/CarCard";
 
 // Dead Reckoning Garage — the only place tires get bought and mods get
 // bolted in. Browsing is free; leaving is the actual action (1 AP), same
@@ -12,14 +11,14 @@ import { CarCard } from "./ds/cards/CarCard";
 // "unlocked" (meta, Rex will sell it to you) from "installed" (this
 // career's equipment, permanent once done) — see career.js installedMods.
 // Rex's standing (more business = better prices) discounts tires directly.
-export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onSellCar, onBack, apCharged }) {
+// Spare-car viewing/selling lives in MyGarageScreen, not here — this is
+// Rex's parts shop, not the player's own garage.
+export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLeave, onSellTire, onBack, apCharged }) {
   const car = CARS[career.car];
   const owned = career.ownedTires ?? ["stock"];
   const installed = career.installedMods ?? [];
   const rexStanding = career.npcStanding?.rex ?? 0;
   const rexTier = npcStandingTier(rexStanding);
-  const ownedCars = career.ownedCars ?? [career.car];
-  const spareCars = ownedCars.filter(id => id !== career.car);
 
   return (
     <Shell>
@@ -87,20 +86,6 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
           })}
         </div>
       </Section>
-
-      {spareCars.length > 0 && (
-        <Section title="GARAGE">
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {spareCars.map(id => (
-              <CarCard
-                key={id} carId={id} tone="violet"
-                name={CARS[id]?.name ?? id} desc="Not your active car — just sitting here."
-                footer={<Button tone="gold" size="sm" block onClick={() => onSellCar(id)}>Sell ${CAR_SELL_PRICE}</Button>}
-              />
-            ))}
-          </div>
-        </Section>
-      )}
 
       <div style={{ textAlign: "center", fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", margin: "12px 0", lineHeight: 1.5, fontFamily: "var(--gl-font-body)" }}>
         Once a mod's installed it stays on the car for the rest of the career — no need to come back for it.

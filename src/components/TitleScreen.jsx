@@ -210,7 +210,7 @@ export default function TitleScreen({ hasSave, onNewGame, onContinue, onCodex, s
                   14px). Bumping just this one compensates for it. */}
               <div style={{ width: 225, "--gl-size-heading": "19px" }}><Button tone="pink" size="lg" block onClick={() => launch(onNewGame)}>New game</Button></div>
               <div style={{ width: 225 }}><Button tone="teal" variant="outlined" size="lg" block disabled={!hasSave} reason={hasSave ? undefined : "no career saved yet"} onClick={() => launch(onContinue)}>Continue</Button></div>
-              <div style={{ width: 225 }}><Button tone="violet" variant="outlined" size="lg" block onClick={onCodex}>Achievements</Button></div>
+              <div style={{ width: 225 }}><Button tone="violet" variant="outlined" size="lg" block onClick={onCodex}>Collections</Button></div>
               <div style={{ width: 225, marginBottom: 4 }}><Button tone="teal" variant="outlined" size="lg" block onClick={() => setShowSettings(true)}>Settings</Button></div>
             </>
           ) : (

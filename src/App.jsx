@@ -27,6 +27,7 @@ import SeasonSummaryScreen from "./components/SeasonSummaryScreen";
 import StorySnippetScreen from "./components/StorySnippetScreen";
 import CodexScreen from "./components/CodexScreen";
 import ShopScreen from "./components/ShopScreen";
+import MyGarageScreen from "./components/MyGarageScreen";
 import { CrtOverlay } from "./components/ds/shell/CrtOverlay";
 import { Button } from "./components/ds/controls/Button";
 import { scanlinesEnabled, setScanlinesEnabled } from "./theme";
@@ -96,7 +97,8 @@ export default function App() {
   const [career, setCareer] = useState(null);
   const [screen, setScreen] = useState("title");
   const [prevScreen, setPrevScreen] = useState("careerHome");
-  const [codexTab, setCodexTab] = useState("npc");
+  const [codexMode, setCodexMode] = useState("rolodex");
+  const [collectionsTab, setCollectionsTab] = useState("car");
   // Tracks whether this Shop visit actually bought/installed anything — the
   // AP charge on "Head out" (handleLeaveShop) only applies then, since it
   // represents Rex's labor, not the trip itself. Reset every time Shop opens.
@@ -671,7 +673,7 @@ export default function App() {
       hasSave={Boolean(loadCareerSnapshot())}
       onNewGame={() => setScreen("intro")}
       onContinue={continueCareer}
-      onCodex={() => { setPrevScreen("title"); setCodexTab("npc"); setScreen("codex"); }}
+      onCodex={() => { setPrevScreen("title"); setCodexMode("collections"); setCollectionsTab("car"); setScreen("codex"); }}
       scan={scanlines}
       onToggleScan={toggleScanlines}
     />
@@ -689,8 +691,9 @@ export default function App() {
       onJunkyard={handleJunkyard}
       onStreetRace={handleStreetRace}
       onClaimJunkyardCar={handleClaimJunkyardCar}
-      onViewCodex={() => { setPrevScreen("careerHome"); setCodexTab("npc"); setScreen("codex"); }}
-      onViewAchievements={() => { setPrevScreen("careerHome"); setCodexTab("achievements"); setScreen("codex"); }}
+      onViewCodex={() => { setPrevScreen("careerHome"); setCodexMode("rolodex"); setScreen("codex"); }}
+      onViewAchievements={() => { setPrevScreen("careerHome"); setCodexMode("collections"); setCollectionsTab("car"); setScreen("codex"); }}
+      onViewGarage={() => setScreen("garage")}
     />
   );
   if (screen === "preRaceSetup") return withCash(
@@ -699,9 +702,12 @@ export default function App() {
   if (screen === "shop") return withCash(
     <ShopScreen
       career={career} meta={meta} onBuyTire={handleBuyTire} onInstallMod={handleInstallMod} onLeave={handleLeaveShop}
-      onSellTire={handleSellTire} onSellCar={handleSellCar} onBack={() => setScreen("careerHome")}
+      onSellTire={handleSellTire} onBack={() => setScreen("careerHome")}
       apCharged={shopActedThisVisit}
     />
+  );
+  if (screen === "garage") return withCash(
+    <MyGarageScreen career={career} onSellCar={handleSellCar} onBack={() => setScreen("careerHome")} />
   );
   if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);
   if (screen === "raceResult") return withCash(
@@ -716,7 +722,7 @@ export default function App() {
   if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
   if (screen === "codex") return withCash(
     <CodexScreen
-      meta={meta} career={career} initialTab={codexTab}
+      meta={meta} career={career} mode={codexMode} initialTab={collectionsTab}
       onBack={() => { setNpcEngageResult(null); setScreen(prevScreen); }}
       onEngageNpc={handleEngageNpc} npcEngageResult={npcEngageResult}
     />

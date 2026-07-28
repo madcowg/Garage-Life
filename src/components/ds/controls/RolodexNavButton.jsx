@@ -28,8 +28,8 @@ export function RolodexNavButton({ tone = "pink", label, onClick }) {
       }}
     >
       <span style={{ position: "relative", display: "flex", gap: 3 }}>
-        <span style={{ width: 14, height: 2, background: `var(--gl-${tone})`, opacity: 0.55 }} />
         <span style={{ width: 14, height: 2, background: `var(--gl-${tone})`, opacity: 0.3 }} />
+        <span style={{ width: 14, height: 2, background: `var(--gl-${tone})`, opacity: 0.55 }} />
       </span>
       <span style={{ position: "relative" }}>{label}</span>
       <span style={{

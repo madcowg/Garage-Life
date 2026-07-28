@@ -12,8 +12,9 @@ import { CarCard } from "./ds/cards/CarCard";
 // The between-races hub — month counter, resources, car condition, and the
 // 3 monthly actions (design doc §1). Purely presentational: the parent
 // (App.jsx) owns all career state and resolution logic.
-export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onClaimJunkyardCar, onViewCodex, onViewAchievements }) {
+export default function CareerHome({ career, onRace, onWork, onMaintain, onShop, onJunkyard, onStreetRace, onClaimJunkyardCar, onViewCodex, onViewAchievements, onViewGarage }) {
   const car = CARS[career.car];
+  const ownedCars = career.ownedCars ?? [career.car];
   const emp = career.employment;
   const maintainCost = emp.status === "unemployed" ? SELF_MAINTAIN_COST : MAINTAIN_COST;
   const canMaintain = career.cash >= maintainCost && !career.maintainedThisMonth;
@@ -60,7 +61,15 @@ export default function CareerHome({ career, onRace, onWork, onMaintain, onShop,
         <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "stretch" }}>
           <CarCard carId={career.car} variant={career.variant} tone="teal" name={car.name} />
           <div style={{ flex: 1, background: "var(--gl-panel-sunk)", border: "1px solid var(--gl-border)", borderRadius: "var(--gl-radius-panel)", padding: 10 }}>
-            <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", marginBottom: 8, textTransform: "uppercase" }}>{car.name} — car condition</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", letterSpacing: "var(--gl-track-label)", textTransform: "uppercase" }}>{car.name} — car condition</div>
+              <button
+                onClick={onViewGarage}
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--gl-font-mono)", fontSize: "var(--gl-size-micro)", color: "var(--gl-teal)", textDecoration: "underline" }}
+              >
+                My Garage{ownedCars.length > 1 ? ` (${ownedCars.length})` : ""}
+              </button>
+            </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <WearMeter label="ENGINE" value={career.wear.engine} />
               <WearMeter label="TIRES" value={career.wear.tires} />
