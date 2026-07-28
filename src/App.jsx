@@ -6,7 +6,7 @@ import {
   computeRacingCredDelta, computeRaceNpcDeltas, effectiveEntryFee, discountedTirePrice,
   NPC_STANDING_THRESHOLDS, NPC_ENGAGE_STANDING_DELTA, NPC_ENGAGE_CRED_DELTA,
   MAINTAIN_COST, SELF_MAINTAIN_COST, ENTRY_FEE, SEASON_GRADE_STORY_TRIGGER,
-  tireSellPrice, CAR_SELL_PRICE, SEASON_MIDPOINT_MONTH,
+  tireSellPrice, CAR_SELL_PRICE, SEASON_MIDPOINT_MONTH, MAX_OWNED_CARS,
 } from "./game/career";
 import { loadMeta, unlockMod, unlockCar, unlockAchievement, applyTriggerUnlocks, archiveCareer } from "./game/meta";
 import { getNewStoryTriggers, resolveTriggerUnlocks, pickSnippetText, PER_CAREER_TRIGGERS, ACHIEVEMENTS, NPC_ENGAGE_LINES } from "./game/story";
@@ -14,7 +14,7 @@ import { MODS, CARS, TIRE_CATALOG } from "./game/data";
 import { saveCareerSnapshot, loadCareerSnapshot } from "./game/careerStore";
 import TitleScreen from "./components/TitleScreen";
 import IntroScreen from "./components/IntroScreen";
-import { Shell, CashBadge } from "./components/shared";
+import { Shell, GarageBadge } from "./components/shared";
 import AchievementToast from "./components/AchievementToast";
 import TrackCanvas from "./components/TrackCanvas";
 import CourseLog from "./components/CourseLog";
@@ -584,16 +584,21 @@ export default function App() {
       }
     } else if (roll.event === "car_find") {
       const lockedCars = Object.entries(CARS).filter(([id, c]) => c.tier === "unlockable" && !meta.unlockedCars.includes(id));
-      if (lockedCars.length > 0 && !career.junkyardCarOffer) {
+      const ownedCarsNow = career.ownedCars ?? [career.car];
+      if (career.junkyardCarOffer) {
+        cashDelta = 75 + Math.floor(Math.random() * 26);
+        title = "SOLID FIND";
+        message = "Another great find, but the yard's only holding one car for you at a time — sold this one for parts instead.";
+      } else if (ownedCarsNow.length >= MAX_OWNED_CARS) {
+        cashDelta = 75 + Math.floor(Math.random() * 26);
+        title = "GARAGE'S FULL";
+        message = "Found a car worth claiming, but a two-car garage only holds two — sold it instead for a tidy sum. A bigger garage is down the road.";
+      } else if (lockedCars.length > 0) {
         const [carId, carDef] = lockedCars[Math.floor(Math.random() * lockedCars.length)];
         const expiresMonth = career.month + 1;
         junkyardCarOfferNext = { carId, expiresMonth };
         title = "JACKPOT!";
         message = `Under a tarp in the back row: a ${carDef.name}, running condition. The yard wants $${JUNKYARD_CAR_CLAIM_PRICE} to let it go, and you've got until month ${expiresMonth} to come up with it.`;
-      } else if (career.junkyardCarOffer) {
-        cashDelta = 75 + Math.floor(Math.random() * 26);
-        title = "SOLID FIND";
-        message = "Another great find, but the yard's only holding one car for you at a time — sold this one for parts instead.";
       } else {
         cashDelta = 90 + Math.floor(Math.random() * 36);
         title = "SCORE OF A LIFETIME";
@@ -618,10 +623,10 @@ export default function App() {
   // stays on CareerHome, banner just disappears once paid (or once it expires).
   const handleClaimJunkyardCar = () => {
     const offer = career.junkyardCarOffer;
-    if (!offer || career.cash < JUNKYARD_CAR_CLAIM_PRICE) return;
+    const owned = career.ownedCars ?? [career.car];
+    if (!offer || career.cash < JUNKYARD_CAR_CLAIM_PRICE || owned.length >= MAX_OWNED_CARS) return;
     const nextMeta = unlockCar(meta, offer.carId);
     updateMeta(nextMeta);
-    const owned = career.ownedCars ?? [career.car];
     setCareer({
       ...career, cash: career.cash - JUNKYARD_CAR_CLAIM_PRICE, junkyardCarOffer: null,
       unlocksEarned: [...career.unlocksEarned, offer.carId],
@@ -658,7 +663,7 @@ export default function App() {
     <>
       <CrtOverlay enabled={scanlines} />
       {el}
-      {career && <CashBadge cash={career.cash} />}
+      {career && screen !== "race" && <GarageBadge onClick={() => setScreen("garage")} />}
       {activeAchievement && <AchievementToast achievement={activeAchievement} onDismiss={dismissAchievementPopup} />}
     </>
   );
@@ -719,7 +724,7 @@ export default function App() {
   if (screen === "seasonSummary") return withCash(
     <SeasonSummaryScreen career={career} grade={seasonGrade} unlocksEarned={career.unlocksEarned} onNewCareer={() => setScreen("newCareer")} />
   );
-  if (screen === "log") return withCash(<CourseLog onBack={() => setScreen(prevScreen)} />);
+  if (screen === "log") return withCash(<CourseLog career={career} onBack={() => setScreen(prevScreen)} />);
   if (screen === "codex") return withCash(
     <CodexScreen
       meta={meta} career={career} mode={codexMode} initialTab={collectionsTab}

@@ -63,6 +63,7 @@ export default function PreRaceSetup({ career, onStart, onBack }) {
         <ScreenHeader
           title="Race setup"
           status={`${car.name}${career.variant ? ` (${career.variant})` : ""} — month ${career.month}/10`}
+          cash={career.cash}
           nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>}
         />
 

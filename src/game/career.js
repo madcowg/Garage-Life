@@ -249,6 +249,10 @@ function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 export const JUNKYARD_FEE = 5;
 export const JUNKYARD_UPGRADE_PRICE = 10;
 export const JUNKYARD_CAR_CLAIM_PRICE = 300;
+// A stock two-car garage holds exactly two cars — the active one plus one
+// spare. Buying a bigger garage to hold more is future work, alongside more
+// race modes/seasons; for now this is a hard cap on ownedCars.
+export const MAX_OWNED_CARS = 2;
 
 export function resolveJunkyard() {
   const rawRoll = rollD20();

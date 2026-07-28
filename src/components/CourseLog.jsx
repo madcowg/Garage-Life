@@ -30,12 +30,12 @@ export function loadCourseLog() {
   catch { return []; }
 }
 
-export default function CourseLog({ onBack }) {
+export default function CourseLog({ onBack, career }) {
   const entries = loadCourseLog();
 
   return (
     <Shell>
-      <ScreenHeader title="Season course log" nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
+      <ScreenHeader title="Season course log" cash={career?.cash} nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       {entries.length === 0 && (
         <div style={{ fontSize: "var(--gl-size-label)", color: "var(--gl-text-dead)", textAlign: "center", padding: 40 }}>No runs yet this season — finish a race to log its course here.</div>

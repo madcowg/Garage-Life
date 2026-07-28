@@ -140,7 +140,7 @@ export default function CodexScreen({ meta, career, onBack, mode = "rolodex", in
 
   return (
     <Shell>
-      <ScreenHeader title={title} nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
+      <ScreenHeader title={title} cash={career?.cash} nav={<Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>} />
 
       {mode === "rolodex" ? (
         <RolodexView meta={meta} career={career} onEngageNpc={onEngageNpc} npcEngageResult={npcEngageResult} />

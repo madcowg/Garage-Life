@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { C } from "../theme";
+import { LcdReadout } from "./ds/instruments/LcdReadout";
 
 // Game-style viewport scaling: the UI is designed at a fixed column width,
 // then zoomed up to fill the actual display — same behavior as the
@@ -33,19 +34,43 @@ export function Shell({ children }) {
   );
 }
 
-// Always-visible cash readout — fixed to the viewport (not the zoomed Shell
-// column) so it survives scrolling and stays legible at any screen scale.
-// Bottom-left is the one corner no screen already anchors a nav button to.
-export function CashBadge({ cash }) {
+// Cash pill — the design doc's dedicated 20px-radius shape (distinct from
+// the 4px stat-tile radius), an amber-tinted well with the DSEG7 LCD digits
+// zero-padded to 6 (leading zeros fill the display, per the doc). Sits
+// in-flow in ScreenHeader's nav row so it scales with Shell's zoom like
+// every other header element, instead of a fixed viewport overlay.
+export function CashPill({ cash }) {
   return (
     <div style={{
-      position: "fixed", left: 10, bottom: 10, zIndex: 50, pointerEvents: "none",
-      background: "rgba(10,10,20,0.88)", border: `1px solid ${C.gold}`, borderRadius: 20,
-      padding: "6px 14px", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", color: C.gold,
-      boxShadow: "0 2px 10px rgba(0,0,0,0.4)",
+      display: "inline-flex", alignItems: "center",
+      background: "var(--gl-gold-fill)", border: "1px solid var(--gl-gold)", borderRadius: "var(--gl-radius-pill)",
+      padding: "6px 14px", alignSelf: "flex-start",
     }}>
-      ${cash}
+      <LcdReadout value={String(Math.max(0, Math.round(cash))).padStart(6, "0")} prefix="$" tone="gold" size="sm" />
     </div>
+  );
+}
+
+// Persistent "go to garage" shortcut — fixed to the viewport (not the zoomed
+// Shell column) so it survives scrolling and stays legible at any screen
+// scale, same reasoning the old always-visible cash badge used (it lived in
+// this exact spot; cash moved into the header as CashPill above, so this
+// slot took over the garage shortcut instead). Bottom-left is the one
+// corner no screen already anchors a nav button to. Hidden during an active
+// race (App.jsx's withCash) — leaving mid-run doesn't make sense.
+export function GarageBadge({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        position: "fixed", left: 10, bottom: 10, zIndex: 50, cursor: "pointer",
+        background: "rgba(10,10,20,0.88)", border: `1px solid ${C.teal}`, borderRadius: 20,
+        padding: "6px 14px", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", color: C.teal,
+        boxShadow: "0 2px 10px rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: 1,
+      }}
+    >
+      Garage
+    </button>
   );
 }
 

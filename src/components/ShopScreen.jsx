@@ -24,7 +24,8 @@ export default function ShopScreen({ career, meta, onBuyTire, onInstallMod, onLe
     <Shell>
       <ScreenHeader
         title="Dead Reckoning Garage"
-        status={`${car.name} — cash $${career.cash}`}
+        status={car.name}
+        cash={career.cash}
         nav={<>
           <Button tone="teal" variant="outlined" size="sm" onClick={onBack}>Back</Button>
           <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-text-3)", alignSelf: "center" }}>Rex: <span style={{ color: "var(--gl-gold)", fontWeight: 700 }}>{rexTier}</span></div>
