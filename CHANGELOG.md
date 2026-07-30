@@ -52,3 +52,13 @@ Life build.
 
 ## [Unreleased] — working toward 0.0.2
 See `TODO.md` for the ordered work plan. Entries move here as they land.
+
+### Phase 0 — Quick wins
+- Race results screen: win/loss now reads at a glance — headline banner
+  recolored to the design system's green/red gain/loss tokens (was gold/orange,
+  too visually similar) with a ✓/✗ glyph and filled pill background; renamed
+  "Event complete" to "Target missed" so a loss doesn't read as neutral
+- Confirmed `CHEAT_CODE` (beater_van's secret 1-copy identity card, 97%+ win
+  rate) as intentional design, not a balance bug — documented in README
+- Confirmed single `basic_diagnostics` gauge (vs. GDD's per-system gauges) as
+  an intentional v2-rewrite simplification — documented in README

@@ -45,7 +45,9 @@ function RaceResultScreen({ result, onContinue, onViewLog }) {
         <div style={{ height: 12 }} />
 
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: won ? "var(--gl-gold)" : "var(--gl-orange)", letterSpacing: 2, textTransform: "uppercase" }}>{won ? "Target beaten" : bestTime == null ? "Event DNF" : "Event complete"}</div>
+          <div style={{ display: "inline-block", background: won ? "var(--gl-green-fill)" : "var(--gl-red-fill)", border: `1px solid ${won ? "var(--gl-green)" : "var(--gl-red)"}`, borderRadius: "var(--gl-radius-panel)", padding: "6px 18px", marginBottom: 8 }}>
+            <div style={{ fontSize: "var(--gl-size-heading)", fontWeight: 700, color: won ? "var(--gl-green)" : "var(--gl-red)", letterSpacing: 2, textTransform: "uppercase" }}>{won ? "✓ Target beaten" : bestTime == null ? "✗ Event DNF" : "✗ Target missed"}</div>
+          </div>
           <div style={{ fontSize: 26, fontWeight: "bold", marginTop: 6 }}>{bestTime != null ? `${bestTime.toFixed(2)}s` : "—"}</div>
           {diff != null && <div style={{ fontSize: "var(--gl-size-label)", color: won ? "var(--gl-green)" : "var(--gl-red)" }}>{diff > 0 ? "+" : ""}{diff.toFixed(2)}s vs target ({targetTime.toFixed(2)}s)</div>}
           {bestCones > 0 && <div style={{ fontSize: "var(--gl-size-micro)", color: "var(--gl-red)", marginTop: 4 }}>{bestCones} cone{bestCones > 1 ? "s" : ""} on your best run</div>}

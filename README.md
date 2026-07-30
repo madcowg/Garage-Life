@@ -72,3 +72,9 @@ src/
 - Balance was sanity-checked with a headless 500-race-per-condition simulation
   before this was built out visually — a stock car is *meant* to struggle to
   beat target; a fully built one should win most of the time.
+- `basic_diagnostics` is a single pre-race gauge (reveals the full hazard deck)
+  rather than the GDD's per-system gauge granularity — a deliberate v2 rewrite
+  simplification (`src/game/v2.js`), not undocumented drift.
+- `CHEAT_CODE` (beater_van/"The Titty Twister" secret car's 1-copy identity
+  card, guarantees best-case segment result) is intentionally overpowered —
+  the payoff for unlocking a joke secret car, not a balance bug.

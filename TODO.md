@@ -47,9 +47,9 @@ Each item below is tagged **[owner]**:
 ---
 
 ## Phase 0 — Quick wins / housekeeping
-1. [ ] **[Claude/user]** Decide fate of `CHEAT_CODE` card (confirmed 97%+ win rate) — nerf, remove, or gate it
-2. [ ] **[Claude→qwen2.5]** Make "did I win this event" visually clear at a glance (currently hard to tell)
-3. [ ] **[Claude/user]** Confirm single `basic_diagnostics` gauge (vs. spec's per-system granularity) is intentional; if so, add to README's "known simplifications"
+1. [x] **[Claude/user]** Decide fate of `CHEAT_CODE` card (confirmed 97%+ win rate) — nerf, remove, or gate it — **kept as-is**, documented in README as intentional
+2. [x] **[Claude→qwen2.5]** Make "did I win this event" visually clear at a glance (currently hard to tell) — headline recolored to green/red + ✓/✗ glyph, "Target missed" replaces ambiguous "Event complete"
+3. [x] **[Claude/user]** Confirm single `basic_diagnostics` gauge (vs. spec's per-system granularity) is intentional; if so, add to README's "known simplifications" — confirmed, documented
 
 ## Phase 1 — Validation tooling (do before further balance work)
 4. [ ] **[Claude→qwen2.5]** Build `scripts/simulate-cardgame.mjs` (5-bot headless validation, per spec's Build Order step 3) — sibling scripts (`simulate-season.mjs`, `tune-target-buffer.mjs`, `simulate-course-geometry.mjs`) exist as a pattern to follow
