@@ -83,3 +83,19 @@ See `TODO.md` for the ordered work plan. Entries move here as they land.
   (canvas 2D exceptions, vehicle paint art, a gradient matching the design
   spec verbatim). Fixed the two real violations in `shared.jsx`'s
   `ToggleRow` by extending `theme.js`'s token mirror (`tealFill`, `textMuted`)
+
+### Phase 3 — Paint booth (partial)
+- Cropped `paint-shop-clean/dirty.png` from the raw annotated reference
+  sheets; added `LOCATIONS.paintShop` and a `PaintShopScreen.jsx` shell
+  (booth background + "coming soon" message), verified live via the dev
+  server. Not linked from any nav button yet — scaffolding only
+- Decided: 10 of 13 achievements unlock a paint-booth color; secret unlock
+  beyond achievements is an NPC max-Friendly-standing threshold (which NPC
+  still undecided)
+- **Blocked**: tried auto-masking the flattened car sprites (paint/wheel/
+  glass layers) via HSV hue thresholding and k-means color clustering —
+  both fail because this cel-shaded pixel art reuses the same shading
+  palette across materials. No layered source file exists to re-export
+  from either. The recolor mechanic needs hand-painted masks or freshly
+  layered source art before it can be built — not a coding task, flagged
+  for a decision

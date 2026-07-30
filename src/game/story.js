@@ -23,6 +23,11 @@ export const NPCS = {
 export const LOCATIONS = {
   garage: { id: "garage", name: "Dead Reckoning Garage", order: 1 },
   airfield: { id: "airfield", name: "The Airfield", order: 2 },
+  // Screen shell exists (PaintShopScreen.jsx) but the recolor mechanic isn't
+  // built yet — masking the flattened car sprites by color didn't work (see
+  // TODO.md Phase 3), still needs hand-painted or freshly-layered mask art.
+  // Not yet reachable from any in-game nav button; scaffolding only.
+  paintShop: { id: "paintShop", name: "The Paint Booth", order: 3 },
 };
 
 // Trigger id -> pool of snippet strings (silent protagonist: scene + other

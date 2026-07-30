@@ -60,14 +60,15 @@ Each item below is tagged **[owner]**:
 7. [x] **[Claude→qwen2.5 mechanical pass, Claude decides fixes]** Design-doc-wide style/color audit — grep all hardcoded colors in `src/` not using `--gl-*` tokens, diff against `DESIGN_LANGUAGE.dc.html`, Claude judges what to fix. Sprites explicitly excluded from this pass. **Result:** most hardcoded hex found (RoadView.jsx car paint, track.js/TrackCanvas.jsx/CourseLog.jsx canvas fillStyle, theme.js, RolodexNavButton.jsx gradient) are legitimate exceptions — canvas 2D can't consume CSS custom properties, car-paint colors are vehicle art not UI, and the Rolodex gradient matches `DESIGN_LANGUAGE.dc.html` verbatim. Fixed the two real violations: `shared.jsx`'s `ToggleRow` had a stray `#122b28` active-bg and a flat `#777` desc-text color despite the rest of the file using `theme.js`'s token mirror — added `tealFill`/`textMuted` to `theme.js`'s `C` object and wired them in.
 
 ## Phase 3 — Paint booth (big feature, depends on Phase 2)
-8. [ ] **[Claude]** Paint Shop location integration + paint booth mechanic:
-   - Crop/wire `paint shop clean/dirty.png` (currently raw uncropped sheets), add `LOCATIONS`/codex entry
-   - 3 independently-recolorable masked layers: paint, wheels, glass/tints
-   - Cosmetic mods (aero, wheel swaps) visually update alongside a paint change, never go stale
-   - Color picker: color wheel or 20 presets **[llama3.1 could draft preset name/flavor copy]**, plus 10 hidden colors unlocked via achievements (which ones — TBD, needs a decision)
-   - Economy: $100 one-time unlock per career, then $10/recolor
-   - Unlock trigger: winning a season for the first time; secret-color unlock method undefined
-   - Whole roster gets paint support at once, not staged car-by-car
+8. [~] **[Claude]** Paint Shop location integration + paint booth mechanic — **partially done, blocked on mask art:**
+   - [x] Cropped `paint shop clean/dirty.png` (were raw annotated reference sheets) to `paint-shop-clean.png` / `paint-shop-dirty.png`; raw sheets kept alongside as reference, not deleted
+   - [x] Added `LOCATIONS.paintShop` entry (`story.js`) and a `PaintShopScreen.jsx` shell (booth background + "coming soon" message), wired into `App.jsx`'s screen switch. **Not linked from any nav button yet** — intentionally not shipped as live functionality
+   - [ ] **3 independently-recolorable masked layers (paint/wheels/glass): BLOCKED.** Tried two auto-segmentation approaches on the Miata NB `garage-front.png` sprite (HSV hue thresholding, then k-means color clustering) — both fail for the same root cause: this cel-shaded pixel art reuses the same shading-band palette across different materials (e.g. one cluster caught window glass + wheel spokes + headlight detail together), so color alone can't separate paint/wheel/glass in the flattened image. Confirmed no layered source file (PSD/Aseprite/etc.) exists in any asset zip to re-export from either. **Needs hand-painted masks per car, or new art authored with separated layers from the start** — not a coding task. 15 cars × 3 masks once a path is chosen.
+   - [ ] Cosmetic mods (aero, wheel swaps) visually update alongside a paint change — depends on masks existing
+   - [ ] Color picker: 20 presets **[llama3.1 could draft preset name/flavor copy]** + 10 hidden colors. **Decided 2026-07-29:** all 13 achievements grant something, 10 of them specifically unlock a color — pending picking which 10 (see Needs User Input) and the 20 preset colors/names themselves (neither designed yet)
+   - [ ] Economy: $100 one-time unlock per career, then $10/recolor (unchanged from original spec)
+   - [x] Unlock trigger decided 2026-07-29: winning a season for the first time (achievements) — **and** a secret method beyond achievements: max Friendly standing with a specific NPC (which NPC — TBD, see Needs User Input)
+   - [ ] Whole roster gets paint support at once, not staged car-by-car (unchanged intent, blocked on masks same as above)
 
 ## Phase 4 — Art asset backfill (independent, parallelizable via image-gen alongside any code phase)
 9. [ ] **[image-gen]** Dead Reckoning Garage background art
@@ -98,8 +99,10 @@ Each item below is tagged **[owner]**:
 ## Needs User Input / Open Questions
 - `scripts/simulate-season.mjs` and `scripts/tune-target-buffer.mjs` are dead (import deleted pre-v2 `src/game/logic.js`) — delete them, or port to the `card-core-v2` API? Career-economy win-rate claims (§2's "~39-44% season average") can't be re-run until one of those happens.
 - On the (closed, no-bug) beater_van DNF reports: were you skipping Walk the Course when you saw them, fresh or continued career? (Only matters if the perception recurs.)
-- Which achievements unlock the paint booth's 10 hidden colors (item 8)
-- How the paint booth's secret-color unlock method works, beyond achievements (item 8)
+- **Paint booth masking approach**: hand-painted masks per car, or new layered source art authored from scratch? Either way, who's doing that art (not a Claude task) — needed before the recolor mechanic itself can be built at all.
+- Which 10 of the 13 achievements unlock a paint-booth color (decided: 10 of 13 do); what do the other 3 grant instead (ties into item 17, achievement rewards — not yet designed)
+- Which NPC's max-Friendly standing unlocks the paint booth's secret color (decided: NPC-relationship-based, NPC itself undecided)
+- The 20 preset colors + names, and which 10 of them are the achievement-gated "hidden" set — none of this is designed yet
 
 ## UI & Operational Fixes (yours to add)
 - [ ] —

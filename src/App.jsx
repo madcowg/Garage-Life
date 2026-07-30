@@ -28,6 +28,7 @@ import StorySnippetScreen from "./components/StorySnippetScreen";
 import CodexScreen from "./components/CodexScreen";
 import ShopScreen from "./components/ShopScreen";
 import MyGarageScreen from "./components/MyGarageScreen";
+import PaintShopScreen from "./components/PaintShopScreen";
 import { CrtOverlay } from "./components/ds/shell/CrtOverlay";
 import { Button } from "./components/ds/controls/Button";
 import { scanlinesEnabled, setScanlinesEnabled } from "./theme";
@@ -715,6 +716,9 @@ export default function App() {
   );
   if (screen === "garage") return withCash(
     <MyGarageScreen career={career} onSellCar={handleSellCar} onBack={() => setScreen("careerHome")} />
+  );
+  if (screen === "paintShop") return withCash(
+    <PaintShopScreen career={career} onBack={() => setScreen("careerHome")} />
   );
   if (screen === "race") return withCash(<CardRaceScreen loadout={loadout} careerWear={career.wear} month={career.month} onFinish={handleRaceFinish} />);
   if (screen === "raceResult") return withCash(
