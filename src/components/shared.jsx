@@ -101,9 +101,9 @@ export function Section({ title, children, collapsible = false, defaultOpen = tr
 
 export function ToggleRow({ label, desc, active, onClick }) {
   return (
-    <button onClick={onClick} style={{ textAlign: "left", padding: 8, background: active ? "#122b28" : C.panel, border: `1px solid ${active ? C.teal : C.border}`, borderRadius: 4, cursor: "pointer", color: C.white }}>
+    <button onClick={onClick} style={{ textAlign: "left", padding: 8, background: active ? C.tealFill : C.panel, border: `1px solid ${active ? C.teal : C.border}`, borderRadius: 4, cursor: "pointer", color: C.white }}>
       <div style={{ fontSize: 10, fontWeight: "bold" }}>{active ? "☑" : "☐"} {label}</div>
-      <div style={{ fontSize: 8, color: "#777" }}>{desc}</div>
+      <div style={{ fontSize: 8, color: C.textMuted }}>{desc}</div>
     </button>
   );
 }

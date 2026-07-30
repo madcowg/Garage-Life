@@ -62,3 +62,24 @@ See `TODO.md` for the ordered work plan. Entries move here as they land.
   rate) as intentional design, not a balance bug — documented in README
 - Confirmed single `basic_diagnostics` gauge (vs. GDD's per-system gauges) as
   an intentional v2-rewrite simplification — documented in README
+- Corrected stale TODO note claiming beaterVan has no sprite art — it does
+  (`beaterVan-front/rear.png`, wired in `carAssets.js`)
+
+### Phase 1 — Validation tooling
+- Confirmed `packages/card-core-v2/scripts/simulate-cardgame.mjs` (5-bot
+  headless validation) already exists and is wired to `npm run simulate` —
+  15/15 tests and 12/12 balance gates pass
+- Re-verified `SEASON1_DESIGN.md` §2/§8 cash/reputation/work formulas against
+  `career.js` — no discrepancies. Found root-level `simulate-season.mjs` and
+  `tune-target-buffer.mjs` are dead (import the deleted pre-v2
+  `src/game/logic.js`); flagged for a fix/delete decision, not resolved
+- Rewrote `docs/CARD_GAME_DESIGN.md` from a stale v1 proposal to match the
+  shipped `card-core-v2` engine (fixed-14 replacement-based deck, Flow/
+  control-margin/Unsettled mechanics, real course-element stats, full
+  hazard/vehicle/mod tables)
+
+### Phase 2 — Visual foundation
+- Design-token audit: confirmed most "hardcoded color" hits are legitimate
+  (canvas 2D exceptions, vehicle paint art, a gradient matching the design
+  spec verbatim). Fixed the two real violations in `shared.jsx`'s
+  `ToggleRow` by extending `theme.js`'s token mirror (`tealFill`, `textMuted`)

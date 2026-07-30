@@ -52,12 +52,12 @@ Each item below is tagged **[owner]**:
 3. [x] **[Claude/user]** Confirm single `basic_diagnostics` gauge (vs. spec's per-system granularity) is intentional; if so, add to README's "known simplifications" — confirmed, documented
 
 ## Phase 1 — Validation tooling (do before further balance work)
-4. [ ] **[Claude→qwen2.5]** Build `scripts/simulate-cardgame.mjs` (5-bot headless validation, per spec's Build Order step 3) — sibling scripts (`simulate-season.mjs`, `tune-target-buffer.mjs`, `simulate-course-geometry.mjs`) exist as a pattern to follow
-5. [ ] **[deepseek-r1]** Re-verify Season/Career tuning numbers against `SEASON1_DESIGN.md` §2/§8 formulas, report discrepancies
-6. [ ] **[deepseek-r1 draft → Claude review]** Rewrite `docs/CARD_GAME_DESIGN.md` to match the actual `card-core-v2`/`v2.js` engine terminology
+4. [x] **[Claude→qwen2.5]** Build `scripts/simulate-cardgame.mjs` (5-bot headless validation, per spec's Build Order step 3) — **already existed** under `packages/card-core-v2/scripts/`, wired to `npm run simulate`; verified: 15/15 tests pass, 12/12 balance gates pass
+5. [x] **[Claude]** Re-verify Season/Career tuning numbers against `SEASON1_DESIGN.md` §2/§8 formulas, report discrepancies — **no discrepancies**: `computeRaceReward`/`resolveWork` in `career.js` match the cash/reputation and tenure-modified-d20 work formulas exactly. **Finding:** root-level `scripts/simulate-season.mjs` and `tune-target-buffer.mjs` (which §2/§9 cite for validation) are dead — both import the deleted pre-v2 `src/game/logic.js`. Not fixed (out of scope for a re-verify pass); flagged for a decision below.
+6. [x] **[deepseek-r1 draft → Claude review]** Rewrite `docs/CARD_GAME_DESIGN.md` to match the actual `card-core-v2`/`v2.js` engine terminology — deepseek-r1's draft had serious factual errors (hallucinated the course-element table, called Cheat Code "unused" when it's actually beater_van's signature 97%-win-rate card, dropped several hazards/vehicles), so Claude rewrote it directly from the source instead of editing the draft
 
 ## Phase 2 — Visual foundation (user's stated prerequisite for the paint booth)
-7. [ ] **[Claude→qwen2.5 mechanical pass, Claude decides fixes]** Design-doc-wide style/color audit — grep all hardcoded colors in `src/` not using `--gl-*` tokens, diff against `DESIGN_LANGUAGE.dc.html`, Claude judges what to fix. Sprites explicitly excluded from this pass.
+7. [x] **[Claude→qwen2.5 mechanical pass, Claude decides fixes]** Design-doc-wide style/color audit — grep all hardcoded colors in `src/` not using `--gl-*` tokens, diff against `DESIGN_LANGUAGE.dc.html`, Claude judges what to fix. Sprites explicitly excluded from this pass. **Result:** most hardcoded hex found (RoadView.jsx car paint, track.js/TrackCanvas.jsx/CourseLog.jsx canvas fillStyle, theme.js, RolodexNavButton.jsx gradient) are legitimate exceptions — canvas 2D can't consume CSS custom properties, car-paint colors are vehicle art not UI, and the Rolodex gradient matches `DESIGN_LANGUAGE.dc.html` verbatim. Fixed the two real violations: `shared.jsx`'s `ToggleRow` had a stray `#122b28` active-bg and a flat `#777` desc-text color despite the rest of the file using `theme.js`'s token mirror — added `tealFill`/`textMuted` to `theme.js`'s `C` object and wired them in.
 
 ## Phase 3 — Paint booth (big feature, depends on Phase 2)
 8. [ ] **[Claude]** Paint Shop location integration + paint booth mechanic:
@@ -93,9 +93,10 @@ Each item below is tagged **[owner]**:
 
 ## Floated Ideas / Notes (not firm commitments, no phase assigned)
 - Early-mod win-rate jump (14–19% stock → 39% after one cheap mod) — logged as balance-pass context (feeds item 18), not a stated bug on its own
-- `beaterVan` intentionally has no planned sprite art, stays procedurally rendered permanently — deliberate, not an oversight
+- ~~`beaterVan` intentionally has no planned sprite art~~ — **incorrect**, `beaterVan-front.png`/`-rear.png` already exist and are wired in `carAssets.js`. The Titty Twister has full sprite coverage like the rest of the roster.
 
 ## Needs User Input / Open Questions
+- `scripts/simulate-season.mjs` and `scripts/tune-target-buffer.mjs` are dead (import deleted pre-v2 `src/game/logic.js`) — delete them, or port to the `card-core-v2` API? Career-economy win-rate claims (§2's "~39-44% season average") can't be re-run until one of those happens.
 - On the (closed, no-bug) beater_van DNF reports: were you skipping Walk the Course when you saw them, fresh or continued career? (Only matters if the perception recurs.)
 - Which achievements unlock the paint booth's 10 hidden colors (item 8)
 - How the paint booth's secret-color unlock method works, beyond achievements (item 8)

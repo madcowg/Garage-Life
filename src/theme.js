@@ -10,6 +10,7 @@ export const C = {
   orange: "#FF7A2F", red: "#FF3B5C", gold: "#FFC93C", green: "#1FD75F",
   violet: "#7B2FBE",
   bg: "#0B0A1E", panel: "#14132E", panel2: "#0C0B20", border: "#272552",
+  tealFill: "#0D2431", textMuted: "#9D99C6",
 };
 
 const SCANLINE_KEY = "garageLifeScanlines";
