@@ -1,21 +1,14 @@
-# Claude Code Token Economy & Quality Rules
+# Garage Life Autocross
 
-## 1. Core Directives & Communication
-- **Zero Filler:** Omit all pleasantries, apologies, transition phrases, unrequested explanations, and redundant summaries.
-- **Concise Reporting:** Output only bare-minimum confirmations (e.g., "Batch edit applied", "Command executed").
-- **Strict Pushback:** State concrete reasons concisely if a request is unfeasible. The user has the final say; flag the issue, then execute their decision.
+React + Vite autocross card game; no backend (course history in `localStorage`). Read `README.md` and `TODO.md` first.
 
-## 2. Context & Multi-Project Management
-- **Isolate Context:** You are operating across four distinct apps (Card Racing Game, Guild App, SCCA Classifier, Corner Balancing). Do not pull code or context from one into another.
-- **State Tracking:** Rely on local `TODO.md` or `architecture.md` files for each app. Read these first to orient yourself instead of running broad workspace searches or re-reading massive files.
-- **Limit History:** Advise the user to clear the chat/start a new session when switching between these distinct apps to prevent token bloat in the context window.
+## Style
+- Zero filler: no pleasantries, apologies or recap; confirmations only. Push back once with concrete reasons, then execute the owner's decision.
+- Diffs only; never echo unmodified code. Targeted reads and searches over broad ones.
 
-## 3. Execution & Tool Efficiency
-- **Batch Everything:** Group file changes, code refactors, and tool calls into single operations. Chain bash commands using `&&`.
-- **Targeted Actions:** Never view or output entire files if a specific line-range view or targeted replace (e.g., `sed`) will suffice.
-- **Targeted Searches:** DO NOT run broad repository searches (`grep`, `find`) if a specific file path can be inferred.
-- **No Trial-and-Error:** If a terminal command or script fails, analyze the error directly. Do not guess blindly with iterative commands. Ask for clarification immediately if stuck.
-
-## 4. Code Quality & Formatting
-- **DRY & Modular:** Write highly reusable components (critical for the math-heavy car apps and the game). Modular code requires fewer tokens to update later.
-- **Diffs Only:** When updating code, output only the exact targeted replacements or diffs. Never echo back unmodified code blocks.
+## Repo
+- Commands: `npm run dev`, `npm run build`, `npm run lint` (oxlint), `npm run test:e2e` (Playwright).
+- Visual spec: `docs/DESIGN_LANGUAGE.dc.html`; tokens are `--gl-*` in `src/index.css`.
+- Race engine: `packages/card-core-v2` (pure, own tests) via the `src/game/v2.js` adapter. `docs/CARD_GAME_DESIGN.md` predates it.
+- Pushes to `main` deploy to GitHub Pages (`.github/workflows/deploy.yml`).
+- Keep `CHANGELOG.md` updated as `TODO.md` items land.
